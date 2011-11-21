@@ -68,6 +68,13 @@ on_account_double_click(void *data, Evas_Object *obj, void *event_info)
 }
 
 static void
+on_accountslist_prev_btn_click(void *data, Evas_Object *obj, void *event_info)
+{
+   clear_elm_list_selection(ui.productslist.content);
+   elm_naviframe_item_promote(ui.productslist.eoi);
+}
+
+static void
 fill_productslist(Evas_Object *pl)
 {
    Evas_Object *ic;
@@ -140,7 +147,10 @@ elm_main(int argc, char **argv)
    fill_accountslist(ui.accountslist.content);
    elm_list_go(ui.accountslist.content);
    evas_object_show(ui.accountslist.content);
-   ui.accountslist.eoi = elm_naviframe_item_push(ui.naviframe, "Accounts", NULL, NULL, ui.accountslist.content, NULL);
+   ui.accountslist.prv_btn = elm_button_add(ui.naviframe);
+   elm_object_text_set(ui.accountslist.prv_btn, "Zurück");
+   evas_object_smart_callback_add(ui.accountslist.prv_btn, "clicked", on_accountslist_prev_btn_click, NULL);
+   ui.accountslist.eoi = elm_naviframe_item_push(ui.naviframe, "Accounts", ui.accountslist.prv_btn, NULL, ui.accountslist.content, NULL);
 
    // Add callback for doubleclick action
    evas_object_smart_callback_add(ui.accountslist.content, "clicked,double", on_account_double_click, NULL);
