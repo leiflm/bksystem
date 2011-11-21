@@ -5,7 +5,7 @@ typedef struct _BKSystem_UI BKSystem_UI;
 typedef struct _Elm_Naviframe_Page Elm_Naviframe_Page;
 
 struct _Elm_Naviframe_Page {
-      Evas_Object *content, *prv_btn, *next_btn;
+      Evas_Object *content, *prev_btn, *next_btn;
       Elm_Object_Item *eoi;
 };
 
@@ -32,6 +32,32 @@ clear_elm_list_selection(Evas_Object *elm_list)
 }
 
 static void
+print_sale(void)
+{
+   Eina_List *selected_accounts = (Eina_List*)elm_list_selected_items_get(ui.accountslist.content);
+   Eina_List *iter;
+   Elm_List_Item *selected_product, *eli;
+   char *account_name, *product_name;
+
+   if (!(selected_product = elm_list_selected_item_get(ui.productslist.content)))
+     return;
+
+   if (!(product_name = (char*)elm_list_item_data_get(selected_product)))
+     return;
+
+   printf("%s was bought by:\n", product_name);
+   // print the names of all selected accounts
+   EINA_LIST_FOREACH(selected_accounts, iter, eli)
+     {
+        if (elm_list_item_selected_get(eli))
+          {
+             account_name = (char*)elm_list_item_data_get(eli);
+             printf("\t%s\n", account_name);
+          }
+     }
+}
+
+static void
 on_done(void *data, Evas_Object *obj, void *event_info)
 {
    // quit the mainloop (elm_run function will return)
@@ -46,6 +72,7 @@ on_product_select(void *data, Evas_Object *obj, void *event_info)
    if (!data) return;
    printf("Product %s was selected\n", name);
    clear_elm_list_selection(ui.accountslist.content);
+   elm_widget_disabled_set(ui.accountslist.next_btn, EINA_TRUE);
    elm_naviframe_item_promote(ui.accountslist.eoi);
 }
 
@@ -56,13 +83,16 @@ on_account_select(void *data, Evas_Object *obj, void *event_info)
 
    if (!data) return;
    printf("Account %s was selected\n", name);
+
+   elm_widget_disabled_set(ui.accountslist.next_btn, EINA_FALSE);
 }
 
 static void
 on_account_double_click(void *data, Evas_Object *obj, void *event_info)
 {
-
-   printf("Account was double clicked!\n");
+   if (eina_list_count(elm_list_selected_items_get(ui.accountslist.content)) > 1)
+         return;
+   print_sale();
    clear_elm_list_selection(ui.productslist.content);
    elm_naviframe_item_promote(ui.productslist.eoi);
 }
@@ -70,6 +100,14 @@ on_account_double_click(void *data, Evas_Object *obj, void *event_info)
 static void
 on_accountslist_prev_btn_click(void *data, Evas_Object *obj, void *event_info)
 {
+   clear_elm_list_selection(ui.productslist.content);
+   elm_naviframe_item_promote(ui.productslist.eoi);
+}
+
+static void
+on_accountslist_finish_btn_click(void *data, Evas_Object *obj, void *event_info)
+{
+   print_sale();
    clear_elm_list_selection(ui.productslist.content);
    elm_naviframe_item_promote(ui.productslist.eoi);
 }
@@ -139,7 +177,7 @@ elm_main(int argc, char **argv)
    fill_productslist(ui.productslist.content);
    elm_list_go(ui.productslist.content);
    evas_object_show(ui.productslist.content);
-   ui.productslist.eoi = elm_naviframe_item_push(ui.naviframe, "Products", NULL, NULL, ui.productslist.content, NULL);
+   ui.productslist.eoi = elm_naviframe_item_push(ui.naviframe, "Produkte", NULL, NULL, ui.productslist.content, NULL);
 
    //create and fill accountslist
    ui.accountslist.content = elm_list_add(win);
@@ -147,10 +185,17 @@ elm_main(int argc, char **argv)
    fill_accountslist(ui.accountslist.content);
    elm_list_go(ui.accountslist.content);
    evas_object_show(ui.accountslist.content);
-   ui.accountslist.prv_btn = elm_button_add(ui.naviframe);
-   elm_object_text_set(ui.accountslist.prv_btn, "Zurück");
-   evas_object_smart_callback_add(ui.accountslist.prv_btn, "clicked", on_accountslist_prev_btn_click, NULL);
-   ui.accountslist.eoi = elm_naviframe_item_push(ui.naviframe, "Accounts", ui.accountslist.prv_btn, NULL, ui.accountslist.content, NULL);
+   // Add button to go back to productslist
+   ui.accountslist.prev_btn = elm_button_add(ui.naviframe);
+   elm_object_text_set(ui.accountslist.prev_btn, "Zurück");
+   evas_object_smart_callback_add(ui.accountslist.prev_btn, "clicked", on_accountslist_prev_btn_click, NULL);
+   // Add button to finish shopping
+   ui.accountslist.next_btn = elm_button_add(ui.naviframe);
+   elm_object_text_set(ui.accountslist.next_btn, "Fertig");
+   evas_object_smart_callback_add(ui.accountslist.next_btn, "clicked", on_accountslist_finish_btn_click, NULL);
+
+   // Add Accounts page to naviframe
+   ui.accountslist.eoi = elm_naviframe_item_push(ui.naviframe, "Konten", ui.accountslist.prev_btn, ui.accountslist.next_btn, ui.accountslist.content, NULL);
 
    // Add callback for doubleclick action
    evas_object_smart_callback_add(ui.accountslist.content, "clicked,double", on_account_double_click, NULL);
