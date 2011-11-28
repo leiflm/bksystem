@@ -41,6 +41,12 @@ Bks_Ui *bks_ui_new(const Bks_Controller *controller, const Bks_Model *model);
 void bks_ui_shutdown(void);
 
 /**
+ * @param ui The ui tu be run
+ *
+ */
+int bks_ui_run(void);
+
+/**
  * @param ui The Bks_Ui the selected user accounts are retrieved from
  * @return List of Bks_User_Account elements
  */

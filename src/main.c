@@ -8,7 +8,7 @@ int main(const unsigned int argc, const char argv[][])
     controller = bks_controller_new(model);
     ui = bks_ui_new(controller, model);
 
-    controller->run();
+    bks_controller_run(controller);
 
     bks_ui_shutdown(ui);
     bks_controller_shutdown(controller);

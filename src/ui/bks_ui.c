@@ -17,11 +17,12 @@ Bks_Ui *bks_ui_new(const Bks_Controller controller, const Bks_Model *model)
 
    if (!controller || !model) return NULL;
 
+   if (ui) return ui;
+
    bks_ui = calloc(sizeof(*bks_ui));
 
    bks_ui->controller = controller;
    bks_ui->model = model;
-   bks_ui->run = run;
 
    bks_controller_bks_ui_set(bks_ui->controller, bks_ui);
 
@@ -39,6 +40,9 @@ void bks_ui_run(void)
 
    // get data for the ui CAUTION: This call blocks until data is available
    bks_model_data_get(model);
+
+   // initialize Elementary
+   elm_init();
 
    // new window - do the usual and give it a name and title
    ui->win = bks_ui_win_new();
@@ -75,6 +79,7 @@ void bks_ui_run(void)
 
 void bks_ui_shutdown(void)
 {
+    elm_shutdown();
 }
 
 /**
