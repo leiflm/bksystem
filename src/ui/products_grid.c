@@ -21,7 +21,7 @@ void _products_grid_reset(void)
 static void
 grid_selected(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Product *product = (Bks_Product*)data;
+   Bks_Model_Product *product = (Bks_Model_Product*)data;
 
    products_product_selected(product);
 }
@@ -35,7 +35,7 @@ grid_longpress(void *data, Evas_Object *obj, void *event_info)
 char *
 grid_label_get(void *data, Evas_Object *obj, const char *part)
 {
-   const Bks_Product *product = (Product*)data;
+   const Bks_Model_Product *product = (Product*)data;
    char buf[256];
 
    if (!product) return NULL;
@@ -99,7 +99,7 @@ grid_item_check_changed(void *data, Evas_Object *obj, void *event_info)
 Evas_Object *_products_grid_add(void)
 {
    Eina_List *iter;
-   Bks_Product *product;
+   Bks_Model_Product *product;
    Elm_Gengrid_Item *li;
 
    if (!ui || !ui->win || !ui->model->products) return NULL;

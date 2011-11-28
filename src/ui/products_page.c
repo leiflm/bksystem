@@ -10,7 +10,7 @@ extern void _products_list_reset(void);
 extern Evas_Object *_products_grid_add(void);
 extern void _products_grid_reset(void);
 
-void products_product_selected(Bks_Product *product)
+void products_product_selected(Bks_Model_Product *product)
 {
    if (!product) return;
 

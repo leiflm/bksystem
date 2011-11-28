@@ -20,10 +20,15 @@
 #ifndef __BKS_MODEL_PRODUCT_H__
 #define __BKS_MODEL_PRODUCT_H__
 
-   struct Bks_Model_Product {
+#include <sqlite3.h>
+
+typedef struct _Bks_Model_Product Bks_Model_Product;
+
+   struct _Bks_Model_Product {
 		sqlite3_uint64 EAN;
 		char *name;
 		double price;
 		void *image;
 	};
+
 #endif

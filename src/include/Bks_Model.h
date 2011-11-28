@@ -37,6 +37,9 @@
 //		SQLITE_FLAGS=`pkg-config --cflags --libs sqlite3 `
 //		EINA_FLAGS=`pkg-config --cflags --libs eina `
 
+typedef _Bks_Model_Sale Bks_Model_Sale;
+typedef _Bks_Model Bks_Model;
+
 /**
  * @brief All info about a sale
  * 
@@ -54,7 +57,7 @@
  * */
  
 	
-	struct Bks_Model_Sale {
+	struct _Bks_Model_Sale {
 		sqlite3_uint64 uid;
 		char *firstname;
 		char *lastname;
@@ -64,6 +67,22 @@
 		double price;
 		char *timestamp;
 	};
+
+/**
+ * @brief Model in MVC-pattern
+ *
+ * >struct Bks_Model is for internal use only
+ * @param controller of the MVC pattern
+ * @param ui the view of the MVC pattern
+ * @param products list of Bks_Model_Product elements
+ * @param user_accounts list of Bks_Model_User_Account elements
+ */
+struct _Bks_Model {
+    Bks_Controller *controller;
+    Bks_Ui *ui;
+    Eina_List *products;
+    Eina_List *user_accounts;
+}
 
 /**
  * @brief frees struct memory and NULLs pointers

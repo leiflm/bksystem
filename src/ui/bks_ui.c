@@ -3,7 +3,7 @@
 #include <Elementary.h>
 #include "Bks_Ui_Private.h"
 #include "Bks_Ui.h"
-#include "Bks_Product.h"
+#include "Bks_Model_Product.h"
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
@@ -105,15 +105,15 @@ Eina_List *bks_ui_user_accounts_selected_get(void)
    return list;
 }
 
-const Bks_Product *bks_ui_product_selected_get(void)
+const Bks_Model_Product *bks_ui_product_selected_get(void)
 {
    Elm_List_Item *selected_product;
-   const Bks_Product *product;
+   const Bks_Model_Product *product;
 
    if (!(selected_product = elm_list_selected_item_get(ui.productslist.list)))
      return NULL;
 
-   product = (Bks_Product*)elm_list_item_data_get(selected_product);
+   product = (Bks_Model_Product*)elm_list_item_data_get(selected_product);
 
    return product;
 }

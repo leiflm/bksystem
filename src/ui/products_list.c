@@ -16,7 +16,7 @@ void _products_list_reset(void)
 static void
 _on_product_select(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Product *product = (Bks_Product*)data;
+   Bks_Model_Product *product = (Bks_Model_Product*)data;
 
    if (!product) return;
 
@@ -29,7 +29,7 @@ _products_fill(void)
    Evas_Object *ic;
    Eina_List *l;
    Elm_List_Item *li;
-   Bks_Product *product;
+   Bks_Model_Product *product;
    char buf[256];
 
    if (!ui || !ui->products.list || !ui->model->products) return;

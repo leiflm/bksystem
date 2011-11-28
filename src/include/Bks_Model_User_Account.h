@@ -20,7 +20,11 @@
 #ifndef __BKS_MODEL_USER_ACCOUNT_H__
 #define __BKS_MODEL_USER_ACCOUNT_H__
 
-    struct Bks_Model_User_Account {
+#include <sqlite3.h>
+
+typedef _Bks_Model_User_Account Bks_Model_User_Account;
+
+    struct _Bks_Model_User_Account {
         sqlite3_uint64 uid;
         char *firstname;
         char *lastname;
