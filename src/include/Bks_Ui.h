@@ -38,42 +38,42 @@ Bks_Ui *bks_ui_new(const Bks_Controller *controller, const Bks_Model *model);
  * @param ui The ui that shall be shut down.
  *
  */
-void bks_ui_shutdown(void);
+void bks_ui_shutdown(const Bks_Ui *ui);
 
 /**
  * @param ui The ui tu be run
  *
  */
-int bks_ui_run(void);
+int bks_ui_run(const Bks_Ui *ui);
 
 /**
  * @param ui The Bks_Ui the selected user accounts are retrieved from
  * @return List of Bks_User_Account elements
  */
-Eina_List *bks_ui_user_accounts_selected_get(void);
-const Bks_Product *bks_ui_product_selected_get(void);
+Eina_List *bks_ui_user_accounts_selected_get(const Bks_Ui *ui);
+const Bks_Product *bks_ui_product_selected_get(const Bks_Ui *ui);
 
 /**
  * @param ui The Bks_Ui the selected user accounts are retrieved from
  * @param data Bks_Error
  */
-void bks_ui_display_error(const Bks_Error error);
+void bks_ui_display_error(const Bks_Ui *ui, const Bks_Error error);
 
 /**
  * @brief called, when a product sale was successful.
  */
-void bks_ui_sale_finished(void);
+void bks_ui_sale_finished(const Bks_Ui *ui);
 
 /**
  * @brief called, when a product sale failed.
  */
-void bks_ui_sale_failed(const Bks_Error error);
+void bks_ui_sale_failed(const Bks_Ui *ui, const Bks_Error error);
 
 
 /**
  * @param thread Instance that failed
  */
-//void bks_ui_model_data_fetch_cancel(void *data, Ecore_Thread *thread);
+//void bks_ui_model_data_fetch_cancel(const Bks_Ui *ui, void *data, Ecore_Thread *thread);
 
 /**
  * @brief called, when data is successfully fetched
@@ -82,5 +82,5 @@ void bks_ui_sale_failed(const Bks_Error error);
  * @param data Bks_Error
  * @param thread Instance that failed
  */
-//void bks_ui_model_data_fetch_finish(void *data, Ecore_Thread *thread);
+//void bks_ui_model_data_fetch_finish(const Bks_Ui *ui, void *data, Ecore_Thread *thread);
 #endif

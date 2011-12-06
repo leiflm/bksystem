@@ -7,15 +7,11 @@
 extern BKSystem_UI ui;
 extern Eina_List *products;
 
-static Elm_Gengrid_Item_Class gic;
 
-void _products_grid_reset(void)
+void _products_grid_reset(Evas_Object *gengrid)
 {
-   Elm_List_Item *eli;
-   Elm_Gengrid_Item *egi;
-
-   if ((egi = elm_gengrid_selected_item_get(ui.products.grid)))
-     elm_gen_item_selected_set(egi, EINA_FALSE);
+   if (!gengrid) return;
+   elm_gengrid_selection_clear(gengrid);
 }
 
 static void
@@ -96,28 +92,32 @@ grid_item_check_changed(void *data, Evas_Object *obj, void *event_info)
 }
 */
 
-Evas_Object *_products_grid_add(void)
+Evas_Object *_products_grid_add(const Bks_Ui *ui)
 {
-   Eina_List *iter;
-   Bks_Model_Product *product;
-   Elm_Gengrid_Item *li;
-
-   if (!ui || !ui->win || !ui->model->products) return NULL;
+   if (!ui) return NULL;
 
    ui.products.grid = elm_gengrid_add(ui->win);
    elm_gengrid_item_size_set(ui.products.grid, 150, 150);
    evas_object_size_hint_weight_set(ui.products.grid, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 
+   return ui.products.grid;
+}
+
+void _products_grid_fill(const Evas_Object *grid, const *Bks_Model *model)
+{
+   Eina_List *iter;
+   Bks_Model_Product *product;
+   Elm_Gengrid_Item *li;
+   static Elm_Gengrid_Item_Class gic;
+
+   // set callbacks for grid elements
    gic.item_style = "default";
    gic.func.label_get = grid_label_get;
    gic.func.content_get = grid_content_get;
    gic.func.state_get = grid_state_get;
    gic.func.del = grid_del;
 
-
-   EINA_LIST_FOREACH(ui->model->products, iter, product)
-      li = elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, product);
-
-   return ui.products.grid;
+   //add all products to grid
+   EINA_LIST_FOREACH(model->products, iter, product)
+      li = elm_gengrid_item_append(grid, &gic, product, grid_selected, product);
 }
-

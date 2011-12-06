@@ -24,32 +24,32 @@ void products_product_selected(Bks_Model_Product *product)
  * data.
  */
 static void
-products_page_reset(void)
+products_page_reset(Evas_Object *products_page)
 {
-   _products_list_reset();
-   _products_grid_reset();
+   _products_grid_reset(products_page);
+   _products_list_reset(products_page);
 }
 
-Evas_Object *_products_favs_add(void)
+Evas_Object *_products_favs_add(const Bks_Ui *ui)
 {
-   return bks_ui_products_grid_add();
+   return _products_grid_add(ui);
 }
 
-Evas_Object *_products_alpha_add(void)
+Evas_Object *_products_alpha_add(const Bks_Ui *ui)
 {
-   return bks_ui_products_list_add();
+   return _products_list_add(ui);
 }
 
-void products_page_add(void)
+Evas_Object *products_page_add(const Bks_Ui *ui)
 {
    Evas_Object *panes;
 
    if (!ui || !ui->win) return;
 
    ui->products.panes = elm_panes_add(ui->win);
-   elm_ui->products.panes_horizontal_set(ui->products.panes, EINA_TRUE);
+   elm_panes_horizontal_set(ui->products.panes, EINA_TRUE);
 
-   ui.products.favs = _products_favs_add();
+   ui.products.favs = _products_favs_add(ui);
    evas_object_show(ui.products.favs);
    elm_object_part_content_set(ui->products.panes, "left", ui.products.favs);
 
@@ -57,6 +57,15 @@ void products_page_add(void)
    evas_object_show(ui.products.alpha);
    elm_object_part_content_set(ui->products.panes, "right", ui.products.alpha);
 
-   ui->products.enp.content = ui->products.panes;
-   ui->products.enp.eoi = elm_naviframe_item_push(ui->naviframe, "Produkte", NULL, NULL, ui->products.enp.content, NULL);
+   return ui->products.panes;
+}
+
+void _products_page_favs_fill(const Evas_Object *grid, const *Bks_Model *model)
+{
+   _products_grid_fill(grid, model);
+}
+
+void _products_grid_fill(const Evas_Object *grid, const *Bks_Model *model)
+void _products_page_fill(const Evas_Object *products_page, const Bks_Model *model)
+{
 }

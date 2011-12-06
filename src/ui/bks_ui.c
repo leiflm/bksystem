@@ -7,39 +7,20 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
-extern Bks_Ui *ui;
-
 extern const Evas_Object *bks_ui_win_create(void);
 
 Bks_Ui *bks_ui_new(const Bks_Controller controller, const Bks_Model *model)
 {
-   Bks_Ui *bks_ui = NULL;
+   Bks_Ui *ui = NULL;
 
    if (!controller || !model) return NULL;
 
-   if (ui) return ui;
+   ui = calloc(sizeof(*ui));
 
-   bks_ui = calloc(sizeof(*bks_ui));
+   ui->controller = controller;
+   ui->model = model;
 
-   bks_ui->controller = controller;
-   bks_ui->model = model;
-
-   bks_controller_bks_ui_set(bks_ui->controller, bks_ui);
-
-   ui = bks_ui;
-
-   return ui;
-}
-
-void bks_ui_run(void)
-{
-   /*
-    * Here goes some code that indicates that we are waiting for data to be
-    * available
-    */
-
-   // get data for the ui CAUTION: This call blocks until data is available
-   bks_model_data_get(model);
+   bks_controller_bks_ui_set(ui->controller, ui);
 
    // initialize Elementary
    elm_init();
@@ -55,7 +36,8 @@ void bks_ui_run(void)
    elm_win_resize_object_add(ui->win, ui->naviframe);
 
    //create and fill products
-   products_page_add();
+   ui->products.enp.content = products_page_add(ui);
+   ui->products.enp.eoi = elm_naviframe_item_push(ui->naviframe, "Produkte", NULL, NULL, ui->products.enp.content, NULL);
 
    //create, fill and add user_accounts ui elements
    user_accounts_page_add();
@@ -66,6 +48,21 @@ void bks_ui_run(void)
    // now we are done, show the window
    evas_object_resize(ui->win, 640, 480);
    evas_object_show(ui->win);
+
+   return ui;
+}
+
+void bks_ui_run(const Bks_Ui *ui)
+{
+   /*
+    * Here goes some code that indicates that we are waiting for data to be
+    * available
+    */
+
+   // get data for the ui CAUTION: This call blocks until data is available
+   bks_model_data_get(ui->model);
+
+   bks_ui_fill(ui->model);
 
    // run the mainloop and process events and callbacks
    elm_run();
@@ -86,7 +83,7 @@ void bks_ui_shutdown(void)
  * @param ui The Bks_Ui the selected user accounts are retrieved from
  * @return List of Bks_User_Account elements
  */
-Eina_List *bks_ui_user_accounts_selected_get(void)
+Eina_List *bks_ui_user_accounts_selected_get(const Bks_Ui *ui)
 {
    Eina_List *selected_accounts, *iter, *list = NULL;
    Elm_List_Item *eli;
@@ -110,7 +107,7 @@ Eina_List *bks_ui_user_accounts_selected_get(void)
    return list;
 }
 
-const Bks_Model_Product *bks_ui_product_selected_get(void)
+const Bks_Model_Product *bks_ui_product_selected_get(const Bks_Ui *ui)
 {
    Elm_List_Item *selected_product;
    const Bks_Model_Product *product;
