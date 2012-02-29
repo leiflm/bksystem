@@ -40,36 +40,9 @@
 //		SQLITE_FLAGS=`pkg-config --cflags --libs sqlite3 `
 //		EINA_FLAGS=`pkg-config --cflags --libs eina `
 
-typedef struct _Bks_Model_Sale Bks_Model_Sale;
-typedef struct _Bks_Model Bks_Model;
-
-/**
- * @brief All info about a
- *
- * 	struct Bks_Model_Sale can hold all information associated with a sale derived from different
- *
- * @param sqlite3_uint_64 user account ID, also primary
- * @param
- * @param
- * @param status will be used to block user
- * @param EAN product
- * @param
- * @param price associated with the sale, not the product! Product price my have changed
- * @param char *timestamp has to be of format "YYYY-MM-DD hh:mm:ss"
- *
- * */
 
 
-struct _Bks_Model_Sale {
-     sqlite3_uint64 uid;
-     char *firstname;
-     char *lastname;
-     sqlite3_uint64 status;
-     sqlite3_uint64 EAN;
-     char * productname;
-     double price;
-     char *timestamp;
-};
+
 
 /**
  * @brief Model in MVC
@@ -93,61 +66,25 @@ void bks_model_init(void);
  */
 void bks_model_shutdown(void);
 
-/* @brief allocates a new Bks_Model_Sale element and initializes it with the
- * given parameters.
- * @param uid user that is buying a product
- * @param EAN corresponding ID of the product
- */
-Bks_Model_Sale *bks_model_sale_new(sqlite3_uint64 uid, sqlite3_uint64 EAN);
-
 /**
  * @brief Commits a sale to the database
  *
  */
 void bks_model_commit_sale(const Bks_Model_Sale *sale);
 
-
 /**
- * @brief frees struct memory and NULLs
- *
- * 	frees memory occupied by struct Bks_model WARNING: Unused pointers must be NULL
- *
- * @param pointer to struct Bks_Model_Sale, NULL on
- *
- * */
-void bks_model_sale_free(Bks_Model_Sale *sale_ptr);
-
-/**
- * @brief frees struct memory and NULLs
- *
- * 	frees memory occupied by struct Bks_Model_Product WARNING: Unused pointers must be NULL
- *
- * @param pointer to struct
- */
-void bks_model_product_free(Bks_Model_Product *prod_ptr);
-
-/**
- * @brief frees struct memory and NULLs
- *
- * 	frees memory occupied by struct Bks_Model_User_Account WARNING: Unused pointers must be NULL
- *
- * @param pointer to struct
- */
-void bks_model_user_account_free(Bks_Model_User_Account *user_account_ptr);
-
-/**
- * @brief get up to n user accounts sorted by sales
+ * @brief get up to @p limit user accounts sorted by sales volume
  *
  * @param limit number of accounts to @p limit number of accounts (ordered by
- * 'most recently used'). If 0, all accounts are returned.
+ * sales volume). If 0, all accounts are returned.
  *
  * @return Pointer to Eina_List of struct Bks_Model_User_Account, NULL on
  * failure.
  */
-Eina_List* bks_model_user_accounts_get(const unsigned int limit_recent);
+Eina_List* bks_model_user_accounts_get(const unsigned int limit);
 
 /**
- * @brief get up to @p limit favorite products, ordered by
+ * @brief get up to @p limit favorite products, ordered by sales volume
  *
  * @param limit Number of products returned, ordered by 'most often bought'.
  *
@@ -157,7 +94,7 @@ Eina_List* bks_model_user_accounts_get(const unsigned int limit_recent);
 Eina_List* bks_model_products_get(const unsigned int limit);
 
 /**
- * @brief gets all products bought by user newer then
+ * @brief gets all products bought by user newer then @p since
  *
  * @param uid id of the user, the information is queried for.
  * @param since timestamp until sales are dated back to
@@ -167,12 +104,12 @@ Eina_List* bks_model_products_get(const unsigned int limit);
 Eina_List* bks_model_sales_from_user_since(const sqlite3_uint64 uid, const char *since);
 
 /**
- * @brief adds up the prices of products bought by
+ * @brief adds up the prices of sales/products bought by @p uid
  *
  * @param uid user that bought
- * @param since dating back to given timestamp.
+ * @param since sales dating back to given timestamp.
  *
- * @return accumulated sum of
+ * @return accumulated sum
  */
 double bks_model_user_balance_get(const sqlite3_uint64 uid, const char *since);
 

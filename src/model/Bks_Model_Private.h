@@ -9,9 +9,9 @@
 Bks_Error _bks_model_commit_sale(const Bks_Model_Sale *sale);
 
 /**
- * @brief timestring of current local time in required
+ * @brief timestring of current local time in required format
  *
- * @return timestring of current local time in required
+ * @return timestring of current local time in required format
  */
 
 char* bks_model_current_time_string_get();

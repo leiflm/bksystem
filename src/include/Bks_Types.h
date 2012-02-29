@@ -7,6 +7,6 @@ typedef struct _Bks_Model Bks_Model;
 typedef struct _Bks_Model_User_Account Bks_Model_User_Account;
 typedef struct _Bks_Model_Product Bks_Model_Product;
 typedef struct _Bks_Model_Sale Bks_Model_Sale;
-typedef enum Bks_Error Bks_Error;
+typedef enum _Bks_Error Bks_Error;
 
 #endif

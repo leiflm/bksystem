@@ -1,4 +1,4 @@
-//      user_account.h
+//      Bks_Model_User_Account.h
 //      
 //      Copyright 2011 Matthias Wauer <matthiaswauer@googlemail.com>
 //      
@@ -21,8 +21,7 @@
 #define __BKS_MODEL_USER_ACCOUNT_H__
 
 #include <sqlite3.h>
-
-typedef struct _Bks_Model_User_Account Bks_Model_User_Account;
+#include "Bks_Types.h"
 
     struct _Bks_Model_User_Account {
         sqlite3_uint64 uid;
@@ -30,6 +29,15 @@ typedef struct _Bks_Model_User_Account Bks_Model_User_Account;
         char *lastname;
         sqlite3_uint64 status;
         void *image;
-    }; 
+    };
+
+/**
+ * @brief frees struct memory and NULLs
+ *
+ * 	frees memory occupied by struct Bks_Model_User_Account WARNING: Unused pointers must be NULL
+ *
+ * @param pointer to struct
+ */
+void bks_model_user_account_free(Bks_Model_User_Account *user_account_ptr); 
     
 #endif

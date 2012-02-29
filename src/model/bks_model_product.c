@@ -1,4 +1,4 @@
-//      Bks_Model_Product.h
+//      bks_model_product.c
 //      
 //      Copyright 2011 Matthias Wauer <matthiaswauer@googlemail.com>
 //      
@@ -17,26 +17,16 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-#ifndef __BKS_MODEL_PRODUCT_H__
-#define __BKS_MODEL_PRODUCT_H__
-
 #include <sqlite3.h>
-#include "Bks_Types.h"
+#include "Bks_Model_Product.h"
 
-   struct _Bks_Model_Product {
-		sqlite3_uint64 ean;
-		char *name;
-		double price;
-		void *image;
-	};
 
-/**
- * @brief frees struct memory and NULLs
- *
- * 	frees memory occupied by struct Bks_Model_Product WARNING: Unused pointers must be NULL
- *
- * @param pointer to struct
- */
-void bks_model_product_free(Bks_Model_Product *prod_ptr);
-
-#endif
+bks_model_product_free(struct Bks_Model_Product *prod_ptr) {
+	
+	if (prod_ptr != NULL) {
+		free(prod_ptr->name);
+		free(prod_ptr->image);
+		free(prod_ptr);
+		prod_ptr = NULL;
+	}
+}
