@@ -14,6 +14,7 @@ struct _Bks_Controller {
 // Adminstrative calls
 void bks_controller_init(void);
 void bks_controller_shutdown(void);
+void bks_controller_run(void);
 
 // Business logic
 void bks_controller_ui_product_selected_cb(void);

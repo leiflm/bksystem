@@ -3,7 +3,7 @@
 #include "Bks_Controller.h"
 #include "Bks_Ui.h"
 
-int main(const unsigned int argc, const char argv[][])
+int main(int argc, char *argv[])
 {
     //used for debugging infra
     eina_init();

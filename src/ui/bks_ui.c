@@ -2,8 +2,8 @@
 #include <Evas.h>
 #include <Elementary.h>
 #include "Bks_Types.h"
+#include "Bks_Model_Sale.h"
 #include "Bks_System.h"
-#include "Bks_Model_Product.h"
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 #include "Bks_Ui.h"
@@ -109,5 +109,5 @@ void bks_ui_user_accounts_page_update(const Eina_List *user_accounts)
 
 void bks_ui_model_sale_finished_cb(Bks_Model_Sale *sale)
 {
-   printf("Sale of %s to %s, %s finished with state: %llui.\n", sale->productname, sale->lastname, sale->firstname, sale->status);
+   printf("Sale of %s to %s, %s finished with state: %ui.\n", sale->productname, sale->lastname, sale->firstname, sale->status);
 }

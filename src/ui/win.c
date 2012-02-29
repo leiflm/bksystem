@@ -1,5 +1,6 @@
 #include <Elementary.h>
 #include <Evas.h>
+#include "Bks_Ui_Private.h"
 
 static void
 win_on_done(void *data, Evas_Object *obj, void *event_info)
