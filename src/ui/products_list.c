@@ -1,41 +1,43 @@
 #include <Eina.h>
 #include <Evas.h>
 #include <Elementary.h>
-#include "Bks_Types.h"
+#include "Bks_System.h"
 #include "Bks_Model_Product.h"
 #include "Bks_Ui_Private.h"
 #include "Bks_Ui.h"
 
-void _products_list_reset
+void products_list_reset(void)
 {
-   Elm_List_Item *eli;
+   Elm_Object_Item *eoi;
 
-   if ((eli = elm_list_selected_item_get(ui.products.list)))
-     elm_list_item_selected_set(eli, EINA_FALSE);
+   if ((eoi = elm_list_selected_item_get(ui.products.list)))
+     elm_list_item_selected_set(eoi, EINA_FALSE);
 }
 
 static void
 _on_product_select(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Ui *ui = (Bks_Ui*)event_info;
    Bks_Model_Product *product = (Bks_Model_Product*)data;
 
-   if (!ui || !product) return;
+   if (!product) return;
 
-   products_product_selected(ui, product);
+   products_product_selected(product);
+
+   printf("Product %s selected.\n", product->name);
 }
 
-static void
-_products_list_fill(const Bks_Model *model)
+void
+products_list_fill(const Eina_List *products)
 {
    Evas_Object *ic;
    Eina_List *l;
    Bks_Model_Product *product;
    char buf[256];
 
-   if (!ui || !ui.products.list || !model || !mdl.products) return;
+   EINA_SAFETY_ON_NULL_RETURN(ui.products.list);
+   EINA_SAFETY_ON_NULL_RETURN(products);
 
-   EINA_LIST_FOREACH(mdl.products, l, product)
+   EINA_LIST_FOREACH((Eina_List*)products, l, product)
      {
         ic = elm_icon_add(ui.products.list);
         snprintf(buf, sizeof(buf), "%s/%llu.png", elm_app_data_dir_get(), product->ean);
@@ -49,10 +51,9 @@ _products_list_fill(const Bks_Model *model)
    elm_list_go(ui.products.list);
 }
 
-
-Evas_Object *_products_list_add
+Evas_Object *products_list_add(void)
 {
-   if (!ui || !ui.win) return NULL;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
 
    ui.products.list = elm_list_add(ui.win);
 

@@ -2,14 +2,15 @@
 #include <Evas.h>
 #include <Elementary.h>
 #include "Elm_Utils.h"
+#include "Bks_System.h"
 #include "Bks_Ui_Private.h"
 #include "Bks_Ui.h"
 #include "Bks_Model_Product.h"
 
-void _products_grid_reset()
+void products_grid_reset()
 {
-   if (ui.products.grid) return;
-   elm_gengrid_selection_clear();
+   if (!ui.products.grid) return;
+   elm_gengrid_selection_clear(ui.products.grid);
 }
 
 static void
@@ -86,7 +87,7 @@ grid_item_check_changed(void *data, Evas_Object *obj, void *event_info)
 }
 */
 
-Evas_Object *_products_grid_add(void)
+Evas_Object *products_grid_add(void)
 {
    Evas_Object *grid;
 
@@ -104,7 +105,7 @@ void _products_grid_clear(void)
    elm_gengrid_clear(ui.products.grid);
 }
 
-void _products_grid_fill(void)
+void products_grid_fill(const Eina_List *products)
 {
    Eina_List *iter;
    Bks_Model_Product *product;
@@ -122,6 +123,6 @@ void _products_grid_fill(void)
    _products_grid_clear();
 
    //add all products to grid
-   EINA_LIST_FOREACH(mdl.products, iter, product)
-      elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, ui);
+   EINA_LIST_FOREACH((Eina_List*)products, iter, product)
+      elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
 }

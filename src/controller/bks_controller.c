@@ -26,12 +26,13 @@ print_sale(void)
 }
 /* END REPLACE */
 
-void bks_controller_sale_finish(void)
+void bks_controller_ui_sale_finish_cb(void)
 {
-   bks_controller_printSale();
+   //CREATE ECORE_THREAD that calls ui cb when finished
+   print_sale();
 }
 
 void bks_controller_run(void)
 {
-   bks_ui_run();
+   ecore_mainloop_begin();
 }

@@ -5,27 +5,35 @@
 #include "Bks_Ui.h"
 #include "Bks_Model_Product.h"
 
-Evas_Object *bks_ui_win_new(void);
+Evas_Object *bks_ui_win_add(void);
 
 // user acounts page related functions
 Evas_Object *user_accounts_page_add(void);
-Evas_Object *user_accounts_page_fill(void);
+void user_accounts_page_fill(const Eina_List *user_accounts);
+void user_accounts_page_clear(void);
+// unselects user accounts
 void user_accounts_page_reset(void);
 // list related:
-void user_accounts_list_fill(void);
+void user_accounts_list_fill(const Eina_List *user_accounts);
 
 // products page related functions
 Evas_Object *products_page_add(void);
-void products_page_fill(void);
+void products_page_clear();
+void products_page_fill(const Eina_List *products);
+// unselects selected product
 void products_page_reset(void);
 //grid (favs) related:
 Evas_Object *products_grid_add(void);
-void products_grid_fill(void);
-void products_grid_reset(Evas_Object *products_page);
+void products_grid_fill(const Eina_List *products);
+// unselects selected product
+void products_grid_reset(void);
+void products_grid_clear(void);
 //normal list related:
 Evas_Object *products_list_add(void);
-void products_list_fill(void);
-void products_list_reset(Evas_Object *products_page);
+void products_list_clear(void);
+void products_list_fill(const Eina_List *products);
+// unselects selected product
+void products_list_reset(void);
 
 void products_product_selected(Bks_Model_Product *product);
 

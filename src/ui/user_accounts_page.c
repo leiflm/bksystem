@@ -1,45 +1,42 @@
 #include <Evas.h>
-#include "Bks_Ui_Private.h"
+#include "Elm_Utils.h"
+#include "Bks_System.h"
 #include "Bks_Ui.h"
+#include "Bks_Ui_Private.h"
 
 extern Evas_Object *_user_accounts_page_list_add();
+
+void user_accounts_page_clear(void)
+{
+   elm_list_clear(ui.user_accounts.list);
+}
 
 static void
 _on_user_accounts_prev_btn_click(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Ui *ui = (Bks_Ui*)event_info;
-
-   EINA_SAFETY_ON_NULL_RETURN(ui);
-
    products_page_reset();
-   elm_naviframe_item_promote(ui.productslist.enp.eoi);
+   elm_naviframe_item_promote(ui.products.enp.eoi);
 }
 
 static void
 _on_user_accounts_finish_btn_click(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Ui *ui = (Bks_Ui*)event_info;
-
-   EINA_SAFETY_ON_NULL_RETURN(ui);
-
-   bks_sale_finish();
-   clear_elm_list_selection(ui.productslist.list);
-   elm_naviframe_item_promote(ui.productslist.enp.eoi);
+   bks_controller_ui_sale_finish_cb();
+   elm_list_selection_clear(ui.products.list);
+   elm_naviframe_item_promote(ui.products.enp.eoi);
 }
 
 void
-user_accounts_page_reset
+user_accounts_page_reset(void)
 {
-   if (!ui) return;
-
-   clear_elm_list_selection(ui.accountslist.list);
-   elm_widget_disabled_set(ui.accountslist.enp.next_btn, EINA_TRUE);
+   elm_list_selection_clear(ui.user_accounts.list);
+   elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
 }
 
    Evas_Object
 *user_accounts_page_add(void)
 {
-   if (!ui || !ui.win) return NULL;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
 
    //create, setup and fill user_accounts
    ui.user_accounts.list = _user_accounts_page_list_add();
@@ -57,7 +54,7 @@ user_accounts_page_reset
    return ui.user_accounts.list;
 }
 
-Evas_Object *user_accounts_page_fill(const Bks_Model *model)
+void user_accounts_page_fill(const Eina_List *user_accounts)
 {
-   user_accounts_list_fill(ui, model);
+   user_accounts_list_fill(user_accounts);
 }

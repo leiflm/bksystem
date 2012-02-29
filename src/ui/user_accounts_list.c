@@ -1,20 +1,16 @@
 #include <Elementary.h>
-#include "Bks_Ui_Private.h"
-#include "Bks_Ui.h"
 #include "Elm_Utils.h"
-
-void products_page_reset
-{
-   products_list_reset(ui.products.list);
-}
+#include "Bks_System.h"
+#include "Bks_Controller.h"
+#include "Bks_Ui.h"
+#include "Bks_Ui_Private.h"
 
 static void
 _on_user_account_select(void *data, Evas_Object *obj, void *event_info)
 {
    const Bks_Model_User_Account *acc = (const Bks_Model_User_Account*)data;
-   Bks_Ui *ui = (Bks_Ui*)event_info;
 
-   if (!ui || !data) return;
+   if (!acc) return;
 
    printf("Account %s, %s was selected\n", acc->lastname, acc->firstname);
 
@@ -24,29 +20,25 @@ _on_user_account_select(void *data, Evas_Object *obj, void *event_info)
 static void
 _on_user_account_double_click(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Ui *ui = (Bks_Ui*)event_info;
-
-   EINA_SAFETY_ON_NULL_RETURN(ui);
-
+   //Only react if only a single account is selected
    if (eina_list_count(elm_list_selected_items_get(ui.user_accounts.enp.content)) > 1)
-         return;
-   bks_controller_sale_finish(ctrl);
-   products_page_reset(ui);
+     return;
+   bks_controller_ui_sale_finish_cb();
+   products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
 
 void
-user_accounts_list_fill(const Bks_Model *model)
+user_accounts_list_fill(const Eina_List *user_accounts)
 {
    Eina_List *iter;
    Bks_Model_User_Account *acc;
    char buf[256];
 
-   if (!ui || !model) return;
-
    if (ui.user_accounts.list)
      elm_list_clear(ui.user_accounts.list);
-   EINA_LIST_FOREACH(mdl.user_accounts, iter, acc)
+
+   EINA_LIST_FOREACH((Eina_List*)user_accounts, iter, acc)
      {
         /*
          * Disable icons for now
@@ -59,20 +51,19 @@ user_accounts_list_fill(const Bks_Model *model)
         snprintf(buf, sizeof(buf), "%s, %s", acc->lastname, acc->firstname);
         elm_list_item_append(ui.user_accounts.list, buf, NULL, NULL, _on_user_account_select, acc);
      }
-
 }
 
-Evas_Object *_user_accounts_page_list_add
+Evas_Object *_user_accounts_page_list_add(void)
 {
    Evas_Object *list;
 
-   if (!ui || !ui.win) return NULL;
+   if (!ui.win) return NULL;
 
    list = elm_list_add(ui.win);
    elm_list_multi_select_set(list, EINA_TRUE);
 
    // Add callback for doubleclick action
-   evas_object_smart_callback_add(ui.user_accounts.enp.content, "clicked,double", _on_user_account_double_click, ui);
+   evas_object_smart_callback_add(ui.user_accounts.enp.content, "clicked,double", _on_user_account_double_click, NULL);
 
    elm_list_go(list);
 

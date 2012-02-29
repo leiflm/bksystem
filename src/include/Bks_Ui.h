@@ -37,6 +37,12 @@ struct _Bks_Ui {
 void bks_ui_init(void);
 
 /**
+ * @brief shuts the central Bks_Ui down
+ *
+ */
+void bks_ui_shutdown(void);
+
+/**
  * @brief fills the UI using @p products. The page will be cleared before, if
  * necessary.
  *
@@ -53,16 +59,10 @@ void bks_ui_products_page_update(const Eina_List *products);
 void bks_ui_user_accounts_page_update(const Eina_List *user_accounts);
 
 /**
- * @brief shuts the central Bks_Ui down
- *
- */
-void bks_ui_shutdown(void);
-
-/**
  * @brief Gets the list of selected user accounts
  * @return List of Bks_Model_User_Account elements
  */
-const Eina_List *bks_ui_user_accounts_selected_get(Bks_Ui *ui);
+Eina_List *bks_ui_user_accounts_selected_get(void);
 
 /**
  * @brief Gets the selected product
@@ -81,8 +81,6 @@ void bks_ui_display_error(const Bks_Error error);
  * @desc The function is called by a finished sale worker.
  * The given sale has to be freed afterwards.
  * @param sale The sale that was finished and has to be freed.
- * @param error indicates the success of the registration of the sale in the
- * backend.
  */
-void bks_ui_model_sale_finished_cb(Bks_Model_Sale *sale, const Bks_Error error);
+void bks_ui_model_sale_finished_cb(Bks_Model_Sale *sale);
 #endif
