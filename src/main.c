@@ -1,12 +1,15 @@
+#include "Bks_Types.h"
+#include "Bks_Model.h"
+#include "Bks_Controller.h"
+#include "Bks_Ui.h"
+
 int main(const unsigned int argc, const char argv[][])
 {
-    Bks_Model *model;
-    Bks_Controller *controller;
-    Bks_Ui *ui;
-
-    model = bks_model_new();
-    controller = bks_controller_new(model);
-    ui = bks_ui_new(controller, model);
+    //used for debugging infra
+    eina_init();
+    bks_model_init();
+    bks_controller_init();
+    bks_ui_init();
 
     bks_controller_run(controller);
 
@@ -14,5 +17,7 @@ int main(const unsigned int argc, const char argv[][])
     bks_controller_shutdown(controller);
     bks_model_shutdown(model);
 
+    //used for debugging infra
+    eina_shutdown();
     return 0;
 }

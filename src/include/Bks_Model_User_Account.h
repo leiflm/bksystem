@@ -22,7 +22,7 @@
 
 #include <sqlite3.h>
 
-typedef _Bks_Model_User_Account Bks_Model_User_Account;
+typedef struct _Bks_Model_User_Account Bks_Model_User_Account;
 
     struct _Bks_Model_User_Account {
         sqlite3_uint64 uid;

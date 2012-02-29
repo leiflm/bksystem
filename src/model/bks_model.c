@@ -33,7 +33,7 @@ const char *database = BKSYSTEMDB;
 
 
 
-free_bks_model_userAccount(struct Bks_model_user_account *account_ptr) {	
+free_bks_model_userAccount(struct Bks_Model_User_Account *account_ptr) {	
 	
 	if (account_ptr != NULL) {
 		free(account_ptr->firstname);
@@ -44,7 +44,7 @@ free_bks_model_userAccount(struct Bks_model_user_account *account_ptr) {
 	}
 }
 
-free_bks_model_product(struct Bks_model_product *prod_ptr) {
+free_bks_model_product(struct Bks_Model_Product *prod_ptr) {
 	
 	if (prod_ptr != NULL) {
 		free(prod_ptr->name);
@@ -54,7 +54,7 @@ free_bks_model_product(struct Bks_model_product *prod_ptr) {
 	}
 }
 
-free_bks_model_sale(struct Bks_model_sale *sale_ptr) {	
+bks_model_sale_free(struct Bks_model_sale *sale_ptr) {	
 	
 	if (sale_ptr != NULL) {
 		free(sale_ptr->firstname);
@@ -71,7 +71,7 @@ free_bks_model_sale(struct Bks_model_sale *sale_ptr) {
 // data retrieval
 Eina_List* bks_model_recent_user_accounts_get(int n) {
 	
-	struct Bks_model_user_account *ptr_current_user = NULL;
+	struct Bks_Model_User_Account *ptr_current_user = NULL;
 	char *select_query ="SELECT user_accounts.uid,firstname,lastname,status,placement FROM user_accounts, recent_user_accounts WHERE user_accounts.uid=recent_user_accounts.uid ORDER BY placement";
     char *name;
     sqlite3 *pDb;
@@ -97,7 +97,7 @@ Eina_List* bks_model_recent_user_accounts_get(int n) {
      
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
 		i++;
-        ptr_current_user = malloc(sizeof(struct Bks_model_user_account));
+        ptr_current_user = malloc(sizeof(struct Bks_Model_User_Account));
         
         ptr_current_user->uid = sqlite3_column_int64(stmt,0); 
         name = (char*)sqlite3_column_text(stmt,1);
@@ -128,7 +128,7 @@ Eina_List* bks_model_recent_user_accounts_get(int n) {
 
 Eina_List* bks_model_user_accounts_get() {
 	
-	struct Bks_model_user_account *ptr_current_user = NULL;
+	struct Bks_Model_User_Account *ptr_current_user = NULL;
 	char *select_query ="SELECT uid,firstname,lastname,status FROM user_accounts ORDER BY lastname,firstname";
     char *name;
     sqlite3 *pDb;
@@ -153,7 +153,7 @@ Eina_List* bks_model_user_accounts_get() {
 	}
      
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
-        ptr_current_user = malloc(sizeof(struct Bks_model_user_account));
+        ptr_current_user = malloc(sizeof(struct Bks_Model_User_Account));
         
         ptr_current_user->uid = sqlite3_column_int64(stmt,0); 
         name = (char*)sqlite3_column_text(stmt,1);
@@ -180,7 +180,7 @@ Eina_List* bks_model_user_accounts_get() {
 }	
 	
 Eina_List* bks_model_favorite_products_get(int n) {
-	struct Bks_model_product *ptr_current_product = NULL;
+	struct Bks_Model_Product *ptr_current_product = NULL;
 	char *select_query ="SELECT products.EAN,name,price,placement FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
     char *name;
     sqlite3 *pDb;
@@ -205,7 +205,7 @@ Eina_List* bks_model_favorite_products_get(int n) {
      
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
 		i++;
-        ptr_current_product = malloc(sizeof(struct Bks_model_product));
+        ptr_current_product = malloc(sizeof(struct Bks_Model_Product));
         
         ptr_current_product->EAN = sqlite3_column_int64(stmt,0); 
         
@@ -230,7 +230,7 @@ Eina_List* bks_model_favorite_products_get(int n) {
 		
 Eina_List* bks_model_products_get() {
 	
-	struct Bks_model_product *ptr_current_product = NULL;
+	struct Bks_Model_Product *ptr_current_product = NULL;
 	char *select_query ="SELECT EAN,name,price FROM products ORDER BY name";
     char *name;
     sqlite3 *pDb;
@@ -253,7 +253,7 @@ Eina_List* bks_model_products_get() {
 	}
      
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
-        ptr_current_product = malloc(sizeof(struct Bks_model_product));
+        ptr_current_product = malloc(sizeof(struct Bks_Model_Product));
         
         ptr_current_product->EAN = sqlite3_column_int64(stmt,0); 
         

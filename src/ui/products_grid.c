@@ -1,17 +1,15 @@
 #include <Eina.h>
 #include <Evas.h>
 #include <Elementary.h>
-#include "UI.h"
-#include "Product.h"
+#include "Elm_Utils.h"
+#include "Bks_Ui_Private.h"
+#include "Bks_Ui.h"
+#include "Bks_Model_Product.h"
 
-extern BKSystem_UI ui;
-extern Eina_List *products;
-
-
-void _products_grid_reset(Evas_Object *gengrid)
+void _products_grid_reset()
 {
-   if (!gengrid) return;
-   elm_gengrid_selection_clear(gengrid);
+   if (ui.products.grid) return;
+   elm_gengrid_selection_clear();
 }
 
 static void
@@ -19,19 +17,15 @@ grid_selected(void *data, Evas_Object *obj, void *event_info)
 {
    Bks_Model_Product *product = (Bks_Model_Product*)data;
 
+   EINA_SAFETY_ON_NULL_RETURN(product);
+
    products_product_selected(product);
 }
 
-static void
-grid_longpress(void *data, Evas_Object *obj, void *event_info)
-{
-   printf("longpress %p\n", data);
-}
-
 char *
-grid_label_get(void *data, Evas_Object *obj, const char *part)
+grid_text_get(void *data, Evas_Object *obj, const char *part)
 {
-   const Bks_Model_Product *product = (Product*)data;
+   const Bks_Model_Product *product = (Bks_Model_Product*)data;
    char buf[256];
 
    if (!product) return NULL;
@@ -43,7 +37,7 @@ grid_label_get(void *data, Evas_Object *obj, const char *part)
 Evas_Object *
 grid_content_get(void *data, Evas_Object *obj, const char *part)
 {
-   const Product *product = (Product*)data;
+   const Bks_Model_Product *product = (Bks_Model_Product*)data;
    char buf[256];
 
    if (!strcmp(part, "elm.swallow.icon"))
@@ -92,32 +86,42 @@ grid_item_check_changed(void *data, Evas_Object *obj, void *event_info)
 }
 */
 
-Evas_Object *_products_grid_add(const Bks_Ui *ui)
+Evas_Object *_products_grid_add(void)
 {
-   if (!ui) return NULL;
+   Evas_Object *grid;
 
-   ui.products.grid = elm_gengrid_add(ui->win);
-   elm_gengrid_item_size_set(ui.products.grid, 150, 150);
-   evas_object_size_hint_weight_set(ui.products.grid, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   grid = elm_gengrid_add(ui.win);
+   elm_gengrid_item_size_set(grid, 150, 150);
+   evas_object_size_hint_weight_set(grid, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 
-   return ui.products.grid;
+   return grid;
 }
 
-void _products_grid_fill(const Evas_Object *grid, const *Bks_Model *model)
+void _products_grid_clear(void)
+{
+   EINA_SAFETY_ON_NULL_RETURN(ui.products.grid);
+
+   elm_gengrid_clear(ui.products.grid);
+}
+
+void _products_grid_fill(void)
 {
    Eina_List *iter;
    Bks_Model_Product *product;
-   Elm_Gengrid_Item *li;
    static Elm_Gengrid_Item_Class gic;
+
+   EINA_SAFETY_ON_NULL_RETURN(ui.products.grid);
 
    // set callbacks for grid elements
    gic.item_style = "default";
-   gic.func.label_get = grid_label_get;
+   gic.func.text_get = grid_text_get;
    gic.func.content_get = grid_content_get;
    gic.func.state_get = grid_state_get;
    gic.func.del = grid_del;
 
+   _products_grid_clear();
+
    //add all products to grid
-   EINA_LIST_FOREACH(model->products, iter, product)
-      li = elm_gengrid_item_append(grid, &gic, product, grid_selected, product);
+   EINA_LIST_FOREACH(mdl.products, iter, product)
+      elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, ui);
 }

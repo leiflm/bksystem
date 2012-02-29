@@ -4,20 +4,8 @@
 #include "Bks_Model.h"
 #include "Bks_Model_Product.h"
 #include "Bks_Model_User_Account.h"
+#include "Bks_System.h"
 #include <Eina.h>
-
-extern Bks_Controller *controller;
-
-Bks_Controller *bks_controller_new(Bks_Model *model)
-{
-   if (!model) return NULL;
-   if (controller) return controller;
-
-   controller = calloc(sizeof(*controller));
-
-   bks_controller_model_set(model);
-
-}
 
 /* REPLACE ME BY A SQL TRANSACTION AND UI INTERFACE CALL! */
    void
@@ -38,14 +26,12 @@ print_sale(void)
 }
 /* END REPLACE */
 
-void bks_controller_sale_finish(const Bks_Controller *controller)
+void bks_controller_sale_finish(void)
 {
-   printSale(controller);
+   bks_controller_printSale();
 }
 
 void bks_controller_run(void)
 {
-   if (!controller) return;
-
    bks_ui_run();
 }

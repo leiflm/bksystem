@@ -22,11 +22,10 @@ elm_list_selection_clear(Evas_Object *elm_list)
 void
 elm_gengrid_selection_clear(Evas_Object *gengrid)
 {
-   Elm_List_Item *eli;
    Elm_Gengrid_Item *egi;
 
    if (!gengrid) return;
 
    if ((egi = elm_gengrid_selected_item_get(gengrid)))
-     elm_gen_item_selected_set(egi, EINA_FALSE);
+     elm_gengrid_item_selected_set(egi, EINA_FALSE);
 }

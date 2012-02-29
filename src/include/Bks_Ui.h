@@ -1,10 +1,14 @@
 #ifndef __BKS_UI_H__
 #define __BKS_UI_H__
 
+#include <Ecore.h>
+#include <Evas.h>
+#include <Elementary.h>
 #include "Bks_Error.h"
+#include "Bks_Types.h"
 #include "Bks_Controller.h"
+#include "Bks_Model.h"
 
-typedef struct _Bks_Ui Bks_Ui;
 typedef struct _Bks_Elm_Naviframe_Page Bks_Elm_Naviframe_Page;
 
 struct _Bks_Elm_Naviframe_Page {
@@ -13,6 +17,8 @@ struct _Bks_Elm_Naviframe_Page {
 };
 
 struct _Bks_Ui {
+   const Bks_Controller *controller;
+   const Bks_Model *model;
    Evas_Object *win, *naviframe;
    struct {
         Bks_Elm_Naviframe_Page enp;
@@ -25,62 +31,58 @@ struct _Bks_Ui {
 };
 
 /**
- * @brief creates and initializes a new Bks_Ui item
- *
- * @param controller The controller event callbacks will be registered to
- * @param model The model the data is fetched from and written to
- *
- * @return Bks_Ui instance to be used for callbacks in controller
- */
-Bks_Ui *bks_ui_new(const Bks_Controller *controller, const Bks_Model *model);
-
-/**
- * @param ui The ui that shall be shut down.
+ * @brief initializes the central ui.
  *
  */
-void bks_ui_shutdown(const Bks_Ui *ui);
+void bks_ui_init(void);
 
 /**
- * @param ui The ui tu be run
+ * @brief fills the UI using @p products. The page will be cleared before, if
+ * necessary.
+ *
+ * @param products list of Bks_ModeL_Product
+ */
+void bks_ui_products_page_update(const Eina_List *products);
+
+/**
+ * @brief fills the UI using @p user_accounts. The page will be
+ * cleared before, if necessary.
+ *
+ * @param user_accounts list of Bks_ModeL_User_Account.
+ */
+void bks_ui_user_accounts_page_update(const Eina_List *user_accounts);
+
+/**
+ * @brief shuts the central Bks_Ui down
  *
  */
-int bks_ui_run(const Bks_Ui *ui);
+void bks_ui_shutdown(void);
 
 /**
- * @param ui The Bks_Ui the selected user accounts are retrieved from
- * @return List of Bks_User_Account elements
+ * @brief Gets the list of selected user accounts
+ * @return List of Bks_Model_User_Account elements
  */
-Eina_List *bks_ui_user_accounts_selected_get(const Bks_Ui *ui);
-const Bks_Product *bks_ui_product_selected_get(const Bks_Ui *ui);
+const Eina_List *bks_ui_user_accounts_selected_get(Bks_Ui *ui);
 
 /**
- * @param ui The Bks_Ui the selected user accounts are retrieved from
+ * @brief Gets the selected product
+ * @return The selected Bks_Model_Product element.
+ */
+const Bks_Model_Product *bks_ui_product_selected_get(void);
+
+/**
+ * @brief generic interface to display an error that occured.
  * @param data Bks_Error
  */
-void bks_ui_display_error(const Bks_Ui *ui, const Bks_Error error);
+void bks_ui_display_error(const Bks_Error error);
 
 /**
- * @brief called, when a product sale was successful.
+ * @brief called, when a product sale was successful registered by the model.
+ * @desc The function is called by a finished sale worker.
+ * The given sale has to be freed afterwards.
+ * @param sale The sale that was finished and has to be freed.
+ * @param error indicates the success of the registration of the sale in the
+ * backend.
  */
-void bks_ui_sale_finished(const Bks_Ui *ui);
-
-/**
- * @brief called, when a product sale failed.
- */
-void bks_ui_sale_failed(const Bks_Ui *ui, const Bks_Error error);
-
-
-/**
- * @param thread Instance that failed
- */
-//void bks_ui_model_data_fetch_cancel(const Bks_Ui *ui, void *data, Ecore_Thread *thread);
-
-/**
- * @brief called, when data is successfully fetched
- * @desc callback called by the model, when data was sucessfully fetched
- * into memory globally shared using the key "bks.model.users"
- * @param data Bks_Error
- * @param thread Instance that failed
- */
-//void bks_ui_model_data_fetch_finish(const Bks_Ui *ui, void *data, Ecore_Thread *thread);
+void bks_ui_model_sale_finished_cb(Bks_Model_Sale *sale, const Bks_Error error);
 #endif

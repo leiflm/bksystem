@@ -8,7 +8,7 @@ win_on_done(void *data, Evas_Object *obj, void *event_info)
    elm_exit();
 }
 
-const Evas_Object *bks_ui_win_create(void)
+Evas_Object *bks_ui_win_create(void)
 {
    Evas_Object *win;
 

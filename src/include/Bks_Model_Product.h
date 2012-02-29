@@ -25,7 +25,7 @@
 typedef struct _Bks_Model_Product Bks_Model_Product;
 
    struct _Bks_Model_Product {
-		sqlite3_uint64 EAN;
+		sqlite3_uint64 ean;
 		char *name;
 		double price;
 		void *image;
