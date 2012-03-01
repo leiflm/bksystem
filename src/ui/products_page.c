@@ -10,11 +10,11 @@ void products_page_clear(void)
    elm_list_clear(ui.products.list);
 }
 
-void products_product_selected(Bks_Model_Product *product)
+void _product_selected_set(const Elm_Object_Item *product)
 {
    if (!product) return;
 
-   printf("Product %s was selected\n", product->name);
+   ui.products.selected = product;
    user_accounts_page_reset();
    elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
 }
@@ -76,13 +76,9 @@ void products_page_set(const Eina_List *products)
 
 const Bks_Model_Product *bks_ui_product_selected_get(void)
 {
-   Elm_Object_Item *selected_product;
    const Bks_Model_Product *product;
 
-   if (!(selected_product = elm_list_selected_item_get(ui.products.list)))
-     return NULL;
-
-   product = (Bks_Model_Product*)elm_object_item_data_get(selected_product);
+   product = (Bks_Model_Product*)elm_object_item_data_get(ui.products.selected);
 
    return product;
 }
@@ -103,7 +99,7 @@ void bks_ui_products_clear(void)
  */
 void bks_ui_products_update_set(const Eina_Bool update)
 {
-    printf("Jetzt sollte der Produktbildschirm %sbenutzbar sein.", (update ? "un" : ""));
+    printf("Jetzt sollte der Produktbildschirm %sbenutzbar sein.\n", (update ? "un" : ""));
 }
 
 /**

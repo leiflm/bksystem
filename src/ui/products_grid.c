@@ -16,11 +16,11 @@ void products_grid_reset()
 static void
 grid_selected(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Model_Product *product = (Bks_Model_Product*)data;
+   const Elm_Object_Item *selected_product = (const Elm_Object_Item*)event_info;
 
-   EINA_SAFETY_ON_NULL_RETURN(product);
+   _product_selected_set(selected_product);
 
-   products_product_selected(product);
+   printf("Produkt %p ausgewaehlt.\n", selected_product);
 }
 
 char *
@@ -110,6 +110,7 @@ void products_grid_set(const Eina_List *products)
    Eina_List *iter;
    Bks_Model_Product *product;
    static Elm_Gengrid_Item_Class gic;
+   Elm_Object_Item *it;
 
    EINA_SAFETY_ON_NULL_RETURN(ui.products.grid);
 
@@ -124,5 +125,8 @@ void products_grid_set(const Eina_List *products)
 
    //add all products to grid
    EINA_LIST_FOREACH((Eina_List*)products, iter, product)
-      elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
+     {
+        it = elm_gengrid_item_append(ui.products.grid, &gic, NULL, grid_selected, NULL);
+        elm_object_item_data_set(it, product);
+     }
 }

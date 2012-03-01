@@ -75,7 +75,7 @@ void bks_ui_user_accounts_clear(void)
  */
 void bks_ui_user_accounts_update_set(const Eina_Bool update)
 {
-    printf("Jetzt sollte der Benutzerlistenschirm  %sbenutzbar sein.", (update ? "un" : ""));
+    printf("Jetzt sollte der Benutzerlistenschirm  %sbenutzbar sein.\n", (update ? "un" : ""));
 }
 
 void _bks_ui_user_accounts_page_set(void *data, Ecore_Thread *th)

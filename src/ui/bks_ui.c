@@ -61,8 +61,3 @@ void bks_ui_shutdown(void)
 
    elm_shutdown();
 }
-
-void bks_ui_model_sale_finished_cb(Bks_Model_Sale *sale)
-{
-   printf("Sale of %s to %s, %s finished with state: %ui.\n", sale->productname, sale->lastname, sale->firstname, sale->status);
-}

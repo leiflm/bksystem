@@ -5,7 +5,7 @@ TOP_HEADERS_DIR = $(TOP_SRC_DIR)/include
 
 CTRL_SRC_DIR = $(TOP_SRC_DIR)/controller
 CTRL_HEADERS_DIR = $(CTRL_SRC_DIR)/include
-CTRL_SRC = $(CTRL_SRC_DIR)/bks_controller.c $(CTRL_SRC_DIR)/model.c
+CTRL_SRC = $(CTRL_SRC_DIR)/bks_controller.c $(CTRL_SRC_DIR)/model.c $(CTRL_SRC_DIR)/ui.c
 CTRL_CFLAGS = -I$(CTRL_HEADERS_DIR)
 
 MODEL_SRC_DIR = $(TOP_SRC_DIR)/model

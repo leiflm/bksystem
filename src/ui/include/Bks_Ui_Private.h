@@ -35,6 +35,6 @@ void products_list_set(const Eina_List *products);
 // unselects selected product
 void products_list_reset(void);
 
-void products_product_selected(Bks_Model_Product *product);
+void _product_selected_set(const Elm_Object_Item *product);
 
 #endif

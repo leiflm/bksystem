@@ -22,6 +22,7 @@ struct _Bks_Ui {
         Eina_Lock lock;
         Bks_Elm_Naviframe_Page enp;
         Evas_Object *panes, *favs, *alpha, *list, *grid;
+        const Elm_Object_Item *selected;
    } products;
    struct {
         Eina_Lock lock;
@@ -65,7 +66,7 @@ void bks_ui_display_error(const Bks_Error error);
  * The given sale has to be freed afterwards.
  * @param sale The sale that was finished and has to be freed.
  */
-void bks_ui_model_sale_finished_cb(Bks_Model_Sale *sale);
+void bks_ui_contoller_sale_finished_cb(Bks_Model_Sale *sale);
 
 //User accounts page
 

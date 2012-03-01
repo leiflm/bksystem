@@ -17,19 +17,18 @@ void products_list_reset(void)
 static void
 _on_product_select(void *data, Evas_Object *obj, void *event_info)
 {
-   Bks_Model_Product *product = (Bks_Model_Product*)data;
+   const Elm_Object_Item *selected_product = (const Elm_Object_Item*)event_info;
 
-   if (!product) return;
+   _product_selected_set(selected_product);
 
-   products_product_selected(product);
-
-   printf("Product %s selected.\n", product->name);
+   printf("Produkt %p ausgewaehlt.\n", selected_product);
 }
 
 void
 products_list_set(const Eina_List *products)
 {
    Evas_Object *ic;
+   Elm_Object_Item *it;
    Eina_List *l;
    Bks_Model_Product *product;
    char buf[256];
@@ -40,13 +39,13 @@ products_list_set(const Eina_List *products)
    EINA_LIST_FOREACH((Eina_List*)products, l, product)
      {
         ic = elm_icon_add(ui.products.list);
-        snprintf(buf, sizeof(buf), "%s/%llu.png", elm_app_data_dir_get(), product->EAN);
+        snprintf(buf, sizeof(buf), "%s/%llu.png", "data", product->EAN);
         elm_icon_file_set(ic, buf, NULL);
         elm_icon_scale_set(ic, 1, 1);
-        elm_list_item_append(ui.products.list, product->name, ic, NULL, _on_product_select, product);
+        it = elm_list_item_append(ui.products.list, product->name, ic, NULL, _on_product_select, NULL);
+        elm_object_item_data_set(it, product);
+        printf("Produkt %p hinzugefuegt.\n", it);
      }
-
-   printf(elm_app_data_dir_get());
 
    elm_list_go(ui.products.list);
 }
