@@ -37,19 +37,39 @@
 // All Data
 static void _bks_model_data_get_cb(void *data, Ecore_Thread *th) {
 
-   Eina_List *products;
-   Eina_List *user_accounts;
+   Bks_Model_User_Account *user_data;
+   Bks_Model_Product *product_data;
 
+   // tell controller that now reloading and lock model
+   bks_controller_model_reload_cb();
    eina_lock_take(&mdl.lock);
-   products = _bks_model_sql_products_get();
-   user_accounts = _bks_model_sql_user_accounts_get();
-   if ((!products) || (!user_accounts)) {
-      ecore_thread_cancel(th);
-      eina_lock_release(&mdl.lock);
-      return;
+   // freeing old data
+   if (!mdl.user_accounts) {
+      EINA_LIST_FREE(mdl.user_accounts, user_data) {
+         bks_model_user_account_free(user_data);
+      }
    }
-   mdl.products = products;
-   mdl.user_accounts = user_accounts;
+   if (!mdl.recent_user_accounts) {
+      EINA_LIST_FREE(mdl.recent_user_accounts, user_data) {
+         bks_model_user_account_free(user_data);
+      }
+   }
+   if (!mdl.products) {
+      EINA_LIST_FREE(mdl.products, product_data) {
+         bks_model_product_free(product_data);
+      }
+   }
+   if (!mdl.favorite_products) {
+      EINA_LIST_FREE(mdl.favorite_products, product_data) {
+         bks_model_product_free(product_data);
+      }
+   }
+   // getting new data 
+   mdl.products = _bks_model_sql_products_get();
+   mdl.favorite_products = _bks_model_sql_favorite_products_get(5);
+   mdl.user_accounts = _bks_model_sql_user_accounts_get();
+   mdl.recent_user_accounts = _bks_model_sql_recent_user_accounts_get(5);
+   
    eina_lock_release(&mdl.lock);
 
 }
@@ -71,9 +91,10 @@ Ecore_Thread *_bks_model_data_get(void) {
 
 // Sales
 static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
-   Bks_Model_Sale *sale = (Bks_Model_Sale*)data;
-   printf("commiting sale with uid:%llu...\n", sale->uid);
+   Bks_Model_Sale *sale = (Bks_Model_Sale *)data;
+   printf("Commiting sale with uid:%llu...\n", sale->uid);
    if (_bks_model_sql_commit_sale(sale)) {
+      fprintf(stderr, "Failed to commit sale\n");
       sale->status = BKS_MODEL_SALE_UNFINISHED;
       ecore_thread_cancel(th);
       return;
@@ -84,31 +105,44 @@ static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
 
 static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th) {
 
-   bks_controller_model_sale_finished_cb(data);
+   bks_controller_model_commit_sale_finished_cb((Bks_Model_Sale *)data);
 }
 
 static void _bks_model_sale_canceled_cb(void *data, Ecore_Thread *th) {
    printf("Sale canceld\n");
-   //bks_controller_model_sale_finished_cb(data);
+   bks_controller_model_commit_sale_finished_cb(data);
 }
 
 Ecore_Thread *_bks_model_commit_sale(const Bks_Model_Sale *sale) {
-   return ecore_thread_run(_bks_model_commit_sale_cb, _bks_model_sale_finished_cb, _bks_model_sale_canceled_cb, sale);
+   return ecore_thread_run(_bks_model_commit_sale_cb, _bks_model_sale_finished_cb, _bks_model_sale_canceled_cb, (void*)sale);
 }
 
 // Products
 static void _bks_model_products_get_cb(void *data, Ecore_Thread *th) {
 
-   Eina_List *products;
+   Bks_Model_Product *product_data;
 
+   bks_controller_model_products_reload_cb();
    eina_lock_take(&mdl.lock);
-   products = _bks_model_sql_products_get();
-   if (!products) {
+
+   // free old data
+   if (!mdl.products) {
+      EINA_LIST_FREE(mdl.products, product_data) {
+         bks_model_product_free(product_data);
+      }
+   }
+   if (!mdl.favorite_products) {
+      EINA_LIST_FREE(mdl.favorite_products, product_data) {
+         bks_model_product_free(product_data);
+      }
+   }
+   /*if (!products) {
       ecore_thread_cancel(th);
       eina_lock_release(&mdl.lock);
       return;
-   }
-   mdl.products = products;
+   }*/
+   mdl.products = _bks_model_sql_products_get();
+   mdl.favorite_products = _bks_model_sql_favorite_products_get(5);
    eina_lock_release(&mdl.lock);
 }
 
@@ -131,16 +165,30 @@ Ecore_Thread *_bks_model_products_get(const unsigned int limit) {
 // User Accounts
 static void _bks_model_user_accounts_get_cb(void *data, Ecore_Thread *th) {
 
-   Eina_List *user_accounts;
-
+   Bks_Model_User_Account *user_data;
+   bks_controller_model_user_accounts_reload_cb();
    eina_lock_take(&mdl.lock);
-   user_accounts = _bks_model_sql_user_accounts_get();
-   if (!user_accounts) {
+   
+   // freeing old data
+   if (!mdl.user_accounts) {
+      EINA_LIST_FREE(mdl.user_accounts, user_data) {
+         bks_model_user_account_free(user_data);
+      }
+   }
+   if (!mdl.recent_user_accounts) {
+      EINA_LIST_FREE(mdl.recent_user_accounts, user_data) {
+         bks_model_user_account_free(user_data);
+      }
+   }
+
+   /*if (!user_accounts) {
       ecore_thread_cancel(th);
       eina_lock_release(&mdl.lock);
       return;
-   }
-   mdl.user_accounts = user_accounts;
+   }*/
+   mdl.user_accounts = _bks_model_sql_user_accounts_get();
+   mdl.recent_user_accounts = _bks_model_sql_recent_user_accounts_get(5);
+   
    eina_lock_release(&mdl.lock);
 }
 

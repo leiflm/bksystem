@@ -38,7 +38,6 @@ static int bks_model_clean_up_DB(sqlite3 *pDb, sqlite3_stmt *stmt);
 static char* bks_model_current_time_string_get(void);
 static void bks_model_print_all_data(sqlite3_stmt *stmt);
 static int _bks_model_sql_create_bill_table_since_until(const char *timestampSince, const char *timestampUntil);
-static Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit);
 static int _bks_model_sql_favorite_products_set(const char *timestampSince, const char *timestampUntil);
 static int _bks_model_sql_recent_user_accounts_set(const char *timestampSince, const char *timestampUntil);
 
@@ -145,7 +144,7 @@ Eina_List* _bks_model_sql_user_accounts_get(void) {
    return list;
 }
 
-static Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
+Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
    Bks_Model_Product *ptr_current_product = NULL;
    char *select_query ="SELECT products.EAN,name,price,placement FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
    char *name;

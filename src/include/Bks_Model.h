@@ -53,7 +53,9 @@
  */
 struct _Bks_Model {
    Eina_List *products;
+   Eina_List *favorite_products;
    Eina_List *user_accounts;
+   Eina_List *recent_user_accounts;
    Eina_Lock lock;
 };
 

@@ -34,7 +34,7 @@ Eina_List* _bks_model_sql_products_get(void);
  *
  * @return Eina_List*
  */
-Eina_List* _bks_model_sql_recent_products_get(const unsigned int limit); 
+Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit); 
 
 /**
  * @brief timestring of current local time in required format

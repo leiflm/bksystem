@@ -29,7 +29,7 @@ void bks_controller_model_products_reload_cb(void);
 void bks_controller_model_reload_finished_cb(void);
 void bks_controller_model_user_accounts_reload_finished_cb(void);
 void bks_controller_model_products_reload_finished_cb(void);
-void bks_controller_model_sale_finished_cb(Bks_Model_Sale *sale);
+void bks_controller_model_commit_sale_finished_cb(Bks_Model_Sale *sale);
 void bks_controller_model_create_bill_table_cb(void);
 
 #endif

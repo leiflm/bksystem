@@ -36,11 +36,39 @@
 
 void bks_model_init(void) {
    eina_lock_new(&mdl.lock);
+   mdl.user_accounts = NULL;
+   mdl.recent_user_accounts = NULL;
+   mdl.products = NULL;
+   mdl.favorite_products = NULL;
    _bks_model_data_get();
 }
 
 void bks_model_shutdown(void) {
-   
+
+   Bks_Model_User_Account *user_data;
+   Bks_Model_Product *product_data;
+
+   // freeing old data
+      if (!mdl.user_accounts) {
+      EINA_LIST_FREE(mdl.user_accounts, user_data) {
+         bks_model_user_account_free(user_data);
+      }
+   }
+   if (!mdl.recent_user_accounts) {
+      EINA_LIST_FREE(mdl.recent_user_accounts, user_data) {
+         bks_model_user_account_free(user_data);
+      }
+   }
+   if (!mdl.products) {
+      EINA_LIST_FREE(mdl.products, product_data) {
+         bks_model_product_free(product_data);
+      }
+   }
+   if (!mdl.favorite_products) {
+      EINA_LIST_FREE(mdl.favorite_products, product_data) {
+         bks_model_product_free(product_data);
+      }
+   }
    eina_lock_free(&mdl.lock);
 }
 
