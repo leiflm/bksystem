@@ -1,4 +1,4 @@
-//      bks_model.
+//      Bks_Model.h
 //
 //      Copyright 2011 Matthias Wauer <matthiaswauer@googlemail.com>
 //
@@ -27,18 +27,18 @@
 #include "Bks_Ui.h"
 
 
-#define BKSYSTEMDB "bksystem.sqlite"	//! This sqlite database holds our users, products, sales etc., should reside in main directory
-#define BILLDB "Abrechnung_"			//! Used for naming the sqlite database which is created for billing accounts (date will be appended)
-#define BILLDBLENGTH 29					//! Should be strlen(BILLDB + 18) to alloc buffer for DB
+#define BKSYSTEMDB "bksystem.sqlite"   //! This sqlite database holds our users, products, sales etc., should reside in main directory
+#define BILLDB "Abrechnung_"         //! Used for naming the sqlite database which is created for billing accounts (date will be appended)
+#define BILLDBLENGTH 29               //! Should be strlen(BILLDB + 18) to alloc buffer for DB
 
 
-#define EVER "0000-01-01 00:00:00" 		//! Timestamp usable as parameter to
+#define EVER "0000-01-01 00:00:00"       //! Timestamp usable as parameter to
 
 
-// 		Flags for
+//       Flags for
 //
-//		SQLITE_FLAGS=`pkg-config --cflags --libs sqlite3 `
-//		EINA_FLAGS=`pkg-config --cflags --libs eina `
+//      SQLITE_FLAGS=`pkg-config --cflags --libs sqlite3 `
+//      EINA_FLAGS=`pkg-config --cflags --libs eina `
 
 
 
@@ -52,9 +52,9 @@
  * @param user_accounts list of Bks_Model_User_Account
  */
 struct _Bks_Model {
-     Eina_List *products;
-     Eina_List *user_accounts;
-     Eina_Lock lock;
+   Eina_List *products;
+   Eina_List *user_accounts;
+   Eina_Lock lock;
 };
 
 /**

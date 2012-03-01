@@ -35,34 +35,40 @@
 // Interface functions
 
 void bks_model_init(void) {
-	eina_lock_new(&mdl.lock);
-	_bks_model_data_get();
-	}
+   eina_lock_new(&mdl.lock);
+   _bks_model_data_get();
+}
 
 void bks_model_shutdown(void) {
-	
-	eina_lock_free(&mdl.lock);
-	}
+   
+   eina_lock_free(&mdl.lock);
+}
 
 
 const Eina_List* bks_model_user_accounts_get(const unsigned int limit) {
 
-	return mdl.user_accounts;
+   return mdl.user_accounts;
 }
 
 const Eina_List* bks_model_products_get(const unsigned int limit) {
-	
-	return mdl.products;
+   
+   return mdl.products;
 }
 
+void bks_model_commit_sale(const Bks_Model_Sale *sale) {
+   
+   _bks_model_commit_sale(sale); 
+
+   }
+
 const Eina_List* bks_model_sales_from_user_since(const sqlite3_uint64 uid, const char *since) {
-	
-	return NULL;
-	}
+   
+   return NULL;
+}
 
 double bks_model_user_balance_get(const sqlite3_uint64 uid, const char *since) {
-	return 0;
+   return 0;
 }
 
 void bks_model_create_bill_table() {
-	}
+}

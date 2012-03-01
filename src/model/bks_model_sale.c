@@ -22,13 +22,13 @@
 #include "Bks_Types.h"
 #include "Bks_Model_Sale.h"
 
-Bks_Model_Sale *bks_model_sale_new(sqlite3_uint64 uid, sqlite3_uint64 EAN) {
+Bks_Model_Sale *bks_model_sale_new(sqlite3_uint64 uid, sqlite3_uint64 EAN, double price) {
 	
 	Bks_Model_Sale *sale_ptr;
 	sale_ptr = malloc(sizeof(Bks_Model_Sale));
 	sale_ptr->uid=uid;
 	sale_ptr->EAN=EAN;
-	sale_ptr->price=0;
+	sale_ptr->price=price;
 	sale_ptr->status=BKS_MODEL_SALE_UNFINISHED;
 
     return sale_ptr;

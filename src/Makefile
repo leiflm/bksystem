@@ -32,7 +32,7 @@ MAIN_SRC = $(MAIN_SRC_DIR)/main.c
 
 SRC = $(MAIN_SRC) $(CTRL_SRC) $(MODEL_SRC) $(UI_SRC)
 
-MAIN_OBJ = $(BUILD_DIR)/bks_system
+MAIN_OBJ = $(BUILD_DIR)/bksystem
 
 all: $(MAIN_OBJ)
 

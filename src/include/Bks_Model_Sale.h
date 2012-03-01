@@ -51,12 +51,13 @@ struct _Bks_Model_Sale {
      char *timestamp;
 };
 
-/* @brief allocates a new Bks_Model_Sale element and initializes it with the
+/** @brief allocates a new Bks_Model_Sale element and initializes it with the
  * given parameters.
  * @param uid user that is buying a product
  * @param EAN corresponding ID of the product
+ * @param price of the product
  */
-Bks_Model_Sale *bks_model_sale_new(sqlite3_uint64 uid, sqlite3_uint64 EAN);
+Bks_Model_Sale *bks_model_sale_new(sqlite3_uint64 uid, sqlite3_uint64 EAN, double price);
 
 /**
  * @brief frees struct memory and NULLs
