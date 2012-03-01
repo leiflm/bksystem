@@ -17,16 +17,13 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-#include <sqlite3.h>
+#include <stdlib.h>
 #include "Bks_Model_Product.h"
 
-
-bks_model_product_free(struct Bks_Model_Product *prod_ptr) {
-	
-	if (prod_ptr != NULL) {
-		free(prod_ptr->name);
-		free(prod_ptr->image);
-		free(prod_ptr);
-		prod_ptr = NULL;
-	}
+void bks_model_product_free(Bks_Model_Product *prod_ptr) {
+    if (!prod_ptr)
+        return;
+    free(prod_ptr->name);
+    free(prod_ptr->image);
+    free(prod_ptr);
 }

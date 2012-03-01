@@ -17,17 +17,17 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-#include <sqlite3.h>
+#include <stdlib.h>
+
+#include "Bks_Types.h"
 #include "Bks_Model_User_Account.h"
 
 
-void bks_model_user_account_free(struct Bks_Model_User_Account *account_ptr) {	
-	
-	if (account_ptr != NULL) {
-		free(account_ptr->firstname);
-		free(account_ptr->lastname);
-		free(account_ptr->image);
-		free(account_ptr);
-		account_ptr = NULL;
-	}
+void bks_model_user_account_free(Bks_Model_User_Account *account_ptr) {	
+     if (!account_ptr)
+       return;
+     free(account_ptr->firstname);
+     free(account_ptr->lastname);
+     free(account_ptr->image);
+     free(account_ptr);
 }

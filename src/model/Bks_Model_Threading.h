@@ -1,6 +1,10 @@
 #ifndef __BKS_MODEL_THREADING_H__
 #define __BKS_MODEL_THREADING_H__
 
+#include <Ecore.h>
+
+#include "Bks_Types.h"
+
 /**
  * @brief Commits a sale to the database, starts therefore a new thread, 
  * @param struct sale with uid and EAN 
@@ -31,13 +35,13 @@ Ecore_Thread *_bks_model_user_accounts_get(const unsigned int limit);
  * @description this is called once the ui is loaded it should set a lock until it loaded the data successfully
  * @return Thread handle immediately
  */
-Ecore_Thread *_bks_model_data_get();
+Ecore_Thread *_bks_model_data_get(void);
 
 /**
  * @brief creates a new thread that creates a new database with final settlement for all and number of bought products
  *
  * @return success indicator of creating thread
  */
-Ecore_Thread *_bks_model_create_bill_table();
+Ecore_Thread *_bks_model_create_bill_table(void);
 
 #endif

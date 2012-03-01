@@ -24,29 +24,35 @@
 #include <sqlite3.h>
 #include <Eina.h>
 
-#include "Bks_Types"
+#include "Bks_Types.h"
 #include "Bks_Model.h"
 #include "Bks_Model_User_Account.h"
+#include "Bks_Model_Sale.h"
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
 
 
 const char *database = BKSYSTEMDB;
 
+static int bks_model_clean_up_DB(sqlite3 *pDb,sqlite3_stmt *stmt);
+static char* bks_model_current_time_string_get(void);
+static void bks_model_print_all_data(sqlite3_stmt *stmt);
+static int _bks_model_sql_create_bill_table_since_until(const char *timestampSince,const char *timestampUntil);
+static Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit);
+static int _bks_model_sql_favorite_products_set(const char *timestampSince,const char *timestampUntil);
+static int _bks_model_sql_recent_user_accounts_set(const char *timestampSince,const char *timestampUntil);
 
 // private functions
 // data retrieval
-Eina_List* _bks_model_recent_user_accounts_get(const unsigned int limit) {
+Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
 	
-	struct Bks_Model_User_Account *ptr_current_user = NULL;
+	Bks_Model_User_Account *ptr_current_user = NULL;
 	char *select_query ="SELECT user_accounts.uid,firstname,lastname,status,placement FROM user_accounts, recent_user_accounts WHERE user_accounts.uid=recent_user_accounts.uid ORDER BY placement";
     char *name;
     sqlite3 *pDb;
 	sqlite3_stmt *stmt; 
     Eina_List *list= NULL;   
     int retval,i;
-    
-	eina_init(); 
     
     retval = sqlite3_open(database, &pDb);
 	if( retval !=SQLITE_OK){
@@ -93,7 +99,7 @@ Eina_List* _bks_model_recent_user_accounts_get(const unsigned int limit) {
 	
 }
 
-Eina_List* _bks_model_user_accounts_get() {
+Eina_List* _bks_model_sql_user_accounts_get(void) {
 	
 	Bks_Model_User_Account *ptr_current_user = NULL;
 	char *select_query ="SELECT uid,firstname,lastname,status FROM user_accounts ORDER BY lastname,firstname";
@@ -102,8 +108,6 @@ Eina_List* _bks_model_user_accounts_get() {
 	sqlite3_stmt *stmt; 
     Eina_List *list= NULL;   
     int retval;
-    
-	eina_init(); 
     
     retval = sqlite3_open(database, &pDb);
 	if( retval !=SQLITE_OK){
@@ -146,7 +150,7 @@ Eina_List* _bks_model_user_accounts_get() {
 
 }
 	
-Eina_List* _bks_model_favorite_products_get(const unsigned int limit) {
+static Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
 	Bks_Model_Product *ptr_current_product = NULL;
 	char *select_query ="SELECT products.EAN,name,price,placement FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
     char *name;
@@ -154,8 +158,6 @@ Eina_List* _bks_model_favorite_products_get(const unsigned int limit) {
 	sqlite3_stmt *stmt; 
     Eina_List *list= NULL;   
     int retval,i;
-    
-	eina_init(); 
     
     retval = sqlite3_open(database, &pDb);
 	if( retval ){
@@ -195,7 +197,7 @@ Eina_List* _bks_model_favorite_products_get(const unsigned int limit) {
 	
 	}
 		
-Eina_List* _bks_model_products_get() {
+Eina_List* _bks_model_sql_products_get(void) {
 	
 	Bks_Model_Product *ptr_current_product = NULL;
 	char *select_query ="SELECT EAN,name,price FROM products ORDER BY name";
@@ -204,8 +206,6 @@ Eina_List* _bks_model_products_get() {
 	sqlite3_stmt *stmt; 
     Eina_List *list= NULL;   
     int retval;
-    
-	eina_init(); 
     
     retval = sqlite3_open(database, &pDb);
 	if( retval ){
@@ -243,17 +243,16 @@ Eina_List* _bks_model_products_get() {
 }
 
 // buying
-int _bks_model_commit_sale(sqlite3_uint64 uid, sqlite3_uint64 EAN) {
+int _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
 		
 	char *select_query ="SELECT EAN,price FROM products WHERE EAN = ?1";
 	char *insert_query ="INSERT INTO sales (userid, product,price,timestamp) VALUES (?1,?2,?3,datetime('now'))"; //userid product price timestamp 
     sqlite3 *pDb;
-	sqlite3_stmt *stmt;
-	sqlite3_stmt *insert_stmt;   
+    sqlite3_stmt *stmt;
+    sqlite3_stmt *insert_stmt;   
     int retval;
     double price;
-    char *currentTime=NULL;
-    
+
     // first get the price of the product
     retval = sqlite3_open(database, &pDb);
 	if(retval != SQLITE_OK) {
@@ -268,11 +267,11 @@ int _bks_model_commit_sale(sqlite3_uint64 uid, sqlite3_uint64 EAN) {
 		sqlite3_close(pDb);  return -1;
 	}
 	// Bind product number to SQL-Statement, on failure return -1
-	sqlite3_bind_double(stmt,1,EAN);
+	sqlite3_bind_double(stmt,1,sale->EAN);
 	if (sqlite3_step(stmt) == SQLITE_ROW) {
 		price = sqlite3_column_double(stmt,1);	
 	} else {
-		fprintf(stderr,"couldnt find product: %llu\n", EAN);
+		fprintf(stderr,"couldnt find product: %llu\n", sale->EAN);
 		bks_model_clean_up_DB(pDb,stmt);
 		return -1;
 	}
@@ -290,8 +289,8 @@ int _bks_model_commit_sale(sqlite3_uint64 uid, sqlite3_uint64 EAN) {
 		sqlite3_close(pDb);  return -1;
 	}
 
-	retval = sqlite3_bind_int64(insert_stmt, 1, uid);
-	retval = sqlite3_bind_int64(insert_stmt, 2, EAN);
+	retval = sqlite3_bind_int64(insert_stmt, 1, sale->uid);
+	retval = sqlite3_bind_int64(insert_stmt, 2, sale->EAN);
 	retval = sqlite3_bind_double(insert_stmt, 3, price);
 	 
 	// Performing INSERT
@@ -318,7 +317,7 @@ int _bks_model_commit_sale(sqlite3_uint64 uid, sqlite3_uint64 EAN) {
 }
 
 // service
-Eina_List* _bks_model_sales_from_user_since(sqlite3_uint64 uid,const char *timestamp) {
+Eina_List* _bks_model_sql_sales_from_user_since(sqlite3_uint64 uid,const char *timestamp) {
 
 	Bks_Model_Sale *ptr_current_sale = NULL;
 	char *select_query ="SELECT uid,firstname,lastname,status,EAN,name,price,timestamp FROM (((SELECT uid,firstname,lastname,status FROM user_accounts WHERE uid = ?2)INNER JOIN (SELECT userid,product,price,timestamp FROM sales WHERE timestamp > datetime(?1)) ON uid=userid ) INNER JOIN (SELECT EAN,name FROM products) ON EAN = product)ORDER BY uid,product";
@@ -328,7 +327,6 @@ Eina_List* _bks_model_sales_from_user_since(sqlite3_uint64 uid,const char *times
     Eina_List *list = NULL;   
     int retval;
     
-	eina_init(); 
     // Open DB
     retval = sqlite3_open(database, &pDb);
 	if( retval ){
@@ -398,12 +396,12 @@ Eina_List* _bks_model_sales_from_user_since(sqlite3_uint64 uid,const char *times
 	return list;
 }
 
-double _bks_model_calculate_sum_from_user_since(sqlite3_uint64 uid,const char *timestamp) {
+double _bks_model_sql_calculate_sum_from_user_since(sqlite3_uint64 uid,const char *timestamp) {
 	
 	sqlite3 *pDb;
 	sqlite3_stmt *stmt;
 	char *query ="SELECT userid,price FROM sales WHERE userid = ?1 AND timestamp > datetime(?2)"; 
-	int retval,i=0;
+	int retval;
 	double sum =0.0;
     retval = sqlite3_open(database, &pDb);
 	if(retval != SQLITE_OK) {
@@ -437,24 +435,24 @@ double _bks_model_calculate_sum_from_user_since(sqlite3_uint64 uid,const char *t
 }
 
 // final settlement
-int _bks_model_create_bill_table() {
+int _bks_model_sql_create_bill_table() {
 	
 	char *startingFrom=EVER; 
 	char *currentTime=bks_model_current_time_string_get();
 	printf("\ncreating bill...\nfrom: %s\nuntil: %s\n\n",startingFrom,currentTime);
 
 	// create Bill Table
-	bks_model_create_bill_table_since_until(startingFrom,currentTime);
+	_bks_model_sql_create_bill_table_since_until(startingFrom, currentTime);
 	
 	// setRecentUserAccounts()
 	printf("trying to set recentuseraccount\n");
-	if (bks_model_recent_user_accounts_set(startingFrom,currentTime)==SQLITE_OK) {
+	if (_bks_model_sql_recent_user_accounts_set(startingFrom,currentTime)==SQLITE_OK) {
 		printf("successfully set recent_user_accounts.\n");
 	}
 	
 	// setFavoriteProducts()
 	printf("trying to set favorite products\n");
-	if (bks_model_favorite_products_get(startingFrom,currentTime)==SQLITE_OK) {
+	if (_bks_model_sql_favorite_products_set(startingFrom,currentTime)==SQLITE_OK) {
 		printf("successfully set favorite products.\n");
 	}
 	
@@ -464,19 +462,15 @@ int _bks_model_create_bill_table() {
 
 
 
-int _bks_model_create_bill_table_since_until(const char *timestampSince,const char *timestampUntil) {
+static int _bks_model_sql_create_bill_table_since_until(const char *timestampSince,const char *timestampUntil) {
 	
 	printf("reading sales...\n");
 	
-	Bks_Model_Sale *ptr_current_sale;
 	char *query ="SELECT userid, firstname, lastname, round(sum(round(price,2)),2) AS \"sum\" FROM ((SELECT uid,firstname,lastname FROM user_accounts ORDER BY lastname,firstname) INNER JOIN (SELECT userid, product, price,timestamp FROM sales WHERE timestamp>datetime(?1) AND timestamp <datetime(?2)) ON uid =userid) GROUP BY uid ORDER BY lastname,firstname";
-    char *tmp;
     sqlite3 *pDb,*pDbNew;
 	sqlite3_stmt *stmt,*stmt_create,*stmt_insert; 
-    Eina_List *list= NULL;   
     int retval,i;
     
-	eina_init(); 
     // Open bksystem DB
     retval = sqlite3_open(database, &pDb);
 	if( retval ){
@@ -547,11 +541,11 @@ int _bks_model_create_bill_table_since_until(const char *timestampSince,const ch
 		if (retval!= SQLITE_OK) {
 		fprintf(stderr,"Binding uid failed:%d \n",retval); 
 		}
-		sqlite3_bind_text(stmt_insert,2,sqlite3_column_text(stmt,1),-1,SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt_insert,2,(const char*)sqlite3_column_text(stmt,1),-1,SQLITE_TRANSIENT);
 		if (retval!= SQLITE_OK) {
 		fprintf(stderr,"Binding firstname failed:%d \n",retval); 
 		}	
-		sqlite3_bind_text(stmt_insert,3,sqlite3_column_text(stmt,2),-1,SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt_insert,3,(const char*)sqlite3_column_text(stmt,2),-1,SQLITE_TRANSIENT);
 		if (retval!= SQLITE_OK) {
 		fprintf(stderr,"Binding lastname failed:%d \n",retval); 
 		}	
@@ -583,7 +577,7 @@ int _bks_model_create_bill_table_since_until(const char *timestampSince,const ch
 	return 0;
 }
 
-int _bks_model_recent_user_accounts_set(const char *timestampSince,const char *timestampUntil) { 
+static int _bks_model_sql_recent_user_accounts_set(const char *timestampSince,const char *timestampUntil) { 
 	
 	char *delete_query ="DELETE FROM recent_user_accounts";
 	char *update_query ="UPDATE sqlite_sequence SET seq=0 WHERE name = \"recent_user_accounts\"";
@@ -644,7 +638,7 @@ int _bks_model_recent_user_accounts_set(const char *timestampSince,const char *t
 
 }
 
-int _bks_model_favorite_products_set(const char *timestampSince,const char *timestampUntil) { 
+static int _bks_model_sql_favorite_products_set(const char *timestampSince,const char *timestampUntil) { 
 	
 	char *delete_query ="DELETE FROM favorite_products";
 	char *update_query ="UPDATE sqlite_sequence SET seq=0 WHERE name = \"favorite_products\"";
@@ -708,7 +702,7 @@ int _bks_model_favorite_products_set(const char *timestampSince,const char *time
 
 
 //Helper functions
-char* bks_model_current_time_string_get() { // not optimal, user has to use a buffer
+static char* bks_model_current_time_string_get(void) { // not optimal, user has to use a buffer
 	time_t *time_t_ptr;
 	time_t_ptr = malloc(sizeof(time_t));
 	time(time_t_ptr);
@@ -722,18 +716,18 @@ char* bks_model_current_time_string_get() { // not optimal, user has to use a bu
 }
 
 //Evaluate SQL Statements and print on console
-void bks_model_print_all_data(sqlite3_stmt *stmt) {	
+static void bks_model_print_all_data(sqlite3_stmt *stmt) {	
 	sqlite3_reset(stmt);	 
     int cols = sqlite3_column_count(stmt);
     printf("table with %d columns\n", cols);
 			 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        int col, ncol;
+        int col;
         
         for (col = 0; col < cols; col++) {
             sqlite3_uint64 uint_val;
             double dbl_val;
-            const unsigned char *chr_ptr, *colname;
+            const char *chr_ptr, *colname;
     
             colname = sqlite3_column_name(stmt,col);
     
@@ -792,7 +786,7 @@ int bks_model_start_up_DB(const char* database, sqlite3 *pDb, const char *query,
 	return retval;
 }
 
-int bks_model_clean_up_DB(sqlite3 *pDb,sqlite3_stmt *stmt) {
+static int bks_model_clean_up_DB(sqlite3 *pDb,sqlite3_stmt *stmt) {
 	int retval;
 	retval = sqlite3_finalize(stmt);
 	if (retval != SQLITE_OK) {
