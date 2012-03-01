@@ -78,3 +78,14 @@ void bks_controller_model_reload_finished_cb(void)
    bks_controller_model_user_accounts_reload_finished_cb();
    bks_controller_model_products_reload_finished_cb();
 }
+
+
+void bks_controller_model_sale_finished_cb(Bks_Model_Sale *sale)
+{
+    printf("Model says, sale %p is finished.\n", sale);
+}
+
+void bks_controller_model_create_bill_table_cb(void)
+{
+    printf("Bill created.\n");
+}

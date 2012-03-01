@@ -40,7 +40,7 @@ products_list_set(const Eina_List *products)
    EINA_LIST_FOREACH((Eina_List*)products, l, product)
      {
         ic = elm_icon_add(ui.products.list);
-        snprintf(buf, sizeof(buf), "%s/%llu.png", elm_app_data_dir_get(), product->ean);
+        snprintf(buf, sizeof(buf), "%s/%llu.png", elm_app_data_dir_get(), product->EAN);
         elm_icon_file_set(ic, buf, NULL);
         elm_icon_scale_set(ic, 1, 1);
         elm_list_item_append(ui.products.list, product->name, ic, NULL, _on_product_select, product);
