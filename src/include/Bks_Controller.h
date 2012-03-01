@@ -23,7 +23,12 @@ void bks_controller_ui_sale_finish_cb(void);
 void bks_controller_bill_create_cb(const Bks_Model_User_Account *userAccount);
 
 // Model callbacks
-void bks_controller_model_reloaded_cb(void);
+void bks_controller_model_reload_cb(void);
+void bks_controller_model_user_accounts_reload_cb(void);
+void bks_controller_model_products_reload_cb(void);
+void bks_controller_model_reload_finished_cb(void);
+void bks_controller_model_user_accounts_reload_finished_cb(void);
+void bks_controller_model_products_reload_finished_cb(void);
 void bks_controller_model_sale_finished_cb(Bks_Model_Sale *sale);
 void bks_controller_model_create_bill_table_cb(void);
 

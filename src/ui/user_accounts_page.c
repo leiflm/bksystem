@@ -54,7 +54,76 @@ user_accounts_page_reset(void)
    return ui.user_accounts.list;
 }
 
-void user_accounts_page_fill(const Eina_List *user_accounts)
+void user_accounts_page_set(const Eina_List *user_accounts)
 {
-   user_accounts_list_fill(user_accounts);
+    user_accounts_list_set(user_accounts);
+}
+
+// API calls
+
+/**
+ * @brief Clears the user accounts ui elements.
+ */
+void bks_ui_user_accounts_clear(void)
+{
+   user_accounts_page_clear();
+   eina_lock_release(&ui.user_accounts.lock);
+}
+
+/**
+ * @brief Indicates that the user accounts are being refetched.
+ */
+void bks_ui_user_accounts_update_set(const Eina_Bool update)
+{
+    printf("Jetzt sollte der Benutzerlistenschirm  %sbenutzbar sein.", (update ? "un" : ""));
+}
+
+void _bks_ui_user_accounts_page_set(void *data, Ecore_Thread *th)
+{
+   const Eina_List *user_accounts = (const Eina_List*)data;
+
+   user_accounts_page_set(user_accounts);
+   eina_lock_release(&ui.user_accounts.lock);
+}
+
+void bks_ui_user_accounts_page_set(const Eina_List *user_accounts)
+{
+   bks_ui_user_accounts_lock_take();
+   //CREATE THREAD
+   ecore_thread_run(_bks_ui_user_accounts_page_set, NULL, NULL, user_accounts);
+}
+
+/**
+ * @return List of Bks_Model_User_Account elements
+ */
+Eina_List *bks_ui_user_accounts_selected_get(void)
+{
+   const Eina_List *selected_accounts;
+   Eina_List *iter, *list = NULL;
+   Elm_Object_Item *eoi;
+   const Bks_Model_User_Account *acc;
+
+   if (!(selected_accounts = elm_list_selected_items_get(ui.user_accounts.list)))
+       return NULL;
+
+   // print the names of all selected accounts
+   EINA_LIST_FOREACH((Eina_List*)selected_accounts, iter, eoi)
+     {
+        if (elm_list_item_selected_get(eoi))
+          {
+             acc = (Bks_Model_User_Account*)elm_object_item_data_get(eoi);
+             printf("Selected User Account: %s, %s\n", acc->lastname, acc->firstname);
+             list = eina_list_append(list, acc);
+          }
+     }
+
+   return list;
+}
+
+/**
+ * @brief Aquires a lock for the user accounts ui elements
+ */
+void bks_ui_user_accounts_lock_take(void)
+{
+    eina_lock_take(&ui.user_accounts.lock);
 }

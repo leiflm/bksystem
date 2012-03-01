@@ -14,11 +14,11 @@ PRODUCTS_SRC = products_grid.c products_list.c products_page.c
 USER_ACCOUNTS_SRC = user_accounts_list.c user_accounts_page.c
 UI_SRC = $(COMMON_SRC) $(PRODUCTS_SRC) $(USER_ACCOUNTS_SRC)
 
-UI_OBJS = $(COMMON_OBJS) $(PRODUCTS_OBJS) $(USER_ACCOUNTS_OBJS)
+#UI_OBJS = $(COMMON_OBJS) $(PRODUCTS_OBJS) $(USER_ACCOUNTS_OBJS)
 
 all: bks_ui.o
 
-bks_ui.o: $(UI_OBJS)
+bks_ui.o: $(UI_SRC)
 	$(CC) $(CFLAGS) $(UI_CFLAGS) $(UI_LDFLAGS) $(UI_SRC) -o $(BUILD_DIR)/bks_ui.o
 
 #%.o: %.c

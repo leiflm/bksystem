@@ -105,7 +105,7 @@ void _products_grid_clear(void)
    elm_gengrid_clear(ui.products.grid);
 }
 
-void products_grid_fill(const Eina_List *products)
+void products_grid_set(const Eina_List *products)
 {
    Eina_List *iter;
    Bks_Model_Product *product;

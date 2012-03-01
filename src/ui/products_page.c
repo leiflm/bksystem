@@ -58,18 +58,78 @@ Evas_Object *products_page_add(void)
    return ui.products.panes;
 }
 
-void _products_page_favs_fill(const Eina_List *products)
+void _products_page_favs_set(const Eina_List *products)
 {
-   products_grid_fill(products);
+   products_grid_set(products);
 }
 
-void _products_page_alpha_fill(const Eina_List *products)
+void _products_page_alpha_set(const Eina_List *products)
 {
-   products_list_fill(products);
+   products_list_set(products);
 }
 
-void products_page_fill(const Eina_List *products)
+void products_page_set(const Eina_List *products)
 {
-   _products_page_favs_fill(products);
-   _products_page_alpha_fill(products);
+   _products_page_favs_set(products);
+   _products_page_alpha_set(products);
+}
+
+const Bks_Model_Product *bks_ui_product_selected_get(void)
+{
+   Elm_Object_Item *selected_product;
+   const Bks_Model_Product *product;
+
+   if (!(selected_product = elm_list_selected_item_get(ui.products.list)))
+     return NULL;
+
+   product = (Bks_Model_Product*)elm_object_item_data_get(selected_product);
+
+   return product;
+}
+
+//API calls
+
+/**
+ * @brief Clears the products ui elements.
+ */
+void bks_ui_products_clear(void)
+{
+   products_page_clear();
+   eina_lock_release(&ui.products.lock);
+}
+
+/**
+ * @brief Indicates that the products are being refetched.
+ */
+void bks_ui_products_update_set(const Eina_Bool update)
+{
+    printf("Jetzt sollte der Produktbildschirm %sbenutzbar sein.", (update ? "un" : ""));
+}
+
+/**
+ * @brief Aquires a lock for the products ui elements
+ */
+void bks_ui_products_lock_take(void)
+{
+    eina_lock_take(&ui.products.lock);
+}
+
+void _bks_ui_products_page_set(void *data, Ecore_Thread *th)
+{
+   const Eina_List *products = (const Eina_List*)data;
+
+   products_page_set(products);
+   eina_lock_release(&ui.products.lock);
+}
+
+/**
+ * @brief fills the UI using @p products.
+ *
+ * @param products list of Bks_ModeL_Product
+ */
+void bks_ui_products_page_set(const Eina_List *products)
+{
+   bks_ui_products_lock_take();
+   //CREATE THREAD
+   ecore_thread_run(_bks_ui_products_page_set, NULL, NULL, products);
 }

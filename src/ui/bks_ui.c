@@ -14,6 +14,10 @@ void bks_ui_init(void)
    // initialize Elementary
    elm_init(0, NULL);
 
+   //Add mutexes
+   eina_lock_new(&ui.products.lock);
+   eina_lock_new(&ui.user_accounts.lock);
+
    // new window - do the usual and give it a name and title
    ui.win = bks_ui_win_add();
 
@@ -48,63 +52,14 @@ void bks_ui_shutdown(void)
    ui.user_accounts.enp.content = NULL;
    evas_object_del(ui.naviframe);
    ui.naviframe = NULL;
+   evas_object_del(ui.win);
+   ui.win = NULL;
+
+   //Free mutexes
+   eina_lock_free(&ui.products.lock);
+   eina_lock_free(&ui.user_accounts.lock);
 
    elm_shutdown();
-}
-
-/**
- * @param ui The Bks_Ui the selected user accounts are retrieved from
- * @return List of Bks_Model_User_Account elements
- */
-Eina_List *bks_ui_user_accounts_selected_get(void)
-{
-   const Eina_List *selected_accounts;
-   Eina_List *iter, *list = NULL;
-   Elm_Object_Item *eoi;
-   const Bks_Model_User_Account *acc;
-
-   if (!(selected_accounts = elm_list_selected_items_get(ui.user_accounts.list)))
-       return NULL;
-
-   // print the names of all selected accounts
-   EINA_LIST_FOREACH((Eina_List*)selected_accounts, iter, eoi)
-     {
-        if (elm_list_item_selected_get(eoi))
-          {
-             acc = (Bks_Model_User_Account*)elm_object_item_data_get(eoi);
-             printf("Selected User Account: %s, %s\n", acc->lastname, acc->firstname);
-             list = eina_list_append(list, acc);
-          }
-     }
-
-   return list;
-}
-
-const Bks_Model_Product *bks_ui_product_selected_get(void)
-{
-   Elm_Object_Item *selected_product;
-   const Bks_Model_Product *product;
-
-   if (!(selected_product = elm_list_selected_item_get(ui.products.list)))
-     return NULL;
-
-   product = (Bks_Model_Product*)elm_object_item_data_get(selected_product);
-
-   return product;
-}
-
-void bks_ui_products_page_update(const Eina_List *products)
-{
-   //CREATE THREAD
-   products_page_clear();
-   products_page_fill(products);
-}
-
-void bks_ui_user_accounts_page_update(const Eina_List *user_accounts)
-{
-   //CREATE THREAD
-   user_accounts_page_clear();
-   user_accounts_page_fill(user_accounts);
 }
 
 void bks_ui_model_sale_finished_cb(Bks_Model_Sale *sale)

@@ -29,7 +29,7 @@ _on_user_account_double_click(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
-user_accounts_list_fill(const Eina_List *user_accounts)
+user_accounts_list_set(const Eina_List *user_accounts)
 {
    Eina_List *iter;
    Bks_Model_User_Account *acc;

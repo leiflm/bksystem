@@ -27,7 +27,7 @@ _on_product_select(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
-products_list_fill(const Eina_List *products)
+products_list_set(const Eina_List *products)
 {
    Evas_Object *ic;
    Eina_List *l;

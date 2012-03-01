@@ -9,29 +9,29 @@ Evas_Object *bks_ui_win_add(void);
 
 // user acounts page related functions
 Evas_Object *user_accounts_page_add(void);
-void user_accounts_page_fill(const Eina_List *user_accounts);
+void user_accounts_page_set(const Eina_List *user_accounts);
 void user_accounts_page_clear(void);
 // unselects user accounts
 void user_accounts_page_reset(void);
 // list related:
-void user_accounts_list_fill(const Eina_List *user_accounts);
+void user_accounts_list_set(const Eina_List *user_accounts);
 
 // products page related functions
 Evas_Object *products_page_add(void);
 void products_page_clear();
-void products_page_fill(const Eina_List *products);
+void products_page_set(const Eina_List *products);
 // unselects selected product
 void products_page_reset(void);
 //grid (favs) related:
 Evas_Object *products_grid_add(void);
-void products_grid_fill(const Eina_List *products);
+void products_grid_set(const Eina_List *products);
 // unselects selected product
 void products_grid_reset(void);
 void products_grid_clear(void);
 //normal list related:
 Evas_Object *products_list_add(void);
 void products_list_clear(void);
-void products_list_fill(const Eina_List *products);
+void products_list_set(const Eina_List *products);
 // unselects selected product
 void products_list_reset(void);
 

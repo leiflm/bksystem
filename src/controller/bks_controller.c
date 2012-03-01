@@ -5,6 +5,7 @@
 #include "Bks_Model_Product.h"
 #include "Bks_Model_User_Account.h"
 #include "Bks_Controller.h"
+#include "Bks_Controller_Private.h"
 
 void bks_controller_init(void)
 {
@@ -42,4 +43,38 @@ void bks_controller_ui_sale_finish_cb(void)
 void bks_controller_run(void)
 {
    ecore_main_loop_begin();
+}
+
+void bks_controller_model_user_accounts_reload_cb(void)
+{
+   bks_ui_user_accounts_lock_take();
+   ecore_thread_run(_bks_controller_model_user_accounts_reload_cb, NULL, NULL, NULL);
+}
+
+void bks_controller_model_products_reload_cb(void)
+{
+   bks_ui_products_lock_take();
+   ecore_thread_run(_bks_controller_model_products_reload_cb, NULL, NULL, NULL);
+}
+
+void bks_controller_model_reload_cb(void)
+{
+    bks_controller_model_products_reload_cb();
+    bks_controller_model_user_accounts_reload_cb();
+}
+
+void bks_controller_model_user_accounts_reload_finished_cb(void)
+{
+   bks_ui_user_accounts_page_set(bks_model_user_accounts_get(0));
+}
+
+void bks_controller_model_products_reload_finished_cb(void)
+{
+   bks_ui_products_page_set(bks_model_products_get(0));
+}
+
+void bks_controller_model_reload_finished_cb(void)
+{
+   bks_controller_model_user_accounts_reload_finished_cb();
+   bks_controller_model_products_reload_finished_cb();
 }
