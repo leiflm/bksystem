@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sqlite3.h>
 #include <Eina.h>
+#include <Ecore.h>
 
 #include "Bks_Types.h"
 #include "Bks_Model.h"
@@ -31,20 +31,36 @@
 #include "Bks_Model_Sale.h"
 #include "Bks_Model_Private.h"
 
-
-const char *database = BKSYSTEMDB;
-
 // Interface functions
-void bks_model_init(void)
-{
+
+void bks_model_init(void) {
+	eina_lock_new(&mdl->lock);
+	_bks_model_data_get();
+	}
+
+void bks_model_shutdown(void) {
+	
+	eina_lock_free(&mdl->lock);
+	}
+
+
+const Eina_List* bks_model_user_accounts_get(const unsigned int limit) {
+
+	return mdl->user_accounts;
 }
 
-void bks_model_shutdown(void)
-{
+const Eina_List* bks_model_products_get(const unsigned int limit) {
+	
+	return mdl->products;
 }
 
-void bks_model_commit_sale(const Bks_Model_Sale *sale)
-{
+const Eina_List* bks_model_sales_from_user_since(const sqlite3_uint64 uid, const char *since) {
+	
+	return NULL;
+	}
+
+double bks_model_user_balance_get(const sqlite3_uint64 uid, const char *since) {
+	return 0;
 }
 
 Eina_List *bks_model_user_accounts_get(const unsigned int limit)
@@ -52,7 +68,5 @@ Eina_List *bks_model_user_accounts_get(const unsigned int limit)
      return NULL;
 }
 
-Eina_List *bks_model_products_get(const unsigned int limit);
-Eina_List *bks_model_sales_from_user_since(const sqlite3_uint64 uid, const char *since);
-double bks_model_user_balance_get(const sqlite3_uint64 uid, const char *since);
-void bks_model_create_bill_table();
+void bks_model_create_bill_table() {
+	}

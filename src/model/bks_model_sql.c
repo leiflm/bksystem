@@ -1,4 +1,4 @@
-//      bks_model_private.c
+//      bks_model_sql.c
 //      
 //      Copyright 2011 Matthias Wauer <matthiaswauer@googlemail.com>
 //      
@@ -36,7 +36,7 @@ const char *database = BKSYSTEMDB;
 
 // private functions
 // data retrieval
-Eina_List* _bks_model_recent_user_accounts_get(int limit) {
+Eina_List* _bks_model_recent_user_accounts_get(const unsigned int limit) {
 	
 	struct Bks_Model_User_Account *ptr_current_user = NULL;
 	char *select_query ="SELECT user_accounts.uid,firstname,lastname,status,placement FROM user_accounts, recent_user_accounts WHERE user_accounts.uid=recent_user_accounts.uid ORDER BY placement";
@@ -133,7 +133,7 @@ Eina_List* _bks_model_user_accounts_get() {
         
         ptr_current_user->status = sqlite3_column_int64(stmt,3);
         list = eina_list_append(list, ptr_current_user);
-        
+
         ptr_current_user->image = NULL;
     }
 	if (sqlite3_finalize(stmt) != SQLITE_OK) {
@@ -144,9 +144,9 @@ Eina_List* _bks_model_user_accounts_get() {
 	}
 	return list;
 
-}	
+}
 	
-Eina_List* _bks_model_favorite_products_get(int limit) {
+Eina_List* _bks_model_favorite_products_get(const unsigned int limit) {
 	Bks_Model_Product *ptr_current_product = NULL;
 	char *select_query ="SELECT products.EAN,name,price,placement FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
     char *name;
@@ -243,7 +243,7 @@ Eina_List* _bks_model_products_get() {
 }
 
 // buying
-int _bks_model_make_sale(sqlite3_uint64 uid, sqlite3_uint64 EAN) {
+int _bks_model_commit_sale(sqlite3_uint64 uid, sqlite3_uint64 EAN) {
 		
 	char *select_query ="SELECT EAN,price FROM products WHERE EAN = ?1";
 	char *insert_query ="INSERT INTO sales (userid, product,price,timestamp) VALUES (?1,?2,?3,datetime('now'))"; //userid product price timestamp 
@@ -459,6 +459,7 @@ int _bks_model_create_bill_table() {
 	}
 	
 	free(currentTime);
+	return 0;
 	}
 
 
