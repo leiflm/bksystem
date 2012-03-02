@@ -27,7 +27,6 @@ void bks_controller_model_user_accounts_reload_cb(void)
 
 void bks_controller_model_products_reload_cb(void)
 {
-   bks_ui_products_lock_take();
    ecore_thread_run(_products_reload_cb, NULL, NULL, NULL);
 }
 

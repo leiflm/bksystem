@@ -41,7 +41,9 @@ void bks_model_init(void) {
    mdl.recent_user_accounts = NULL;
    mdl.products = NULL;
    mdl.favorite_products = NULL;
-   _bks_model_data_get();
+   _bks_model_products_get(6);
+   _bks_model_user_accounts_get(6);
+   //_bks_model_data_get();
 }
 
 void bks_model_shutdown(void) {
@@ -74,26 +76,28 @@ void bks_model_shutdown(void) {
 }
 
 
-Eina_List* bks_model_user_accounts_get(const unsigned int limit) {
+Eina_List* bks_model_user_accounts_get(unsigned int limit) {
    Eina_List *list = NULL, *rest = NULL;
    if (limit == 0) {
       list = eina_list_clone(mdl.user_accounts);
    } else {
       list = eina_list_clone(mdl.recent_user_accounts);
-      list = eina_list_split_list(list, eina_list_nth(list,limit), &rest);
-      eina_list_free(rest);
+     // limit = (limit > eina_list_count(list)) ? eina_list_count(list) - 1 : limit;
+     // list = eina_list_split_list(list, eina_list_nth(list, (limit - 1)), &rest);
+     // eina_list_free(rest);
    }
    return list;
 }
 
-Eina_List* bks_model_products_get(const unsigned int limit) {
+Eina_List* bks_model_products_get(unsigned int limit) {
    Eina_List *list = NULL, *rest = NULL;
    if (limit == 0) {
       list = eina_list_clone(mdl.products);
    } else {
       list = eina_list_clone(mdl.favorite_products);
-      list = eina_list_split_list(list, eina_list_nth(list,limit), &rest);
-      eina_list_free(rest);
+      //limit = (limit > eina_list_count(list)) ? eina_list_count(list) - 1 : limit;
+      //list = eina_list_split_list(list, eina_list_nth(list, (limit - 1)), &rest);
+      //eina_list_free(rest);
    }
    return list;
 }

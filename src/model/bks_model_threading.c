@@ -64,18 +64,17 @@ static void _bks_model_data_get_cb(void *data, Ecore_Thread *th) {
          bks_model_product_free(product_data);
       }
    }
-   // getting new data 
-   mdl.products = _bks_model_sql_products_get();
-   mdl.favorite_products = _bks_model_sql_favorite_products_get(5);
+   // getting new data
    mdl.user_accounts = _bks_model_sql_user_accounts_get();
-   mdl.recent_user_accounts = _bks_model_sql_recent_user_accounts_get(5);
-   
+   mdl.recent_user_accounts = _bks_model_sql_recent_user_accounts_get(10);
+   mdl.products = _bks_model_sql_products_get();
+   mdl.favorite_products = _bks_model_sql_favorite_products_get(10);
    eina_lock_release(&mdl.lock);
 
 }
 
 static void _bks_model_data_get_finished_cb(void *data, Ecore_Thread *th) {
-
+   printf("Loading data finished...\n");
    bks_controller_model_reload_finished_cb();
 }
 
@@ -131,7 +130,7 @@ static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th) {
 }
 
 static void _bks_model_sale_canceled_cb(void *data, Ecore_Thread *th) {
-   fprintf(stderr,"Sale canceld\n");
+   fprintf(stderr,"Sale canceled\n");
    bks_controller_model_commit_sale_finished_cb(data);
 }
 
@@ -174,7 +173,7 @@ static void _bks_model_products_get_finished_cb(void *data, Ecore_Thread *th) {
 }
 
 static void _bks_model_products_get_canceled_cb(void *data, Ecore_Thread *th) {
-
+   fprintf(stderr,"products load canceled\n");
    bks_controller_model_products_reload_finished_cb();
 }
 
@@ -216,12 +215,12 @@ static void _bks_model_user_accounts_get_cb(void *data, Ecore_Thread *th) {
 
 static void _bks_model_user_accounts_get_finished_cb(void *data, Ecore_Thread *th) {
 
-   bks_controller_model_user_accounts_reload_cb();
+   bks_controller_model_user_accounts_reload_finished_cb();
 }
 
 static void _bks_model_user_accounts_get_canceled_cb(void *data, Ecore_Thread *th) {
-
-   bks_controller_model_user_accounts_reload_cb();
+   fprintf(stderr,"User accounts get canceled\n");
+   bks_controller_model_user_accounts_reload_finished_cb();
 }
 
 Ecore_Thread *_bks_model_user_accounts_get(unsigned int limit) {
