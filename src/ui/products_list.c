@@ -39,8 +39,8 @@ products_list_set(Eina_List *products)
      {
         ic = elm_icon_add(ui.products.list);
         snprintf(buf, sizeof(buf), "%s/%llu.png", "data", product->EAN);
-        elm_icon_file_set(ic, buf, NULL);
-        elm_icon_scale_set(ic, 1, 1);
+        if (elm_icon_file_set(ic, buf, NULL))
+          elm_icon_scale_set(ic, 1, 1);
         it = elm_list_item_append(ui.products.list, product->name, ic, NULL, _on_product_select, NULL);
         elm_object_item_data_set(it, product);
         printf("Produkt %p hinzugefuegt.\n", it);

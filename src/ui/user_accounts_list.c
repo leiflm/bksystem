@@ -37,6 +37,7 @@ user_accounts_list_set(Eina_List *user_accounts)
    char buf[256];
 
    EINA_SAFETY_ON_NULL_RETURN(ui.user_accounts.list);
+   EINA_SAFETY_ON_NULL_RETURN(user_accounts);
 
    EINA_LIST_FREE(user_accounts, acc)
      {
@@ -49,24 +50,23 @@ user_accounts_list_set(Eina_List *user_accounts)
          li = elm_list_item_append(ui.user_accounts.list, name, ic, NULL, on_user_account_select, name);
          */
         snprintf(buf, sizeof(buf), "%s, %s", acc->lastname, acc->firstname);
+        printf("Fuege Benutzer %s hinzu.\n", buf);
         li = elm_list_item_append(ui.user_accounts.list, buf, NULL, NULL, _on_user_account_select, NULL);
         elm_object_item_data_set(li, acc);
      }
+   elm_list_go(ui.user_accounts.list);
 }
 
 Evas_Object *user_accounts_page_list_add(void)
 {
-   Evas_Object *list;
-
    if (!ui.win) return NULL;
 
-   list = elm_list_add(ui.win);
-   elm_list_multi_select_set(list, EINA_TRUE);
+   ui.user_accounts.list = elm_list_add(ui.win);
+   elm_list_multi_select_set(ui.user_accounts.list, EINA_TRUE);
 
    // Add callback for doubleclick action
-   evas_object_smart_callback_add(ui.user_accounts.enp.content, "clicked,double", _on_user_account_double_click, NULL);
+   //evas_object_smart_callback_add(ui.user_accounts.enp.content, "clicked,double", _on_user_account_double_click, NULL);
+   evas_object_smart_callback_add(ui.user_accounts.list, "clicked,double", _on_user_account_double_click, NULL);
 
-   elm_list_go(list);
-
-   return list;
+   return ui.user_accounts.list;
 }

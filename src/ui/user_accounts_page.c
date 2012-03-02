@@ -38,6 +38,7 @@ user_accounts_page_reset(void)
 
    //create, setup and fill user_accounts
    ui.user_accounts.list = user_accounts_page_list_add();
+   evas_object_show(ui.user_accounts.list);
    // Add button to go back to productslist
    ui.user_accounts.enp.prev_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.user_accounts.enp.prev_btn);
