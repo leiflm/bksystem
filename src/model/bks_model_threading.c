@@ -103,7 +103,7 @@ Ecore_Thread *_bks_model_data_get(void) {
 static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
 
    Bks_Model_Sale *sale = (Bks_Model_Sale *)data;
-   int retry = 4;
+   int retry = 3;
   // retry = ecore_thread_local_data_find(th, "no_of_retry");
 
    while (retry >= 0) {
@@ -119,6 +119,7 @@ static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
          ecore_thread_reschedule(th);
       } else {
          eina_lock_release(&mdl.lock);
+         break;
         // ecore_thread_local_data_set(th, "no_of_retry", retry, _free_int_ptr_cb); 
       }
    }

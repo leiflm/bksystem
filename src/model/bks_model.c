@@ -82,9 +82,9 @@ Eina_List* bks_model_user_accounts_get(unsigned int limit) {
       list = eina_list_clone(mdl.user_accounts);
    } else {
       list = eina_list_clone(mdl.recent_user_accounts);
-     // limit = (limit > eina_list_count(list)) ? eina_list_count(list) - 1 : limit;
-     // list = eina_list_split_list(list, eina_list_nth(list, (limit - 1)), &rest);
-     // eina_list_free(rest);
+      limit = (limit > eina_list_count(list)) ? eina_list_count(list) : limit;
+      list = eina_list_split_list(list, eina_list_nth_list(list, (limit - 1)), &rest);
+      eina_list_free(rest);
    }
    return list;
 }
@@ -95,9 +95,9 @@ Eina_List* bks_model_products_get(unsigned int limit) {
       list = eina_list_clone(mdl.products);
    } else {
       list = eina_list_clone(mdl.favorite_products);
-      //limit = (limit > eina_list_count(list)) ? eina_list_count(list) - 1 : limit;
-      //list = eina_list_split_list(list, eina_list_nth(list, (limit - 1)), &rest);
-      //eina_list_free(rest);
+      limit = (limit > eina_list_count(list)) ? eina_list_count(list) : limit;
+      list = eina_list_split_list(list, eina_list_nth_list(list, (limit - 1)), &rest);
+      eina_list_free(rest);
    }
    return list;
 }

@@ -44,7 +44,7 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
    if (!strcmp(part, "elm.swallow.icon"))
      {
         Evas_Object *icon = elm_bg_add(obj);
-        snprintf(buf, sizeof(buf), "%s/data/images/%llu.jpg", elm_app_data_dir_get(), product->EAN);
+        snprintf(buf, sizeof(buf), "images/%llu.png", product->EAN);
         elm_bg_file_set(icon, buf, NULL);
         evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
         evas_object_show(icon);
