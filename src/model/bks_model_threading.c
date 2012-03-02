@@ -79,7 +79,7 @@ static void _bks_model_data_get_finished_cb(void *data, Ecore_Thread *th) {
 }
 
 static void _bks_model_data_get_canceled_cb(void *data, Ecore_Thread *th) {
-
+   fprintf(stderr, "Loading data got canceled\n");
    bks_controller_model_reload_finished_cb();
 }
 
@@ -106,7 +106,7 @@ static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
    if (!retry_ptr) {
       retry_ptr = (int*)malloc(sizeof(int));
       if (!retry_ptr) {
-         fprintf(sdterr,"no memory available for sale retry counter!\n");
+         fprintf(stderr,"no memory available for sale retry counter!\n");
          ecore_thread_cancel(th);
       }
       *retry_ptr = 3;
@@ -164,12 +164,13 @@ static void _bks_model_products_get_cb(void *data, Ecore_Thread *th) {
          bks_model_product_free(product_data);
       }
    }
-   /*if (!products) {
-      ecore_thread_cancel(th);
-      eina_lock_release(&mdl.lock);
-      return;
-   }*/
+
    mdl.products = _bks_model_sql_products_get();
+   if (!mdl.products) {
+      eina_lock_release(&mdl.lock);
+      ecore_thread_cancel(th);
+      return;
+   }
    mdl.favorite_products = _bks_model_sql_favorite_products_get(5);
    eina_lock_release(&mdl.lock);
 }
@@ -180,7 +181,7 @@ static void _bks_model_products_get_finished_cb(void *data, Ecore_Thread *th) {
 }
 
 static void _bks_model_products_get_canceled_cb(void *data, Ecore_Thread *th) {
-   fprintf(stderr,"products load canceled\n");
+   fprintf(stderr,"Loading products canceled\n");
    bks_controller_model_products_reload_finished_cb();
 }
 
@@ -209,12 +210,12 @@ static void _bks_model_user_accounts_get_cb(void *data, Ecore_Thread *th) {
       }
    }
 
-   /*if (!user_accounts) {
-      ecore_thread_cancel(th);
-      eina_lock_release(&mdl.lock);
-      return;
-   }*/
    mdl.user_accounts = _bks_model_sql_user_accounts_get();
+   if (!mdl.user_accounts) {
+      eina_lock_release(&mdl.lock);
+      ecore_thread_cancel(th);
+      return;
+   }
    mdl.recent_user_accounts = _bks_model_sql_recent_user_accounts_get(5);
    
    eina_lock_release(&mdl.lock);
@@ -226,7 +227,7 @@ static void _bks_model_user_accounts_get_finished_cb(void *data, Ecore_Thread *t
 }
 
 static void _bks_model_user_accounts_get_canceled_cb(void *data, Ecore_Thread *th) {
-   fprintf(stderr,"User accounts get canceled\n");
+   fprintf(stderr,"Loading user accounts canceled\n");
    bks_controller_model_user_accounts_reload_finished_cb();
 }
 

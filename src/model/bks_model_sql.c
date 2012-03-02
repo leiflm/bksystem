@@ -36,7 +36,7 @@ const char *database = BKSYSTEMDB;
 
 static int bks_model_clean_up_DB(sqlite3 *pDb, sqlite3_stmt *stmt);
 static char* bks_model_current_time_string_get(void);
-static void bks_model_print_all_data(sqlite3_stmt *stmt);
+//static void bks_model_print_all_data(sqlite3_stmt *stmt);
 static int _bks_model_sql_create_bill_table_since_until(const char *timestampSince, const char *timestampUntil);
 static int _bks_model_sql_favorite_products_set(const char *timestampSince, const char *timestampUntil);
 static int _bks_model_sql_recent_user_accounts_set(const char *timestampSince, const char *timestampUntil);
@@ -718,51 +718,51 @@ static char* bks_model_current_time_string_get(void) { // not optimal, user has 
 }
 
 //Evaluate SQL Statements and print on console
-static void bks_model_print_all_data(sqlite3_stmt *stmt) {   
-   sqlite3_reset(stmt);    
-   int cols = sqlite3_column_count(stmt);
-   printf( "table with %d columns\n", cols);
-
-      while (sqlite3_step(stmt) == SQLITE_ROW) {
-      int col;
-
-      for (col = 0; col < cols; col++) {
-         sqlite3_uint64 uint_val;
-         double dbl_val;
-         const char *chr_ptr, *colname;
-         colname = sqlite3_column_name(stmt,col);
-
-            switch (sqlite3_column_type(stmt,col)) {
-               case SQLITE_INTEGER:
-                  uint_val =  sqlite3_column_int64(stmt,col);
-                  printf("%s = %llu type:int64", colname, uint_val);
-               break;
-               case SQLITE_FLOAT:
-                  dbl_val =  sqlite3_column_double(stmt,col);
-                  printf("%s = %f type:double", colname,dbl_val);
-               break;
-               case SQLITE_TEXT:
-                  chr_ptr = (const char*)sqlite3_column_text(stmt,col);
-                  printf("%s = %s type:text", colname,chr_ptr);
-               break;
-               case SQLITE_BLOB:
-                  printf("BLOB, won't display it %s", colname);
-               break;
-               case SQLITE_NULL:
-                  printf("Watch out, we have a NULL value over here (%s)!", colname);
-               break;
-               default: 
-                  printf("Here is somthing I dont recognize on:%s\n", colname);
-               //break;
-         }
-
-         printf("\n");
-      }
-      printf("\n");
-   }
-   printf("All rows finished\n");
-   sqlite3_reset(stmt);
-}
+//~ static void bks_model_print_all_data(sqlite3_stmt *stmt) {   
+   //~ sqlite3_reset(stmt);    
+   //~ int cols = sqlite3_column_count(stmt);
+   //~ printf( "table with %d columns\n", cols);
+//~ 
+      //~ while (sqlite3_step(stmt) == SQLITE_ROW) {
+      //~ int col;
+//~ 
+      //~ for (col = 0; col < cols; col++) {
+         //~ sqlite3_uint64 uint_val;
+         //~ double dbl_val;
+         //~ const char *chr_ptr, *colname;
+         //~ colname = sqlite3_column_name(stmt,col);
+//~ 
+            //~ switch (sqlite3_column_type(stmt,col)) {
+               //~ case SQLITE_INTEGER:
+                  //~ uint_val =  sqlite3_column_int64(stmt,col);
+                  //~ printf("%s = %llu type:int64", colname, uint_val);
+               //~ break;
+               //~ case SQLITE_FLOAT:
+                  //~ dbl_val =  sqlite3_column_double(stmt,col);
+                  //~ printf("%s = %f type:double", colname,dbl_val);
+               //~ break;
+               //~ case SQLITE_TEXT:
+                  //~ chr_ptr = (const char*)sqlite3_column_text(stmt,col);
+                  //~ printf("%s = %s type:text", colname,chr_ptr);
+               //~ break;
+               //~ case SQLITE_BLOB:
+                  //~ printf("BLOB, won't display it %s", colname);
+               //~ break;
+               //~ case SQLITE_NULL:
+                  //~ printf("Watch out, we have a NULL value over here (%s)!", colname);
+               //~ break;
+               //~ default: 
+                  //~ printf("Here is somthing I dont recognize on:%s\n", colname);
+               //~ //break;
+         //~ }
+//~ 
+         //~ printf("\n");
+      //~ }
+      //~ printf("\n");
+   //~ }
+   //~ printf("All rows finished\n");
+   //~ sqlite3_reset(stmt);
+//~ }
 
 
 
