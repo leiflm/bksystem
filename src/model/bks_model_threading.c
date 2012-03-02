@@ -83,17 +83,14 @@ static void _bks_model_data_get_canceled_cb(void *data, Ecore_Thread *th) {
    bks_controller_model_reload_finished_cb();
 }
 
-//~ static void _free_int_ptr_cb(void *data) {
-//~ 
-   //~ free((unsigned int*)data);
-//~ }
+static void _retry_ptr_free_cb(void *data) {
+   int *ptr = (int*)data;
+   free(ptr);
+}
 
 Ecore_Thread *_bks_model_data_get(void) {
    Ecore_Thread *th;
    th = ecore_thread_run(_bks_model_data_get_cb, _bks_model_data_get_finished_cb, _bks_model_data_get_canceled_cb, NULL);
-   //unsigned int *int_ptr = (unsigned int*)malloc(sizeof(unsigned int));
-   //*int_ptr=0;
-   //ecore_thread_local_data_add(th, "no_of_retry", int_ptr, _free_int_ptr_cb, EINA_TRUE); 
    return th;
 }
 
@@ -103,24 +100,33 @@ Ecore_Thread *_bks_model_data_get(void) {
 static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
 
    Bks_Model_Sale *sale = (Bks_Model_Sale *)data;
-   int retry = 3;
-  // retry = ecore_thread_local_data_find(th, "no_of_retry");
+   int *retry_ptr;
 
-   while (retry >= 0) {
+   retry_ptr = ecore_thread_local_data_find(th, "no_of_retry");
+   if (!retry_ptr) {
+      retry_ptr = (int*)malloc(sizeof(int));
+      if (!retry_ptr) {
+         fprintf(sdterr,"no memory available for sale retry counter!\n");
+         ecore_thread_cancel(th);
+      }
+      *retry_ptr = 3;
+      ecore_thread_local_data_add(th, "no_of_retry", retry_ptr, _retry_ptr_free_cb, EINA_FALSE); 
+   }
+   while (*retry_ptr >= 0) {
+      retry_ptr = ecore_thread_local_data_find(th, "no_of_retry");
       eina_lock_take(&mdl.lock);
       printf("Commiting sale with uid:%llu...\n", sale->uid);
       sale->status = _bks_model_sql_commit_sale(sale);
       if (sale->status == BKS_MODEL_SQLITE_DATABASE_LOCKED) {
-         fprintf(stderr, "Failed to commit sale,retry:%d \n", retry);
-         retry--;
-         //ecore_thread_local_data_set(th, "no_of_retry", retry, _free_int_ptr_cb); 
+         fprintf(stderr, "Failed to commit sale,retry:%d \n", *retry_ptr);
+         (*retry_ptr)--;
+         ecore_thread_local_data_set(th, "no_of_retry", retry_ptr, _retry_ptr_free_cb); 
          sale->status = BKS_MODEL_SALE_UNFINISHED;
          eina_lock_release(&mdl.lock);
          ecore_thread_reschedule(th);
       } else {
          eina_lock_release(&mdl.lock);
          break;
-        // ecore_thread_local_data_set(th, "no_of_retry", retry, _free_int_ptr_cb); 
       }
    }
 }
