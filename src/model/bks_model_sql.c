@@ -30,7 +30,7 @@
 #include "Bks_Model_Sale.h"
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
-
+#include "Bks_Error.h"
 
 const char *database = BKSYSTEMDB;
 
@@ -236,77 +236,90 @@ Eina_List* _bks_model_sql_products_get(void) {
 }
 
 // buying
-int _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
+Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
 
-   char *select_query ="SELECT EAN,price FROM products WHERE EAN = ?1";
+  // char *select_query ="SELECT EAN,price FROM products WHERE EAN = ?1";
    char *insert_query ="INSERT INTO sales (userid, product,price,timestamp) VALUES (?1,?2,?3,datetime('now'))"; //userid product price timestamp 
    sqlite3 *pDb;
-   sqlite3_stmt *stmt;
+   //sqlite3_stmt *stmt;
    sqlite3_stmt *insert_stmt;   
    int retval;
-   double price;
+   //double price;
+   Bks_Error error = BKS_MODEL_SQLITE_OK;
 
-   // first get the price of the product
+   // open DB
    retval = sqlite3_open(database, &pDb);
    if(retval != SQLITE_OK) {
-      fprintf(stderr, "Can't open database: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
-      sqlite3_close(pDb);  return -1;
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
+      goto _close_and_return;
    }
-
-   // prepare SQL statement
+/*
+   // first get the price of the product and prepare SQL statement
    retval = sqlite3_prepare_v2(pDb,select_query,-1,&stmt,0);
    if (retval != SQLITE_OK) {
-      fprintf(stderr, "prepare SQL error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
-      sqlite3_close(pDb);  return -1;
+      if (retval == SQLITE_BUSY) {
+         error = BKS_MODEL_SQLITE_DATABASE_LOCKED;
+         goto _close_and_return;
+      } else {
+         error = BKS_MODEL_SQLITE_ERROR;
+         goto _close_and_return;
+      }
    }
-   // Bind product number to SQL-Statement, on failure return -1
+   // Bind product number to SQL-Statement
    sqlite3_bind_double(stmt,1,sale->EAN);
    if (sqlite3_step(stmt) == SQLITE_ROW) {
       price = sqlite3_column_double(stmt,1);   
    } else {
-      fprintf(stderr,"couldnt find product: %llu\n", sale->EAN);
-      bks_model_clean_up_DB(pDb,stmt);
-      return -1;
+      error = BKS_MODEL_SQLITE_ROW_MISSING;
+      goto finalize_close_and_return;
    }
    // Deallocate Statment
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr, "finalize SQL error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
-      sqlite3_close(pDb);
-      return -1; 
+      error = BKS_MODEL_SQLITE_ERROR;
+      goto _close_and_return;
    }   
-
+*/
    // Now prepare SQL-Statement for inserting in table "sales" 
-   retval = sqlite3_prepare_v2(pDb,insert_query,-1,&insert_stmt,0);
-   if (retval != SQLITE_OK ) {
-      fprintf(stderr, "prepare SQL error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
-      sqlite3_close(pDb);  return -1;
+   retval = sqlite3_prepare_v2(pDb,insert_query, -1, &insert_stmt, 0);
+   if (retval != SQLITE_OK) {
+      if (retval == SQLITE_BUSY) {
+         error = BKS_MODEL_SQLITE_DATABASE_LOCKED;
+         goto _close_and_return;
+      } else {
+         error = BKS_MODEL_SQLITE_ERROR;
+         goto _close_and_return;
+      }
    }
 
    retval = sqlite3_bind_int64(insert_stmt, 1, sale->uid);
    retval = sqlite3_bind_int64(insert_stmt, 2, sale->EAN);
-   retval = sqlite3_bind_double(insert_stmt, 3, price);
+   retval = sqlite3_bind_double(insert_stmt, 3, sale->price);
 
    // Performing INSERT
    retval = sqlite3_step(insert_stmt);
    if (retval != SQLITE_DONE) {
-      fprintf(stderr, "Step SQL error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
-      bks_model_clean_up_DB(pDb,stmt);
-      return -1;
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
+      goto finalize_close_and_return;
    }
    // Deallocate Statment
    retval = sqlite3_finalize(insert_stmt);
    if (retval != SQLITE_OK) {
-      fprintf(stderr, "finalize SQL error:  %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval); 
-      sqlite3_close(pDb);
-      return -1;
+      error = BKS_MODEL_SQLITE_WRITE_ERROR;
+   } else {
+      error = BKS_MODEL_SALE_DONE;
    }
-   // Close DB
-   retval = sqlite3_close(pDb);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "close SQL error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval); 
-      return -1;
-   }
-   return 0;
+   goto _close_and_return;
+   
+   finalize_close_and_return:
+   fprintf(stderr, "%s: %s\n"
+                     "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
+   retval = sqlite3_finalize(insert_stmt);
+
+   _close_and_return:
+   fprintf(stderr, "%s: %s\n"
+                     "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
+   sqlite3_close(pDb);
+   return error;
 }
 
 // service

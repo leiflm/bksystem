@@ -6,7 +6,7 @@
  *
  * @return Bks_Error indicator
  */
-int _bks_model_sql_commit_sale(const Bks_Model_Sale *sale);
+Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale);
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function

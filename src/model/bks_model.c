@@ -31,6 +31,7 @@
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
 #include "Bks_Model_Threading.h"
+#include "Bks_Error.h"
 
 // Interface functions
 
@@ -73,14 +74,28 @@ void bks_model_shutdown(void) {
 }
 
 
-const Eina_List* bks_model_user_accounts_get(const unsigned int limit) {
-
-   return mdl.user_accounts;
+Eina_List* bks_model_user_accounts_get(const unsigned int limit) {
+   Eina_List *list = NULL, *rest = NULL;
+   if (limit == 0) {
+      list = eina_list_clone(mdl.user_accounts);
+   } else {
+      list = eina_list_clone(mdl.recent_user_accounts);
+      list = eina_list_split_list(list, eina_list_nth(list,limit), &rest);
+      eina_list_free(rest);
+   }
+   return list;
 }
 
-const Eina_List* bks_model_products_get(const unsigned int limit) {
-   
-   return mdl.products;
+Eina_List* bks_model_products_get(const unsigned int limit) {
+   Eina_List *list = NULL, *rest = NULL;
+   if (limit == 0) {
+      list = eina_list_clone(mdl.products);
+   } else {
+      list = eina_list_clone(mdl.favorite_products);
+      list = eina_list_split_list(list, eina_list_nth(list,limit), &rest);
+      eina_list_free(rest);
+   }
+   return list;
 }
 
 void bks_model_commit_sale(const Bks_Model_Sale *sale) {

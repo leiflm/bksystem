@@ -32,7 +32,7 @@
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
 #include "Bks_Model_Threading.h"
-
+#include "Bks_Error.h"
 
 // All Data
 static void _bks_model_data_get_cb(void *data, Ecore_Thread *th) {
@@ -84,23 +84,45 @@ static void _bks_model_data_get_canceled_cb(void *data, Ecore_Thread *th) {
    bks_controller_model_reload_finished_cb();
 }
 
+//~ static void _free_int_ptr_cb(void *data) {
+//~ 
+   //~ free((unsigned int*)data);
+//~ }
+
 Ecore_Thread *_bks_model_data_get(void) {
-   return ecore_thread_run(_bks_model_data_get_cb, _bks_model_data_get_finished_cb, _bks_model_data_get_canceled_cb, NULL);
+   Ecore_Thread *th;
+   th = ecore_thread_run(_bks_model_data_get_cb, _bks_model_data_get_finished_cb, _bks_model_data_get_canceled_cb, NULL);
+   //unsigned int *int_ptr = (unsigned int*)malloc(sizeof(unsigned int));
+   //*int_ptr=0;
+   //ecore_thread_local_data_add(th, "no_of_retry", int_ptr, _free_int_ptr_cb, EINA_TRUE); 
+   return th;
 }
+
 
 
 // Sales
 static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
-   Bks_Model_Sale *sale = (Bks_Model_Sale *)data;
-   printf("Commiting sale with uid:%llu...\n", sale->uid);
-   if (_bks_model_sql_commit_sale(sale)) {
-      fprintf(stderr, "Failed to commit sale\n");
-      sale->status = BKS_MODEL_SALE_UNFINISHED;
-      ecore_thread_cancel(th);
-      return;
-   }
-   sale->status = BKS_MODEL_SALE_DONE;
 
+   Bks_Model_Sale *sale = (Bks_Model_Sale *)data;
+   int retry = 4;
+  // retry = ecore_thread_local_data_find(th, "no_of_retry");
+
+   while (retry >= 0) {
+      eina_lock_take(&mdl.lock);
+      printf("Commiting sale with uid:%llu...\n", sale->uid);
+      sale->status = _bks_model_sql_commit_sale(sale);
+      if (sale->status == BKS_MODEL_SQLITE_DATABASE_LOCKED) {
+         fprintf(stderr, "Failed to commit sale,retry:%d \n", retry);
+         retry--;
+         //ecore_thread_local_data_set(th, "no_of_retry", retry, _free_int_ptr_cb); 
+         sale->status = BKS_MODEL_SALE_UNFINISHED;
+         eina_lock_release(&mdl.lock);
+         ecore_thread_reschedule(th);
+      } else {
+         eina_lock_release(&mdl.lock);
+        // ecore_thread_local_data_set(th, "no_of_retry", retry, _free_int_ptr_cb); 
+      }
+   }
 }
 
 static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th) {
@@ -109,7 +131,7 @@ static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th) {
 }
 
 static void _bks_model_sale_canceled_cb(void *data, Ecore_Thread *th) {
-   printf("Sale canceld\n");
+   fprintf(stderr,"Sale canceld\n");
    bks_controller_model_commit_sale_finished_cb(data);
 }
 

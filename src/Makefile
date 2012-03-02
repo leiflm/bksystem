@@ -28,7 +28,7 @@ DEBUG_CFLAGS = -ggdb -Wall
 SYSTEM_CFLAGS = `pkg-config --cflags elementary,sqlite3`
 SYSTEM_LDFLAGS = `pkg-config --libs elementary,sqlite3`
 
-MAIN_SRC = $(MAIN_SRC_DIR)/main.c
+MAIN_SRC = $(MAIN_SRC_DIR)/main.c $(MAIN_SRC_DIR)/bks_error.c 
 
 SRC = $(MAIN_SRC) $(CTRL_SRC) $(MODEL_SRC) $(UI_SRC)
 
@@ -37,4 +37,4 @@ MAIN_OBJ = $(BUILD_DIR)/bksystem
 all: $(MAIN_OBJ)
 
 $(MAIN_OBJ): $(SRC)
-	$(CC) $(CFLAGS) $(DEBUG_CFLAGS) $(SYSTEM_CFLAGS) $(SYSTEM_LDFLAGS) $(OBJS) $(SRC) -o $(MAIN_OBJ)
+	$(CC) $(CFLAGS) $(DEBUG_CFLAGS) $(SYSTEM_CFLAGS) $(SYSTEM_LDFLAGS) $(SRC) -o $(MAIN_OBJ)
