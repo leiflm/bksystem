@@ -9,25 +9,33 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
-typedef struct _Bks_Elm_Naviframe_Page Bks_Elm_Naviframe_Page;
+typedef struct _Bks_Ui_Naviframe_Page Bks_Ui_Naviframe_Page;
+typedef struct _Bks_Ui_Lockwindow Bks_Ui_Lockwindow;
 
-struct _Bks_Elm_Naviframe_Page {
+struct _Bks_Ui_Naviframe_Page {
       Evas_Object *content, *prev_btn, *next_btn;
       Elm_Object_Item *eoi;
 };
 
+struct _Bks_Ui_Lockwindow {
+     Evas_Object *win, *content;
+};
+
 struct _Bks_Ui {
    Evas_Object *win, *naviframe;
+   Bks_Ui_Lockwindow lock_window;
    struct {
         Eina_Lock lock;
-        Bks_Elm_Naviframe_Page enp;
+        Bks_Ui_Naviframe_Page enp;
         Evas_Object *panes, *favs, *alpha, *list, *grid;
         const Elm_Object_Item *selected;
+        Bks_Ui_Lockwindow lock_window;
    } products;
    struct {
         Eina_Lock lock;
-        Bks_Elm_Naviframe_Page enp;
+        Bks_Ui_Naviframe_Page enp;
         Evas_Object *list;
+        Bks_Ui_Lockwindow lock_window;
    } user_accounts;
 };
 
@@ -52,7 +60,7 @@ void bks_ui_clear(void);
 /**
  * @brief Locks the ui so no input is possible anymore.
  */
-void bks_ui_lockscreen_visible_set(const Eina_Bool visible);
+void bks_ui_update_set(const Eina_Bool update);
 
 /**
  * @brief generic interface to display an error that occured.
@@ -90,7 +98,7 @@ void bks_ui_user_accounts_lock_take(void);
  *
  * @param user_accounts list of Bks_ModeL_User_Account.
  */
-void bks_ui_user_accounts_page_set(const Eina_List *user_accounts);
+void bks_ui_user_accounts_page_set(Eina_List *user_accounts);
 
 /**
  * @brief Gets the list of selected user accounts
@@ -116,11 +124,18 @@ void bks_ui_products_update_set(const Eina_Bool update);
 void bks_ui_products_lock_take(void);
 
 /**
- * @brief fills the UI using @p products.
+ * @brief fills the UI's favourite's region using @p products.
  *
  * @param products list of Bks_ModeL_Product
  */
-void bks_ui_products_page_set(const Eina_List *products);
+void bks_ui_products_page_favs_set(Eina_List *products);
+
+/**
+ * @brief fills the UI's alphabetic products list using @p products.
+ *
+ * @param products list of Bks_ModeL_Product
+ */
+void bks_ui_products_page_alpha_set(Eina_List *products);
 
 /**
  * @brief Gets the selected product

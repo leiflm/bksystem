@@ -22,7 +22,6 @@ static void _user_accounts_reload_cb(void *data, Ecore_Thread *th)
 
 void bks_controller_model_user_accounts_reload_cb(void)
 {
-   bks_ui_user_accounts_lock_take();
    ecore_thread_run(_user_accounts_reload_cb, NULL, NULL, NULL);
 }
 
@@ -45,7 +44,13 @@ void bks_controller_model_user_accounts_reload_finished_cb(void)
 
 void bks_controller_model_products_reload_finished_cb(void)
 {
-   bks_ui_products_page_set(bks_model_products_get(0));
+   Eina_List *favs, *alpha;
+
+   favs = bks_model_products_get(6);
+   alpha = bks_model_products_get(0);
+
+   bks_ui_products_page_alpha_set(alpha);
+   bks_ui_products_page_favs_set(favs);
 }
 
 void bks_controller_model_reload_finished_cb(void)

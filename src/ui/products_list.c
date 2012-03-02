@@ -25,18 +25,17 @@ _on_product_select(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
-products_list_set(const Eina_List *products)
+products_list_set(Eina_List *products)
 {
    Evas_Object *ic;
    Elm_Object_Item *it;
-   Eina_List *l;
    Bks_Model_Product *product;
    char buf[256];
 
    EINA_SAFETY_ON_NULL_RETURN(ui.products.list);
    EINA_SAFETY_ON_NULL_RETURN(products);
 
-   EINA_LIST_FOREACH((Eina_List*)products, l, product)
+   EINA_LIST_FREE(products, product)
      {
         ic = elm_icon_add(ui.products.list);
         snprintf(buf, sizeof(buf), "%s/%llu.png", "data", product->EAN);

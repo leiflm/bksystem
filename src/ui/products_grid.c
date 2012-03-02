@@ -89,13 +89,11 @@ grid_item_check_changed(void *data, Evas_Object *obj, void *event_info)
 
 Evas_Object *products_grid_add(void)
 {
-   Evas_Object *grid;
+   ui.products.grid = elm_gengrid_add(ui.win);
+   elm_gengrid_item_size_set(ui.products.grid, 150, 150);
+   evas_object_size_hint_weight_set(ui.products.grid, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 
-   grid = elm_gengrid_add(ui.win);
-   elm_gengrid_item_size_set(grid, 150, 150);
-   evas_object_size_hint_weight_set(grid, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-
-   return grid;
+   return ui.products.grid;
 }
 
 void _products_grid_clear(void)
@@ -105,9 +103,8 @@ void _products_grid_clear(void)
    elm_gengrid_clear(ui.products.grid);
 }
 
-void products_grid_set(const Eina_List *products)
+void products_grid_set(Eina_List *products)
 {
-   Eina_List *iter;
    Bks_Model_Product *product;
    static Elm_Gengrid_Item_Class gic;
    Elm_Object_Item *it;
@@ -121,11 +118,12 @@ void products_grid_set(const Eina_List *products)
    gic.func.state_get = grid_state_get;
    gic.func.del = grid_del;
 
-   _products_grid_clear();
+   printf("Filling grid view with favourite products...\n");
 
    //add all products to grid
-   EINA_LIST_FOREACH((Eina_List*)products, iter, product)
+   EINA_LIST_FREE(products, product)
      {
+        printf("Fuege Favoritenrepraesentation von Produkt %p hinzu.\n", product);
         it = elm_gengrid_item_append(ui.products.grid, &gic, NULL, grid_selected, NULL);
         elm_object_item_data_set(it, product);
      }

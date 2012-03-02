@@ -29,16 +29,14 @@ _on_user_account_double_click(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
-user_accounts_list_set(const Eina_List *user_accounts)
+user_accounts_list_set(Eina_List *user_accounts)
 {
-   Eina_List *iter;
    Bks_Model_User_Account *acc;
    char buf[256];
 
-   if (ui.user_accounts.list)
-     elm_list_clear(ui.user_accounts.list);
+   EINA_SAFETY_ON_NULL_RETURN(ui.user_accounts.list);
 
-   EINA_LIST_FOREACH((Eina_List*)user_accounts, iter, acc)
+   EINA_LIST_FREE(user_accounts, acc)
      {
         /*
          * Disable icons for now
@@ -53,7 +51,7 @@ user_accounts_list_set(const Eina_List *user_accounts)
      }
 }
 
-Evas_Object *_user_accounts_page_list_add(void)
+Evas_Object *user_accounts_page_list_add(void)
 {
    Evas_Object *list;
 

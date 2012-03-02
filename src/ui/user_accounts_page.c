@@ -4,8 +4,6 @@
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-extern Evas_Object *_user_accounts_page_list_add();
-
 void user_accounts_page_clear(void)
 {
    elm_list_clear(ui.user_accounts.list);
@@ -39,7 +37,7 @@ user_accounts_page_reset(void)
    EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
 
    //create, setup and fill user_accounts
-   ui.user_accounts.list = _user_accounts_page_list_add();
+   ui.user_accounts.list = user_accounts_page_list_add();
    // Add button to go back to productslist
    ui.user_accounts.enp.prev_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.user_accounts.enp.prev_btn);
@@ -51,12 +49,27 @@ user_accounts_page_reset(void)
    elm_object_text_set(ui.user_accounts.enp.next_btn, "Fertig");
    evas_object_smart_callback_add(ui.user_accounts.enp.next_btn, "clicked", _on_user_accounts_finish_btn_click, NULL);
 
+   ui.user_accounts.lock_window.win = elm_win_inwin_add(ui.win);
+   ui.user_accounts.lock_window.content = elm_label_add(ui.user_accounts.lock_window.win);
+   elm_object_text_set(ui.user_accounts.lock_window.content, "Die Benutzerkontenliste wird aktualisiert");
+   elm_win_inwin_content_set(ui.user_accounts.lock_window.win, ui.user_accounts.lock_window.content);
+
    return ui.user_accounts.list;
 }
 
-void user_accounts_page_set(const Eina_List *user_accounts)
+void user_accounts_page_set(Eina_List *user_accounts)
 {
-    user_accounts_list_set(user_accounts);
+   user_accounts_list_set(user_accounts);
+}
+
+void _async_page_set(void *data, Ecore_Thread *th)
+{
+   Eina_List *user_accounts = (Eina_List*)data;
+
+   bks_ui_user_accounts_lock_take();
+   user_accounts_page_set(user_accounts);
+   eina_lock_release(&ui.user_accounts.lock);
+   bks_ui_user_accounts_update_set(EINA_FALSE);
 }
 
 // API calls
@@ -66,6 +79,7 @@ void user_accounts_page_set(const Eina_List *user_accounts)
  */
 void bks_ui_user_accounts_clear(void)
 {
+   bks_ui_user_accounts_lock_take();
    user_accounts_page_clear();
    eina_lock_release(&ui.user_accounts.lock);
 }
@@ -75,22 +89,20 @@ void bks_ui_user_accounts_clear(void)
  */
 void bks_ui_user_accounts_update_set(const Eina_Bool update)
 {
-    printf("Jetzt sollte der Benutzerlistenschirm  %sbenutzbar sein.\n", (update ? "un" : ""));
+   printf("Jetzt sollte der Benutzerlistenschirm %sbenutzbar sein.\n", (update ? "un" : ""));
+   if (!update)
+     {
+        evas_object_hide(ui.user_accounts.lock_window.win);
+        return;
+     }
+
+   if (!evas_object_visible_get(ui.lock_window.win))
+     elm_win_inwin_activate(ui.user_accounts.lock_window.win);
 }
 
-void _bks_ui_user_accounts_page_set(void *data, Ecore_Thread *th)
+void bks_ui_user_accounts_page_set(Eina_List *user_accounts)
 {
-   const Eina_List *user_accounts = (const Eina_List*)data;
-
-   user_accounts_page_set(user_accounts);
-   eina_lock_release(&ui.user_accounts.lock);
-}
-
-void bks_ui_user_accounts_page_set(const Eina_List *user_accounts)
-{
-   bks_ui_user_accounts_lock_take();
-   //CREATE THREAD
-   ecore_thread_run(_bks_ui_user_accounts_page_set, NULL, NULL, user_accounts);
+   ecore_thread_run(_async_page_set, NULL, NULL, user_accounts);
 }
 
 /**

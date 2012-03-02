@@ -36,6 +36,12 @@ void bks_ui_init(void)
    ui.user_accounts.enp.content = user_accounts_page_add();
    ui.user_accounts.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Konten", ui.user_accounts.enp.prev_btn, ui.user_accounts.enp.next_btn, ui.user_accounts.enp.content, NULL);
 
+   //create lock window
+   ui.lock_window.win = elm_win_inwin_add(ui.win);
+   ui.lock_window.content = elm_label_add(ui.lock_window.win);
+   elm_object_text_set(ui.lock_window.content, "Daten werden aktualisiert.");
+   elm_win_inwin_content_set(ui.lock_window.win, ui.lock_window.content);
+
    elm_naviframe_item_promote(ui.products.enp.eoi);
    elm_naviframe_content_preserve_on_pop_set(ui.naviframe, EINA_TRUE);
 
@@ -60,4 +66,16 @@ void bks_ui_shutdown(void)
    eina_lock_free(&ui.user_accounts.lock);
 
    elm_shutdown();
+}
+
+/**
+ * @brief Indicates that the entire ui data is being refetched.
+ */
+void bks_ui_update_set(const Eina_Bool update)
+{
+   printf("Jetzt sollte die UI %sbenutzbar sein.\n", (update ? "un" : ""));
+   if (update)
+     elm_win_inwin_activate(ui.lock_window.win);
+   else
+     evas_object_hide(ui.lock_window.win);
 }
