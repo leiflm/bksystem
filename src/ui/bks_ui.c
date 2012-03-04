@@ -21,8 +21,6 @@ void bks_ui_init(void)
    // new window - do the usual and give it a name and title
    ui.win = bks_ui_win_add();
    evas_object_show(ui.win);
-   //elm_win_fullscreen_set(ui.win, EINA_TRUE);
-   evas_object_resize(ui.win, 640, 480);
 
    // add naviframe
    ui.naviframe = elm_naviframe_add(ui.win);
@@ -47,6 +45,9 @@ void bks_ui_init(void)
 
    elm_naviframe_item_promote(ui.products.enp.eoi);
    elm_naviframe_content_preserve_on_pop_set(ui.naviframe, EINA_TRUE);
+
+   //finally set size of window
+   elm_win_maximized_set(ui.win, EINA_TRUE);
 }
 
 void bks_ui_shutdown(void)
