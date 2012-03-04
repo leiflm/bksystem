@@ -29,10 +29,10 @@ Evas_Object *products_grid_add(void);
 void products_grid_set(Eina_List *products);
 // unselects selected product
 void products_grid_reset(void);
-void products_grid_clear(void);
+void _products_grid_clear(void);
 //normal list related:
 Evas_Object *products_list_add(void);
-void products_list_clear(void);
+void _products_list_clear(void);
 void products_list_set(Eina_List *products);
 // unselects selected product
 void products_list_reset(void);

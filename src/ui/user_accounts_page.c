@@ -6,7 +6,9 @@
 
 void user_accounts_page_clear(void)
 {
+   eina_lock_take(&ui.user_accounts.lock);
    elm_list_clear(ui.user_accounts.list);
+   eina_lock_release(&ui.user_accounts.lock);
 }
 
 static void
@@ -27,7 +29,9 @@ _on_user_accounts_finish_btn_click(void *data, Evas_Object *obj, void *event_inf
 void
 user_accounts_page_reset(void)
 {
+   eina_lock_take(&ui.user_accounts.lock);
    elm_list_selection_clear(ui.user_accounts.list);
+   eina_lock_release(&ui.user_accounts.lock);
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
 }
 
@@ -63,13 +67,12 @@ void user_accounts_page_set(Eina_List *user_accounts)
    user_accounts_list_set(user_accounts);
 }
 
-void _async_page_set(void *data, Ecore_Thread *th)
+//void _async_page_set(void *data, Ecore_Thread *th)
+void _async_page_set(void *data)
 {
    Eina_List *user_accounts = (Eina_List*)data;
 
-   bks_ui_user_accounts_lock_take();
    user_accounts_page_set(user_accounts);
-   eina_lock_release(&ui.user_accounts.lock);
    bks_ui_user_accounts_update_set(EINA_FALSE);
 }
 
@@ -80,9 +83,7 @@ void _async_page_set(void *data, Ecore_Thread *th)
  */
 void bks_ui_user_accounts_clear(void)
 {
-   bks_ui_user_accounts_lock_take();
    user_accounts_page_clear();
-   eina_lock_release(&ui.user_accounts.lock);
 }
 
 /**
@@ -103,7 +104,8 @@ void bks_ui_user_accounts_update_set(const Eina_Bool update)
 
 void bks_ui_user_accounts_page_set(Eina_List *user_accounts)
 {
-   ecore_thread_run(_async_page_set, NULL, NULL, user_accounts);
+   //ecore_thread_run(_async_page_set, NULL, NULL, user_accounts);
+   ecore_main_loop_thread_safe_call_async(_async_page_set, user_accounts);
 }
 
 /**
@@ -131,12 +133,4 @@ Eina_List *bks_ui_user_accounts_selected_get(void)
      }
 
    return list;
-}
-
-/**
- * @brief Aquires a lock for the user accounts ui elements
- */
-void bks_ui_user_accounts_lock_take(void)
-{
-    eina_lock_take(&ui.user_accounts.lock);
 }

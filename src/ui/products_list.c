@@ -6,12 +6,21 @@
 #include "Bks_Ui_Private.h"
 #include "Bks_Ui.h"
 
+void _products_list_clear()
+{
+   eina_lock_take(&ui.products.locks.alpha);
+   elm_list_clear(ui.products.list);
+   eina_lock_release(&ui.products.locks.alpha);
+}
+
 void products_list_reset(void)
 {
    Elm_Object_Item *eoi;
 
+   eina_lock_take(&ui.products.locks.alpha);
    if ((eoi = elm_list_selected_item_get(ui.products.list)))
      elm_list_item_selected_set(eoi, EINA_FALSE);
+   eina_lock_release(&ui.products.locks.alpha);
 }
 
 static void
@@ -27,26 +36,29 @@ _on_product_select(void *data, Evas_Object *obj, void *event_info)
 void
 products_list_set(Eina_List *products)
 {
-   Evas_Object *ic;
+   Evas_Object *icon = NULL;
    Elm_Object_Item *it;
    Bks_Model_Product *product;
-   char buf[256];
 
    EINA_SAFETY_ON_NULL_RETURN(ui.products.list);
    EINA_SAFETY_ON_NULL_RETURN(products);
 
+   eina_lock_take(&ui.products.locks.alpha);
    EINA_LIST_FREE(products, product)
      {
-        ic = elm_icon_add(ui.products.list);
-        snprintf(buf, sizeof(buf), "%s/%llu.png", "data", product->EAN);
-        if (elm_icon_file_set(ic, buf, NULL))
-          elm_icon_scale_set(ic, 1, 1);
-        it = elm_list_item_append(ui.products.list, product->name, ic, NULL, _on_product_select, NULL);
+        if (product->image.data)
+          {
+             icon = evas_object_image_filled_add(evas_object_evas_get(ui.products.list));
+             evas_object_image_memfile_set(icon, product->image.data, product->image.size, NULL, NULL);
+             evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             evas_object_show(icon);
+          }
+        it = elm_list_item_append(ui.products.list, product->name, icon, NULL, _on_product_select, NULL);
         elm_object_item_data_set(it, product);
         printf("Produkt %p hinzugefuegt.\n", it);
      }
-
    elm_list_go(ui.products.list);
+   eina_lock_release(&ui.products.locks.alpha);
 }
 
 Evas_Object *products_list_add(void)
@@ -57,4 +69,3 @@ Evas_Object *products_list_add(void)
 
    return ui.products.list;
 }
-

@@ -39,6 +39,7 @@ user_accounts_list_set(Eina_List *user_accounts)
    EINA_SAFETY_ON_NULL_RETURN(ui.user_accounts.list);
    EINA_SAFETY_ON_NULL_RETURN(user_accounts);
 
+   eina_lock_take(&ui.user_accounts.lock);
    EINA_LIST_FREE(user_accounts, acc)
      {
         /*
@@ -55,6 +56,7 @@ user_accounts_list_set(Eina_List *user_accounts)
         elm_object_item_data_set(li, acc);
      }
    elm_list_go(ui.user_accounts.list);
+   eina_lock_release(&ui.user_accounts.lock);
 }
 
 Evas_Object *user_accounts_page_list_add(void)

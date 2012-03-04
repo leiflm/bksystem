@@ -71,11 +71,11 @@ Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
 
       ptr_current_user->uid = sqlite3_column_int64(stmt, 0);
       name = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_user-> firstname = (char*)malloc(strlen(name + 1));
+      ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_user->firstname, name);
 
       name = (char*)sqlite3_column_text(stmt, 2);
-      ptr_current_user-> lastname = (char*)malloc(strlen(name + 1));
+      ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_user->lastname, name);
 
       ptr_current_user->status = sqlite3_column_int64(stmt, 3);
@@ -83,8 +83,8 @@ Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
       // fetch image
       image = (void*)sqlite3_column_blob(stmt, 5);
       image_size = sqlite3_column_bytes(stmt, 5);
-      ptr_current_user-> image.data = (void*)malloc(image_size);
-      if (ptr_current_user-> image.data) { // check if we got the mem for the image
+      ptr_current_user->image.data = (void*)malloc(image_size);
+      if (ptr_current_user->image.data) { // check if we got the mem for the image
          memcpy(ptr_current_user->image.data, image, (size_t)image_size);
          ptr_current_user->image.size = image_size;
       } else {
@@ -138,11 +138,11 @@ Eina_List* _bks_model_sql_user_accounts_get(void) {
 
       ptr_current_user->uid = sqlite3_column_int64(stmt, 0);
       name = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_user-> firstname = (char*)malloc(strlen(name + 1));
+      ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_user->firstname, name);
 
       name = (char*)sqlite3_column_text(stmt, 2);
-      ptr_current_user-> lastname = (char*)malloc(strlen(name + 1));
+      ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_user->lastname, name);
 
       ptr_current_user->status = sqlite3_column_int64(stmt, 3);
@@ -193,16 +193,16 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
       ptr_current_product->EAN = sqlite3_column_int64(stmt, 0);
 
       name = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_product-> name = (char*)malloc(strlen(name + 1));
+      ptr_current_product->name = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_product->name, name);
 
       ptr_current_product->price = sqlite3_column_double(stmt, 2);
 
       // fetch image
-      image = (void*)sqlite3_column_blob(stmt, 3);
-      image_size = sqlite3_column_bytes(stmt, 3);
-      ptr_current_product-> image.data = (void*)malloc(image_size);
-      if (ptr_current_product-> image.data) { // check if we got the mem for the image
+      image = (void*)sqlite3_column_blob(stmt, 4);
+      image_size = sqlite3_column_bytes(stmt, 4);
+      ptr_current_product->image.data = (void*)malloc(image_size);
+      if (ptr_current_product->image.data) { // check if we got the mem for the image
          memcpy(ptr_current_product->image.data, image, (size_t)image_size);
          ptr_current_product->image.size = image_size;
       } else {
@@ -255,7 +255,7 @@ Eina_List* _bks_model_sql_products_get(void) {
       ptr_current_product->EAN = sqlite3_column_int64(stmt, 0);
 
       name = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_product-> name = (char*)malloc(strlen(name + 1));
+      ptr_current_product->name = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_product->name, name);
 
       ptr_current_product->price = sqlite3_column_double(stmt, 2);
@@ -406,11 +406,11 @@ Eina_List* _bks_model_sql_sales_from_user_since(sqlite3_uint64 uid,const char *t
       ptr_current_sale->uid = sqlite3_column_int64(stmt, 0);
 
       tmp = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_sale-> firstname = (char*)malloc(strlen(tmp + 1));
+      ptr_current_sale->firstname = (char*)malloc(strlen(tmp + 1));
       strcpy(ptr_current_sale->firstname, tmp);
 
       tmp = (char*)sqlite3_column_text(stmt, 2);
-      ptr_current_sale-> lastname = (char*)malloc(strlen(tmp + 1));
+      ptr_current_sale->lastname = (char*)malloc(strlen(tmp + 1));
       strcpy(ptr_current_sale->lastname, tmp);
 
       ptr_current_sale->status = sqlite3_column_int64(stmt, 3);
@@ -418,13 +418,13 @@ Eina_List* _bks_model_sql_sales_from_user_since(sqlite3_uint64 uid,const char *t
       ptr_current_sale->EAN = sqlite3_column_int64(stmt, 4);
 
       tmp = (char*)sqlite3_column_text(stmt, 5);
-      ptr_current_sale-> productname = (char*)malloc(strlen(tmp + 1));
+      ptr_current_sale->productname = (char*)malloc(strlen(tmp + 1));
       strcpy(ptr_current_sale->productname, tmp);
 
       ptr_current_sale->price = sqlite3_column_double(stmt, 6);
 
       tmp = (char*)sqlite3_column_text(stmt, 7);
-      ptr_current_sale-> timestamp = (char*)malloc(strlen(tmp + 1));
+      ptr_current_sale->timestamp = (char*)malloc(strlen(tmp + 1));
       strcpy(ptr_current_sale->timestamp, tmp);
 
       // append struct to list

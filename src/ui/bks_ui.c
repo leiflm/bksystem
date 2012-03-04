@@ -15,7 +15,8 @@ void bks_ui_init(void)
    elm_init(0, NULL);
 
    //Add mutexes
-   eina_lock_new(&ui.products.lock);
+   eina_lock_new(&ui.products.locks.alpha);
+   eina_lock_new(&ui.products.locks.favs);
    eina_lock_new(&ui.user_accounts.lock);
 
    // new window - do the usual and give it a name and title
@@ -62,7 +63,8 @@ void bks_ui_shutdown(void)
    ui.win = NULL;
 
    //Free mutexes
-   eina_lock_free(&ui.products.lock);
+   eina_lock_free(&ui.products.locks.alpha);
+   eina_lock_free(&ui.products.locks.favs);
    eina_lock_free(&ui.user_accounts.lock);
 
    elm_shutdown();

@@ -7,8 +7,10 @@
 #include "Bks_Ui.h"
 
 struct _Bks_Controller {
-    Bks_Model *model;
-    Bks_Ui *ui;
+     struct {
+          const Bks_Model_Product *product;
+          Eina_List *user_accounts;
+     } ui_selection;
 };
 
 // Adminstrative calls

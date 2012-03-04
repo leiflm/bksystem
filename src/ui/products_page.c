@@ -4,10 +4,10 @@
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-void products_page_clear(void)
+void _async_products_page_clear(void *data)
 {
-   elm_gengrid_clear(ui.products.grid);
-   elm_list_clear(ui.products.list);
+   _products_grid_clear();
+   _products_list_clear();
 }
 
 void _product_selected_set(const Elm_Object_Item *product)
@@ -63,33 +63,21 @@ Evas_Object *products_page_add(void)
    return ui.products.panes;
 }
 
-void _favs_set(Eina_List *products)
-{
-   products_grid_set(products);
-}
-
-void _alpha_set(Eina_List *products)
-{
-   products_list_set(products);
-}
-
-void _async_favs_set(void *data, Ecore_Thread *th)
+//void _async_favs_set(void *data, Ecore_Thread *th)
+void _async_favs_set(void *data)
 {
    Eina_List *products = (Eina_List*)data;
 
-   bks_ui_products_lock_take();
-   _favs_set(products);
-   eina_lock_release(&ui.products.lock);
+   products_grid_set(products);
    bks_ui_products_update_set(EINA_FALSE);
 }
 
-void _async_alpha_set(void *data, Ecore_Thread *th)
+//void _async_alpha_set(void *data, Ecore_Thread *th)
+void _async_alpha_set(void *data)
 {
    Eina_List *products = (Eina_List*)data;
 
-   bks_ui_products_lock_take();
-   _alpha_set(products);
-   eina_lock_release(&ui.products.lock);
+   products_list_set(products);
    bks_ui_products_update_set(EINA_FALSE);
 }
 
@@ -109,9 +97,8 @@ const Bks_Model_Product *bks_ui_product_selected_get(void)
  */
 void bks_ui_products_clear(void)
 {
-   bks_ui_products_lock_take();
-   products_page_clear();
-   eina_lock_release(&ui.products.lock);
+   printf("Produktseite wird geleert.\n");
+   ecore_main_loop_thread_safe_call_async(_async_products_page_clear, NULL);
 }
 
 /**
@@ -132,21 +119,14 @@ void bks_ui_products_update_set(const Eina_Bool update)
 }
 
 /**
- * @brief Aquires a lock for the products ui elements
- */
-void bks_ui_products_lock_take(void)
-{
-    eina_lock_take(&ui.products.lock);
-}
-
-/**
  * @brief fills the UI's favourite's section using @p products.
  *
  * @param products list of Bks_Model_Product
  */
 void bks_ui_products_page_favs_set(Eina_List *products)
 {
-   ecore_thread_run(_async_favs_set, NULL, NULL, products);
+   //ecore_thread_run(_async_favs_set, NULL, NULL, products);
+   ecore_main_loop_thread_safe_call_async(_async_favs_set, products);
 }
 
 /**
@@ -157,5 +137,6 @@ void bks_ui_products_page_favs_set(Eina_List *products)
 void bks_ui_products_page_alpha_set(Eina_List *products)
 {
    //CREATE THREAD
-   ecore_thread_run(_async_alpha_set, NULL, NULL, products);
+   //ecore_thread_run(_async_alpha_set, NULL, NULL, products);
+   ecore_main_loop_thread_safe_call_async(_async_alpha_set, products);
 }

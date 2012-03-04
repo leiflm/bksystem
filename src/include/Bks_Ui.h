@@ -25,7 +25,10 @@ struct _Bks_Ui {
    Evas_Object *win, *naviframe;
    Bks_Ui_Lockwindow lock_window;
    struct {
-        Eina_Lock lock;
+        struct {
+             Eina_Lock favs;
+             Eina_Lock alpha;
+        } locks;
         Bks_Ui_Naviframe_Page enp;
         Evas_Object *panes, *favs, *alpha, *list, *grid;
         const Elm_Object_Item *selected;
@@ -89,11 +92,6 @@ void bks_ui_user_accounts_clear(void);
 void bks_ui_user_accounts_update_set(const Eina_Bool update);
 
 /**
- * @brief Aquires the lock for the user accounts ui elements
- */
-void bks_ui_user_accounts_lock_take(void);
-
-/**
  * @brief fills the UI using @p user_accounts.
  *
  * @param user_accounts list of Bks_ModeL_User_Account.
@@ -117,11 +115,6 @@ void bks_ui_products_clear(void);
  * @brief Indicates that the products are being refetched.
  */
 void bks_ui_products_update_set(const Eina_Bool update);
-
-/**
- * @brief Aquires a lock for the products ui elements
- */
-void bks_ui_products_lock_take(void);
 
 /**
  * @brief fills the UI's favourite's region using @p products.

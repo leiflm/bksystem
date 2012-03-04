@@ -7,10 +7,19 @@
 #include "Bks_Ui.h"
 #include "Bks_Model_Product.h"
 
+void _products_grid_clear()
+{
+   eina_lock_take(&ui.products.locks.favs);
+   elm_gengrid_clear(ui.products.grid);
+   eina_lock_release(&ui.products.locks.favs);
+}
+
 void products_grid_reset()
 {
    if (!ui.products.grid) return;
+   eina_lock_take(&ui.products.locks.favs);
    elm_gengrid_selection_clear(ui.products.grid);
+   eina_lock_release(&ui.products.locks.favs);
 }
 
 static void
@@ -39,15 +48,22 @@ Evas_Object *
 grid_content_get(void *data, Evas_Object *obj, const char *part)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
-   char buf[256];
+   Evas_Object *icon = NULL;
+   //char buf[256];
+
+   printf("Erstelle Repraesentation fuer Fav.-Objekt %p, data-ptr: %p.\n", obj, data);
 
    if (!strcmp(part, "elm.swallow.icon"))
      {
-        Evas_Object *icon = elm_bg_add(obj);
-        snprintf(buf, sizeof(buf), "images/%llu.png", product->EAN);
-        elm_bg_file_set(icon, buf, NULL);
-        evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-        evas_object_show(icon);
+        eina_lock_take(&ui.products.locks.favs);
+        if (product->image.data)
+          {
+             icon = evas_object_image_filled_add(evas_object_evas_get(obj));
+             evas_object_image_memfile_set(icon, product->image.data, product->image.size, NULL, NULL);
+             evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             evas_object_show(icon);
+          }
+        eina_lock_release(&ui.products.locks.favs);
         return icon;
      }
    /*
@@ -63,6 +79,7 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
     return ck;
     }
     */
+
    return NULL;
 }
 
@@ -96,18 +113,11 @@ Evas_Object *products_grid_add(void)
    return ui.products.grid;
 }
 
-void _products_grid_clear(void)
-{
-   EINA_SAFETY_ON_NULL_RETURN(ui.products.grid);
-
-   elm_gengrid_clear(ui.products.grid);
-}
-
 void products_grid_set(Eina_List *products)
 {
    Bks_Model_Product *product;
    static Elm_Gengrid_Item_Class gic;
-   Elm_Object_Item *it;
+   Elm_Object_Item *it = NULL;
 
    EINA_SAFETY_ON_NULL_RETURN(ui.products.grid);
 
@@ -120,11 +130,13 @@ void products_grid_set(Eina_List *products)
 
    printf("Filling grid view with favourite products...\n");
 
+   eina_lock_take(&ui.products.locks.favs);
    //add all products to grid
    EINA_LIST_FREE(products, product)
      {
-        printf("Fuege Favoritenrepraesentation von Produkt %p hinzu.\n", product);
-        it = elm_gengrid_item_append(ui.products.grid, &gic, NULL, grid_selected, NULL);
+        it = elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
+        printf("Fuege Favoritenrepraesentation von Produkt %p an Adresse %p hinzu.\n", product, it);
         elm_object_item_data_set(it, product);
      }
+   eina_lock_release(&ui.products.locks.favs);
 }
