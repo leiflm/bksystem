@@ -43,11 +43,4 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit);
  */
 char* bks_model_current_time_string_get(void);
 
-/**
- * @brief creates a new database with final settlement for all and number of bought products
- *
- * @return success indicator
- */
-int _bks_model_sql_create_bill_table(void);
-
 #endif

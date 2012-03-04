@@ -35,11 +35,8 @@
 const char *database = BKSYSTEMDB;
 
 static int bks_model_clean_up_DB(sqlite3 *pDb, sqlite3_stmt *stmt);
-static char* bks_model_current_time_string_get(void);
-//static void bks_model_print_all_data(sqlite3_stmt *stmt);
-static int _bks_model_sql_create_bill_table_since_until(const char *timestampSince, const char *timestampUntil);
-static int _bks_model_sql_favorite_products_set(const char *timestampSince, const char *timestampUntil);
-static int _bks_model_sql_recent_user_accounts_set(const char *timestampSince, const char *timestampUntil);
+static void bks_model_print_all_data(sqlite3_stmt *stmt);
+
 
 // data retrieval
 Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
@@ -83,7 +80,9 @@ Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
       list = eina_list_append(list, ptr_current_user);
 
       ptr_current_user->image = NULL; 
-      if (i >= limit) break; // We only want at most limit Rows
+      if (i >= limit) {// We only want at most limit Rows
+         break;
+      }
     }
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
       fprintf(stderr,"Couldnt finalize statment, Error: %s\n", sqlite3_errmsg(pDb));   
@@ -151,7 +150,8 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
    sqlite3 *pDb;
    sqlite3_stmt *stmt; 
    Eina_List *list= NULL;   
-   int retval,i;
+   int retval;
+   int i = 0;
 
    retval = sqlite3_open(database, &pDb);
    if (retval ) {
@@ -159,7 +159,7 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
       sqlite3_close(pDb); 
       return NULL;
    }
-   retval = sqlite3_prepare_v2(pDb,select_query,-1,&stmt,0);
+   retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
    if (retval != SQLITE_OK ) {
       fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
       sqlite3_close(pDb);
@@ -179,14 +179,18 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
       ptr_current_product->price = sqlite3_column_double(stmt, 2);
       ptr_current_product->image = NULL;
       list = eina_list_append(list, ptr_current_product);
-      if (i >= limit) break; // We only want at most limit Rows
+      if (i >= limit) { // We only want at most limit Rows
+         break;    
+      } 
    }
+
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
       fprintf(stderr,"Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);   
    }
    if (sqlite3_close(pDb) != SQLITE_OK) {
       fprintf(stderr,"Couldnt close DB, %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
    }
+
    return list;
 }
 
@@ -439,332 +443,52 @@ double _bks_model_sql_calculate_sum_from_user_since(sqlite3_uint64 uid, const ch
    return sum;
 }
 
-// final settlement
-int _bks_model_sql_create_bill_table() {
-
-   char *startingFrom = EVER; 
-   char *currentTime = bks_model_current_time_string_get();
-   printf("\ncreating bill...\nfrom: %s\nuntil: %s\n\n", startingFrom, currentTime);
-
-   // create Bill Table
-   _bks_model_sql_create_bill_table_since_until(startingFrom, currentTime);
-   
-   // setRecentUserAccounts()
-   printf("trying to set recentuseraccount\n");
-   if (_bks_model_sql_recent_user_accounts_set(startingFrom,currentTime) == SQLITE_OK) {
-      printf("successfully set recent_user_accounts.\n");
-   }
-   
-   // setFavoriteProducts()
-   printf("trying to set favorite products\n");
-   if (_bks_model_sql_favorite_products_set(startingFrom,currentTime) == SQLITE_OK) {
-      printf("successfully set favorite products.\n");
-   }
-   
-   free(currentTime);
-   return 0;
-   }
-
-
-
-static int _bks_model_sql_create_bill_table_since_until(const char *timestampSince,const char *timestampUntil) {
-  
-   printf("reading sales...\n");
-  
-   char *query ="SELECT userid, firstname, lastname, round(sum(round(price,2)),2) AS \"sum\" FROM ((SELECT uid,firstname,lastname FROM user_accounts ORDER BY lastname,firstname) INNER JOIN (SELECT userid, product, price,timestamp FROM sales WHERE timestamp>datetime(?1) AND timestamp <datetime(?2)) ON uid =userid) GROUP BY uid ORDER BY lastname,firstname";
-   sqlite3 *pDb,*pDbNew;
-   sqlite3_stmt *stmt,*stmt_create,*stmt_insert; 
-   int retval,i;
-
-   // Open bksystem DB
-   retval = sqlite3_open(database, &pDb);
-   if (retval) {
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   // Prepare Query for bksystem DB
-   retval = sqlite3_prepare_v2(pDb,query,-1,&stmt,0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   // bind arguments to query
-   retval = sqlite3_bind_text(stmt, 1, timestampSince, -1, SQLITE_TRANSIENT);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr,"Binding date failed:%d \n", retval); 
-   }
-   retval = sqlite3_bind_text(stmt, 2, timestampUntil, -1, SQLITE_TRANSIENT);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr,"Binding date failed:%d \n", retval);
-   }
-   // creating new DB BILLDB_date.sqlite 
-   char *createquery = "CREATE TABLE IF NOT EXISTS \"main\".\"Bill\" (\"uid\" INTEGER PRIMARY KEY  NOT NULL  UNIQUE  check(typeof(\"uid\") = 'integer') , \"firstname\" VARCHAR, \"lastname\" VARCHAR, \"sum\" FLOAT)";
-   char *insertquery = "INSERT OR REPLACE INTO Bill (uid,firstname,lastname,sum) VALUES (?1,?2,?3,?4)";
-
-   char newDBfilename[BILLDBLENGTH];
-
-   strcpy(newDBfilename, BILLDB);
-   strncat(newDBfilename, timestampUntil, 10);
-   strcat(newDBfilename, ".sqlite");
-   printf("filename:%s...\n", newDBfilename);
-   retval = sqlite3_open(newDBfilename, &pDbNew);
-   if (retval) {
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(pDbNew));
-      sqlite3_close(pDbNew);
-   }
-   // prepare create table
-   retval = sqlite3_prepare_v2(pDbNew, createquery, -1, &stmt_create, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDbNew));
-      sqlite3_close(pDbNew);
-   }
-   // create table
-   retval = sqlite3_step(stmt_create);
-
-   if (retval != SQLITE_DONE) {
-      fprintf(stderr, "Can't create new table: %s,%d\n", sqlite3_errmsg(pDbNew), retval);
-
-   } else {fprintf(stderr,"Created DB sucessfully....\n");}
-   if (sqlite3_finalize(stmt_create) != SQLITE_OK) {
-      fprintf(stderr,"Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDbNew), retval);
-   }
-   // prepare insertion
-   retval = sqlite3_prepare_v2(pDbNew, insertquery, -1, &stmt_insert, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDbNew));
-      sqlite3_close(pDbNew);
-   }
-
-   //bks_model_print_all_data(stmt);
-   retval = sqlite3_step(stmt); 
-   i = 0;
-   while (retval == SQLITE_ROW) {
-      i++;
-      // check Data in querry and asign to insertquery
-      
-      retval = sqlite3_bind_int64(stmt_insert, 1, sqlite3_column_int64(stmt, 0));
-      if (retval != SQLITE_OK) {
-      fprintf(stderr, "Binding uid failed:%d \n", retval); 
-      }
-      sqlite3_bind_text(stmt_insert, 2, (const char*)sqlite3_column_text(stmt, 1), -1, SQLITE_TRANSIENT);
-      if (retval != SQLITE_OK) {
-      fprintf(stderr, "Binding firstname failed:%d \n", retval); 
-      }   
-      sqlite3_bind_text(stmt_insert,3,(const char*)sqlite3_column_text(stmt,2),-1,SQLITE_TRANSIENT);
-      if (retval!= SQLITE_OK) {
-      fprintf(stderr, "Binding lastname failed:%d \n", retval); 
-      }   
-      sqlite3_bind_double(stmt_insert, 4, sqlite3_column_double(stmt, 3));
-      if (retval != SQLITE_OK) {
-      fprintf(stderr, "Binding sum failed:%d \n", retval); 
-      }
-      // do insert
-      retval = sqlite3_step(stmt_insert);
-
-      // reset insert statment to do new bindings
-      sqlite3_reset(stmt_insert);
-      retval = sqlite3_step(stmt);
-   }
-   if (i == 0) { fprintf(stderr, "Error step:%d\n", retval);}
-   if (sqlite3_finalize(stmt_insert) != SQLITE_OK) {
-   fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDbNew), retval);   
-   }
-   if (sqlite3_close(pDbNew) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt close DB, %s\nErrno: %d\n", sqlite3_errmsg(pDbNew), retval);
-   }
-   if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);   
-   }
-   if (sqlite3_close(pDb) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt close DB, %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
-   }
-
-   return 0;
-}
-
-static int _bks_model_sql_recent_user_accounts_set(const char *timestampSince, const char *timestampUntil) { 
-
-   char *delete_query = "DELETE FROM recent_user_accounts";
-   char *update_query = "UPDATE sqlite_sequence SET seq=0 WHERE name = \"recent_user_accounts\"";
-   char *insert_query = "INSERT INTO recent_user_accounts (uid) SELECT userid FROM (SELECT userid, round(sum(round(price,2)),2) AS sum FROM  (SELECT userid, product, price,timestamp FROM sales WHERE timestamp>datetime(?1) AND timestamp<datetime(?2)) GROUP BY userid ORDER BY sum desc)";
-
-   sqlite3 *pDb;
-   sqlite3_stmt *stmt;   
-   int retval;
-
-   // Open bksystem DB
-   retval = sqlite3_open(database, &pDb);
-   if (retval) {
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   // Prepare Query for bksystem DB
-   retval = sqlite3_prepare_v2(pDb, delete_query, -1, &stmt, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   retval = sqlite3_step(stmt);
-   if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);   
-   }
-
-   // Prepare update_query for bksystem DB
-   retval = sqlite3_prepare_v2(pDb, update_query, -1, &stmt, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   retval = sqlite3_step(stmt);
-
-   if (sqlite3_finalize(stmt) != SQLITE_OK) {
-   fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);   
-   }
-
-   // Prepare insert_query for bksystem DB
-   retval = sqlite3_prepare_v2(pDb, insert_query, -1, &stmt, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-
-   // bind arguments to query 
-   retval = sqlite3_bind_text(stmt, 1, timestampSince, -1, SQLITE_TRANSIENT);
-   if (retval!= SQLITE_OK) {
-      fprintf(stderr, "Binding date failed:%d \n", retval); 
-   }
-   retval = sqlite3_bind_text(stmt, 2, timestampUntil, -1, SQLITE_TRANSIENT);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "Binding date failed:%d \n", retval);
-   }
-   retval = sqlite3_step(stmt);
-
-   return bks_model_clean_up_DB(pDb,stmt);
-}
-
-static int _bks_model_sql_favorite_products_set(const char *timestampSince, const char *timestampUntil) { 
-   
-   char *delete_query = "DELETE FROM favorite_products";
-   char *update_query = "UPDATE sqlite_sequence SET seq=0 WHERE name = \"favorite_products\"";
-   char *insert_query = "INSERT INTO favorite_products (EAN) SELECT product FROM (SELECT product, count(product) AS num FROM  (SELECT product, timestamp FROM sales WHERE timestamp>datetime(?1) AND timestamp <datetime(?2))  GROUP BY product ORDER BY num desc)";
-
-   sqlite3 *pDb;
-   sqlite3_stmt *stmt;   
-    int retval;
-
-    // Open bksystem DB
-    retval = sqlite3_open(database, &pDb);
-   if (retval) {
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   // Prepare delete_query for bksystem DB
-   retval = sqlite3_prepare_v2(pDb, delete_query, -1, &stmt, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   // calculate query 
-   retval = sqlite3_step(stmt);
-   if (sqlite3_finalize(stmt) != SQLITE_OK) {
-   fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);   
-   }
-
-   // Prepare update_query for bksystem DB
-   retval = sqlite3_prepare_v2(pDb, update_query, -1, &stmt, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-   retval = sqlite3_step(stmt);
-   if (sqlite3_finalize(stmt) != SQLITE_OK) {
-   fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);   
-   }
-
-   // Prepare insert_query for bksystem DB
-   retval = sqlite3_prepare_v2(pDb, insert_query, -1, &stmt, 0);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(pDb));
-      sqlite3_close(pDb);
-   }
-
-   // bind arguments to query 
-   retval = sqlite3_bind_text(stmt, 1, timestampSince, -1, SQLITE_TRANSIENT);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "Binding date failed:%d \n", retval); 
-   }
-   retval = sqlite3_bind_text(stmt, 2, timestampUntil, -1, SQLITE_TRANSIENT);
-   if (retval != SQLITE_OK) {
-      fprintf(stderr, "Binding date failed:%d \n", retval);
-   }
-   retval = sqlite3_step(stmt);
-
-   return bks_model_clean_up_DB(pDb, stmt);
-}
-
-
-
 //Helper functions
-static char* bks_model_current_time_string_get(void) { // not optimal, user has to use a buffer
-   time_t *time_t_ptr;
-   time_t_ptr = malloc(sizeof(time_t));
-   time(time_t_ptr);
-   struct tm *time_tm_ptr = (struct tm*)malloc(sizeof(struct tm));
-   time_tm_ptr = localtime(time_t_ptr);
-   char* buffer = malloc(20);
-   strftime(buffer, 20, "%Y-%m-%d %X", time_tm_ptr);
-   free(time_t_ptr);
-   return buffer;
+static void bks_model_print_all_data(sqlite3_stmt *stmt) {   
+   sqlite3_reset(stmt);    
+   int cols = sqlite3_column_count(stmt);
+   printf( "table with %d columns\n", cols);
+
+      while (sqlite3_step(stmt) == SQLITE_ROW) {
+      int col;
+
+      for (col = 0; col < cols; col++) {
+         sqlite3_uint64 uint_val;
+         double dbl_val;
+         const char *chr_ptr, *colname;
+         colname = sqlite3_column_name(stmt,col);
+
+            switch (sqlite3_column_type(stmt,col)) {
+               case SQLITE_INTEGER:
+                  uint_val =  sqlite3_column_int64(stmt,col);
+                  printf("%s = %llu type:int64", colname, uint_val);
+               break;
+               case SQLITE_FLOAT:
+                  dbl_val =  sqlite3_column_double(stmt,col);
+                  printf("%s = %f type:double", colname,dbl_val);
+               break;
+               case SQLITE_TEXT:
+                  chr_ptr = (const char*)sqlite3_column_text(stmt,col);
+                  printf("%s = %s type:text", colname,chr_ptr);
+               break;
+               case SQLITE_BLOB:
+                  printf("BLOB, won't display it %s", colname);
+               break;
+               case SQLITE_NULL:
+                  printf("Watch out, we have a NULL value over here (%s)!", colname);
+               break;
+               default: 
+                  printf("Here is somthing I dont recognize on:%s\n", colname);
+               //break;
+         }
+
+         printf("\n");
+      }
+      printf("\n");
+   }
+   printf("All rows finished\n");
+   sqlite3_reset(stmt);
 }
-
-//Evaluate SQL Statements and print on console
-//~ static void bks_model_print_all_data(sqlite3_stmt *stmt) {   
-   //~ sqlite3_reset(stmt);    
-   //~ int cols = sqlite3_column_count(stmt);
-   //~ printf( "table with %d columns\n", cols);
-//~ 
-      //~ while (sqlite3_step(stmt) == SQLITE_ROW) {
-      //~ int col;
-//~ 
-      //~ for (col = 0; col < cols; col++) {
-         //~ sqlite3_uint64 uint_val;
-         //~ double dbl_val;
-         //~ const char *chr_ptr, *colname;
-         //~ colname = sqlite3_column_name(stmt,col);
-//~ 
-            //~ switch (sqlite3_column_type(stmt,col)) {
-               //~ case SQLITE_INTEGER:
-                  //~ uint_val =  sqlite3_column_int64(stmt,col);
-                  //~ printf("%s = %llu type:int64", colname, uint_val);
-               //~ break;
-               //~ case SQLITE_FLOAT:
-                  //~ dbl_val =  sqlite3_column_double(stmt,col);
-                  //~ printf("%s = %f type:double", colname,dbl_val);
-               //~ break;
-               //~ case SQLITE_TEXT:
-                  //~ chr_ptr = (const char*)sqlite3_column_text(stmt,col);
-                  //~ printf("%s = %s type:text", colname,chr_ptr);
-               //~ break;
-               //~ case SQLITE_BLOB:
-                  //~ printf("BLOB, won't display it %s", colname);
-               //~ break;
-               //~ case SQLITE_NULL:
-                  //~ printf("Watch out, we have a NULL value over here (%s)!", colname);
-               //~ break;
-               //~ default: 
-                  //~ printf("Here is somthing I dont recognize on:%s\n", colname);
-               //~ //break;
-         //~ }
-//~ 
-         //~ printf("\n");
-      //~ }
-      //~ printf("\n");
-   //~ }
-   //~ printf("All rows finished\n");
-   //~ sqlite3_reset(stmt);
-//~ }
-
-
 
 int bks_model_start_up_DB(const char* database, sqlite3 *pDb, const char *query, sqlite3_stmt *stmt) { 
    int retval;

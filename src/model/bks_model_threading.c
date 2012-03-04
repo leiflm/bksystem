@@ -237,23 +237,3 @@ Ecore_Thread *_bks_model_user_accounts_get(unsigned int limit) {
 
 }
 
-// Bill Creating
-static void _bks_model_create_bill_table_cb(void *data, Ecore_Thread *th) {
-
-   eina_lock_take(&mdl.lock);
-   _bks_model_sql_create_bill_table();
-   _bks_model_data_get();
-   eina_lock_release(&mdl.lock);
-}
-
-static void _bks_model_create_bill_table_finished_cb(void *data, Ecore_Thread *th) {
-   bks_controller_model_create_bill_table_cb();
-}
-
-static void _bks_model_create_bill_table_canceled_cb(void *data, Ecore_Thread *th) {
-   bks_controller_model_create_bill_table_cb();
-}
-
-Ecore_Thread *_bks_model_create_bill_table() {
-   return ecore_thread_run(_bks_model_create_bill_table_cb, _bks_model_create_bill_table_finished_cb, _bks_model_create_bill_table_canceled_cb, NULL);
-}
