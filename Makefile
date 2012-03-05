@@ -7,7 +7,10 @@ DB = $(BUILD_DIR)/bksystem.sqlite
 
 .PHONY: $(BIN)
 
-all: $(BIN) $(DB)
+all: $(BUILD_DIR) $(BIN) $(DB)
+
+$(BUILD_DIR):
+	mkdir $@
 
 $(BIN):
 	make -C $(SRC_DIR);
