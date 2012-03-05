@@ -9,6 +9,7 @@
 void _products_list_clear()
 {
    eina_lock_take(&ui.products.locks.alpha);
+   printf("Alphabetische Produktliste wird geleert.\n");
    elm_list_clear(ui.products.list);
    eina_lock_release(&ui.products.locks.alpha);
 }

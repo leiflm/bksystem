@@ -10,6 +10,7 @@
 void _products_grid_clear()
 {
    eina_lock_take(&ui.products.locks.favs);
+   printf("GridView wird geleert.\n");
    elm_gengrid_clear(ui.products.grid);
    eina_lock_release(&ui.products.locks.favs);
 }
@@ -49,13 +50,11 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
    Evas_Object *icon = NULL;
-   //char buf[256];
 
    printf("Erstelle Repraesentation fuer Fav.-Objekt %p, data-ptr: %p.\n", obj, data);
 
    if (!strcmp(part, "elm.swallow.icon"))
      {
-        eina_lock_take(&ui.products.locks.favs);
         if (product->image.data)
           {
              icon = evas_object_image_filled_add(evas_object_evas_get(obj));
@@ -63,7 +62,6 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
              evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
              evas_object_show(icon);
           }
-        eina_lock_release(&ui.products.locks.favs);
         return icon;
      }
    /*
@@ -128,7 +126,7 @@ void products_grid_set(Eina_List *products)
    gic.func.state_get = grid_state_get;
    gic.func.del = grid_del;
 
-   printf("Filling grid view with favourite products...\n");
+   printf("Fuelle GridView mit favirisierten Produkten...\n");
 
    eina_lock_take(&ui.products.locks.favs);
    //add all products to grid
@@ -136,7 +134,7 @@ void products_grid_set(Eina_List *products)
      {
         it = elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
         printf("Fuege Favoritenrepraesentation von Produkt %p an Adresse %p hinzu.\n", product, it);
-        elm_object_item_data_set(it, product);
+        //elm_object_item_data_set(it, product);
      }
    eina_lock_release(&ui.products.locks.favs);
 }
