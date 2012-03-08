@@ -35,7 +35,7 @@
 #include "Bks_Error.h"
 
 // All Data
-static void _bks_model_data_get_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_data_get_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
    Bks_Model_User_Account *user_data;
    Bks_Model_Product *product_data;
@@ -73,12 +73,12 @@ static void _bks_model_data_get_cb(void *data, Ecore_Thread *th) {
 
 }
 
-static void _bks_model_data_get_finished_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_data_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
    printf("Loading data finished...\n");
    bks_controller_model_reload_finished_cb();
 }
 
-static void _bks_model_data_get_canceled_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_data_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
    fprintf(stderr, "Loading data got canceled\n");
    bks_controller_model_reload_finished_cb();
 }
@@ -131,12 +131,12 @@ static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
    }
 }
 
-static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th UNUSED) {
 
    bks_controller_model_commit_sale_finished_cb((Bks_Model_Sale *)data);
 }
 
-static void _bks_model_sale_canceled_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_sale_canceled_cb(void *data, Ecore_Thread *th UNUSED) {
    fprintf(stderr,"Sale canceled\n");
    bks_controller_model_commit_sale_finished_cb(data);
 }
@@ -146,7 +146,7 @@ Ecore_Thread *_bks_model_commit_sale(const Bks_Model_Sale *sale) {
 }
 
 // Products
-static void _bks_model_products_get_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_products_get_cb(void *data UNUSED, Ecore_Thread *th) {
 
    Bks_Model_Product *product_data;
 
@@ -175,24 +175,24 @@ static void _bks_model_products_get_cb(void *data, Ecore_Thread *th) {
    eina_lock_release(&mdl.lock);
 }
 
-static void _bks_model_products_get_finished_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_products_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
    bks_controller_model_products_reload_finished_cb();
 }
 
-static void _bks_model_products_get_canceled_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_products_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
    fprintf(stderr,"Loading products canceled\n");
    bks_controller_model_products_reload_finished_cb();
 }
 
 Ecore_Thread *_bks_model_products_get(const unsigned int limit) {
-
+   //FIXME: don't pass pointer of stack variable!!!
    return ecore_thread_run(_bks_model_products_get_cb, _bks_model_products_get_finished_cb, _bks_model_products_get_canceled_cb, &limit);
 
 }
 
 // User Accounts
-static void _bks_model_user_accounts_get_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_user_accounts_get_cb(void *data UNUSED, Ecore_Thread *th) {
 
    Bks_Model_User_Account *user_data;
    bks_controller_model_user_accounts_reload_cb();
@@ -221,18 +221,18 @@ static void _bks_model_user_accounts_get_cb(void *data, Ecore_Thread *th) {
    eina_lock_release(&mdl.lock);
 }
 
-static void _bks_model_user_accounts_get_finished_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_user_accounts_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
    bks_controller_model_user_accounts_reload_finished_cb();
 }
 
-static void _bks_model_user_accounts_get_canceled_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_user_accounts_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
    fprintf(stderr,"Loading user accounts canceled\n");
    bks_controller_model_user_accounts_reload_finished_cb();
 }
 
 Ecore_Thread *_bks_model_user_accounts_get(unsigned int limit) {
-
+   //FIXME: don't pass pointer of stack variable!!!
    return ecore_thread_run(_bks_model_user_accounts_get_cb, _bks_model_user_accounts_get_finished_cb, _bks_model_user_accounts_get_canceled_cb, &limit);
 
 }

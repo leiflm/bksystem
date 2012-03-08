@@ -6,7 +6,7 @@
 #include "Bks_Ui_Private.h"
 
 static void
-_on_user_account_select(void *data, Evas_Object *obj, void *event_info)
+_on_user_account_select(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
 {
    Elm_Object_Item *li = (Elm_Object_Item*)event_info;
    const Bks_Model_User_Account *acc = NULL;
@@ -21,7 +21,7 @@ _on_user_account_select(void *data, Evas_Object *obj, void *event_info)
 }
 
 static void
-_on_user_account_double_click(void *data, Evas_Object *obj, void *event_info)
+_on_user_account_double_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    //Only react if only a single account is selected
    if (eina_list_count(elm_list_selected_items_get(ui.user_accounts.enp.content)) > 1)

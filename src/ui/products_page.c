@@ -1,10 +1,11 @@
 #include <Elementary.h>
 #include "Elm_Utils.h"
 #include "Bks_System.h"
+#include "Bks_Thread_Queue.h"
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-void _async_products_page_clear(void *data, Ecore_Thread *th)
+void _async_products_page_clear(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
 
@@ -30,7 +31,7 @@ void _product_selected_set(const Elm_Object_Item *product)
  * data.
  */
 void
-products_page_reset(const Bks_Thread_Queue_Element *element)
+products_page_reset(void)
 {
    products_grid_reset();
    products_list_reset();
@@ -69,7 +70,7 @@ Evas_Object *products_page_add(void)
    return ui.products.panes;
 }
 
-void _async_favs_set(void *data, Ecore_Thread *th)
+void _async_favs_set(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
    Eina_List *products = NULL;
@@ -85,7 +86,7 @@ void _async_favs_set(void *data, Ecore_Thread *th)
    bks_thread_queue_wake_up_next(tqe);
 }
 
-void _async_alpha_set(void *data, Ecore_Thread *th)
+void _async_alpha_set(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
    Eina_List *products = NULL;

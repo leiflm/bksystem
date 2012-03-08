@@ -25,7 +25,7 @@ void products_grid_reset()
 }
 
 static void
-grid_selected(void *data, Evas_Object *obj, void *event_info)
+grid_selected(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
 {
    const Elm_Object_Item *selected_product = (const Elm_Object_Item*)event_info;
 
@@ -35,7 +35,7 @@ grid_selected(void *data, Evas_Object *obj, void *event_info)
 }
 
 char *
-grid_text_get(void *data, Evas_Object *obj, const char *part)
+grid_text_get(void *data, Evas_Object *obj UNUSED, const char *part UNUSED)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
    char buf[256];
@@ -83,13 +83,13 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
 }
 
    Eina_Bool
-grid_state_get(void *data, Evas_Object *obj, const char *part)
+grid_state_get(void *data UNUSED, Evas_Object *obj UNUSED, const char *part UNUSED)
 {
    return EINA_FALSE;
 }
 
    void
-grid_del(void *data, Evas_Object *obj)
+grid_del(void *data UNUSED, Evas_Object *obj UNUSED)
 {
 }
 

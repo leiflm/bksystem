@@ -1,9 +1,10 @@
 #include <Elementary.h>
 #include <Evas.h>
+#include "Bks_System.h"
 #include "Bks_Ui_Private.h"
 
 static void
-win_on_done(void *data, Evas_Object *obj, void *event_info)
+win_on_done(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    // quit the mainloop (elm_run function will return)
    elm_exit();

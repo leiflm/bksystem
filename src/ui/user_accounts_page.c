@@ -1,25 +1,32 @@
 #include <Evas.h>
 #include "Elm_Utils.h"
 #include "Bks_System.h"
+#include "Bks_Thread_Queue.h"
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-void user_accounts_page_clear(void)
+static void _async_page_clear(void *data, Ecore_Thread *th UNUSED)
 {
+   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element*)data;
+
+   EINA_SAFETY_ON_NULL_RETURN(data);
+
+   bks_thread_queue_wait(tqe);
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.user_accounts.list);
    ecore_thread_main_loop_end();
+   bks_thread_queue_wake_up_next(tqe);
 }
 
 static void
-_on_user_accounts_prev_btn_click(void *data, Evas_Object *obj, void *event_info)
+_on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
 
 static void
-_on_user_accounts_finish_btn_click(void *data, Evas_Object *obj, void *event_info)
+_on_user_accounts_finish_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    bks_controller_ui_sale_finish_cb();
    elm_list_selection_clear(ui.products.list);
@@ -69,10 +76,10 @@ void user_accounts_page_set(Eina_List *user_accounts)
    user_accounts_list_set(user_accounts);
 }
 
-void _async_page_set(void *data, Ecore_Thread *th)
+void _async_page_set(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
-   Eina_List *users = NULL;
+   Eina_List *user_accounts = NULL;
 
    bks_thread_queue_wait(tqe);
 
@@ -89,9 +96,9 @@ void _async_page_set(void *data, Ecore_Thread *th)
 /**
  * @brief Clears the user accounts ui elements.
  */
-void bks_ui_user_accounts_clear(void)
+void bks_ui_user_accounts_clear(const Bks_Thread_Queue_Element *element)
 {
-   user_accounts_page_clear();
+   ecore_thread_run(_async_page_clear, NULL, NULL, (void*)element);
 }
 
 /**

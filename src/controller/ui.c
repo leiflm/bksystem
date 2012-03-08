@@ -13,7 +13,7 @@
 /*
  * @brief sends sale to model
  */
-void _sale_finish_cb(void *data, Ecore_Thread *th)
+void _sale_finish_cb(void *data UNUSED, Ecore_Thread *th UNUSED)
 {
    const Bks_Model_User_Account *acc = NULL;
    Bks_Model_Sale *sale = NULL;

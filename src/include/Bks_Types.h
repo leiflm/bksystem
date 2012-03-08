@@ -20,6 +20,6 @@ typedef struct _Bks_Model_Sale Bks_Model_Sale;
 typedef struct _Bks_Transaction Bks_Transaction;
 typedef enum _Bks_Error Bks_Error;
 typedef enum _Bks_Thread_Type Bks_Thread_Type;
-typedef _Bks_Thread_Queue_Element Bks_Thread_Queue_Element;
+typedef struct _Bks_Thread_Queue_Element Bks_Thread_Queue_Element;
 
 #endif

@@ -35,7 +35,7 @@
 const char *database = BKSYSTEMDB;
 
 static int bks_model_clean_up_DB(sqlite3 *pDb, sqlite3_stmt *stmt);
-static void bks_model_print_all_data(sqlite3_stmt *stmt);
+//static void bks_model_print_all_data(sqlite3_stmt *stmt);
 
 
 // data retrieval
@@ -47,7 +47,8 @@ Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
    Eina_List *list = NULL;
-   int retval,i;
+   int retval;
+   unsigned int i = 0;
    void *image;
    int image_size;
 
@@ -169,7 +170,7 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
    sqlite3_stmt *stmt;
    Eina_List *list= NULL;
    int retval;
-   int i = 0;
+   unsigned int i = 0;
    void *image;
    int image_size;
 
@@ -479,6 +480,7 @@ double _bks_model_sql_calculate_sum_from_user_since(sqlite3_uint64 uid, const ch
 }
 
 //Helper functions
+/*
 static void bks_model_print_all_data(sqlite3_stmt *stmt) {
    sqlite3_reset(stmt);
    int cols = sqlite3_column_count(stmt);
@@ -524,11 +526,12 @@ static void bks_model_print_all_data(sqlite3_stmt *stmt) {
    printf("All rows finished\n");
    sqlite3_reset(stmt);
 }
+*/
 
-int bks_model_start_up_DB(const char* database, sqlite3 *pDb, const char *query, sqlite3_stmt *stmt) {
+int bks_model_start_up_DB(const char* db, sqlite3 *pDb, const char *query, sqlite3_stmt *stmt) {
    int retval;
    // Open bksystem DB
-   retval = sqlite3_open(database, &pDb);
+   retval = sqlite3_open(db, &pDb);
    if (retval) {
       fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(pDb));
    return retval;

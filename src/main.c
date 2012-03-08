@@ -1,9 +1,11 @@
-#include "Bks_Types.h"
+#include <Eina.h>
+#include <Ecore.h>
+#include "Bks_System.h"
 #include "Bks_Model.h"
 #include "Bks_Controller.h"
 #include "Bks_Ui.h"
 
-int main(int argc, char *argv[])
+int main(int argc UNUSED, char *argv[] UNUSED)
 {
     //used for debugging infra and locks
     eina_init();
