@@ -4,11 +4,14 @@
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-void _async_products_page_clear(void *data)
-//void _async_products_page_clear(void *data, Ecore_Thread *th)
+void _async_products_page_clear(void *data, Ecore_Thread *th)
 {
+   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
+
+   bks_thread_queue_wait(tqe);
    _products_grid_clear();
    _products_list_clear();
+   bks_thread_queue_wake_up_next(tqe);
 }
 
 void _product_selected_set(const Elm_Object_Item *product)
@@ -17,7 +20,9 @@ void _product_selected_set(const Elm_Object_Item *product)
 
    ui.products.selected = product;
    user_accounts_page_reset();
+   ecore_thread_main_loop_begin();
    elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
+   ecore_thread_main_loop_end();
 }
 
 /**
@@ -25,7 +30,7 @@ void _product_selected_set(const Elm_Object_Item *product)
  * data.
  */
 void
-products_page_reset(void)
+products_page_reset(const Bks_Thread_Queue_Element *element)
 {
    products_grid_reset();
    products_list_reset();
@@ -64,22 +69,35 @@ Evas_Object *products_page_add(void)
    return ui.products.panes;
 }
 
-//void _async_favs_set(void *data, Ecore_Thread *th)
-void _async_favs_set(void *data)
+void _async_favs_set(void *data, Ecore_Thread *th)
 {
-   Eina_List *products = (Eina_List*)data;
+   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
+   Eina_List *products = NULL;
+
+   bks_thread_queue_wait(tqe);
+
+
+   EINA_SAFETY_ON_NULL_RETURN(tqe->data);
+   products = (Eina_List*)(tqe->data);
 
    products_grid_set(products);
    bks_ui_products_update_set(EINA_FALSE);
+   bks_thread_queue_wake_up_next(tqe);
 }
 
-//void _async_alpha_set(void *data, Ecore_Thread *th)
-void _async_alpha_set(void *data)
+void _async_alpha_set(void *data, Ecore_Thread *th)
 {
-   Eina_List *products = (Eina_List*)data;
+   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
+   Eina_List *products = NULL;
+
+   bks_thread_queue_wait(tqe);
+
+   EINA_SAFETY_ON_NULL_RETURN(tqe->data);
+   products = (Eina_List*)(tqe->data);
 
    products_list_set(products);
    bks_ui_products_update_set(EINA_FALSE);
+   bks_thread_queue_wake_up_next(tqe);
 }
 
 const Bks_Model_Product *bks_ui_product_selected_get(void)
@@ -96,11 +114,10 @@ const Bks_Model_Product *bks_ui_product_selected_get(void)
 /**
  * @brief Clears the products ui elements.
  */
-void bks_ui_products_clear(void)
+void bks_ui_products_clear(const Bks_Thread_Queue_Element *element)
 {
    printf("Produktseite wird geleert.\n");
-   ecore_main_loop_thread_safe_call_async(_async_products_page_clear, NULL);
-   //ecore_thread_run(_async_products_page_clear, NULL, NULL, NULL);
+   ecore_thread_run(_async_products_page_clear, NULL, NULL, (void*)element);
 }
 
 /**
@@ -112,12 +129,18 @@ void bks_ui_products_update_set(const Eina_Bool update)
 
    if (!update)
      {
+        ecore_thread_main_loop_begin();
         evas_object_hide(ui.products.lock_window.win);
+        ecore_thread_main_loop_end();
         return;
      }
 
    if (!evas_object_visible_get(ui.lock_window.win))
-     elm_win_inwin_activate(ui.products.lock_window.win);
+     {
+        ecore_thread_main_loop_begin();
+        elm_win_inwin_activate(ui.products.lock_window.win);
+        ecore_thread_main_loop_end();
+     }
 }
 
 /**
@@ -125,20 +148,12 @@ void bks_ui_products_update_set(const Eina_Bool update)
  *
  * @param products list of Bks_Model_Product
  */
-void bks_ui_products_page_favs_set(Eina_List *products)
+void bks_ui_products_page_favs_set(const Bks_Thread_Queue_Element *element)
 {
-   //ecore_thread_run(_async_favs_set, NULL, NULL, products);
-   ecore_main_loop_thread_safe_call_async(_async_favs_set, products);
+   ecore_thread_run(_async_favs_set, NULL, NULL, (void*)element);
 }
 
-/**
- * @brief fills the UI's favourite's section using @p products.
- *
- * @param products list of Bks_Model_Product
- */
-void bks_ui_products_page_alpha_set(Eina_List *products)
+void bks_ui_products_page_alpha_set(const Bks_Thread_Queue_Element *element)
 {
-   //CREATE THREAD
-   //ecore_thread_run(_async_alpha_set, NULL, NULL, products);
-   ecore_main_loop_thread_safe_call_async(_async_alpha_set, products);
+   ecore_thread_run(_async_alpha_set, NULL, NULL, (void*)element);
 }

@@ -15,9 +15,6 @@ void bks_ui_init(void)
    elm_init(0, NULL);
 
    //Add mutexes
-   eina_lock_new(&ui.products.locks.alpha);
-   eina_lock_new(&ui.products.locks.favs);
-   eina_lock_new(&ui.user_accounts.lock);
 
    // new window - do the usual and give it a name and title
    ui.win = bks_ui_win_add();
@@ -63,9 +60,6 @@ void bks_ui_shutdown(void)
    ui.win = NULL;
 
    //Free mutexes
-   eina_lock_free(&ui.products.locks.alpha);
-   eina_lock_free(&ui.products.locks.favs);
-   eina_lock_free(&ui.user_accounts.lock);
 
    elm_shutdown();
 }
@@ -77,7 +71,15 @@ void bks_ui_update_set(const Eina_Bool update)
 {
    printf("Jetzt sollte die UI %sbenutzbar sein.\n", (update ? "un" : ""));
    if (update)
-     elm_win_inwin_activate(ui.lock_window.win);
+     {
+        ecore_thread_main_loop_begin();
+        elm_win_inwin_activate(ui.lock_window.win);
+        ecore_thread_main_loop_end();
+     }
    else
-     evas_object_hide(ui.lock_window.win);
+     {
+        ecore_thread_main_loop_begin();
+        evas_object_hide(ui.lock_window.win);
+        ecore_thread_main_loop_end();
+     }
 }

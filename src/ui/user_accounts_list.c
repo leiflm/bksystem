@@ -9,9 +9,11 @@ static void
 _on_user_account_select(void *data, Evas_Object *obj, void *event_info)
 {
    Elm_Object_Item *li = (Elm_Object_Item*)event_info;
-   const Bks_Model_User_Account *acc = (const Bks_Model_User_Account*)elm_object_item_data_get(li);
+   const Bks_Model_User_Account *acc = NULL;
 
-   if (!acc) return;
+   EINA_SAFETY_ON_NULL_RETURN(li);
+   acc = (const Bks_Model_User_Account*)elm_object_item_data_get(li);
+   EINA_SAFETY_ON_NULL_RETURN(acc);
 
    printf("Account %s, %s was selected\n", acc->lastname, acc->firstname);
 
@@ -39,7 +41,7 @@ user_accounts_list_set(Eina_List *user_accounts)
    EINA_SAFETY_ON_NULL_RETURN(ui.user_accounts.list);
    EINA_SAFETY_ON_NULL_RETURN(user_accounts);
 
-   eina_lock_take(&ui.user_accounts.lock);
+   ecore_thread_main_loop_begin();
    EINA_LIST_FREE(user_accounts, acc)
      {
         /*
@@ -56,7 +58,7 @@ user_accounts_list_set(Eina_List *user_accounts)
         elm_object_item_data_set(li, acc);
      }
    elm_list_go(ui.user_accounts.list);
-   eina_lock_release(&ui.user_accounts.lock);
+   ecore_thread_main_loop_end();
 }
 
 Evas_Object *user_accounts_page_list_add(void)

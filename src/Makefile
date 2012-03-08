@@ -3,6 +3,9 @@ BUILD_DIR = $(TOP_DIR)/build
 TOP_SRC_DIR = $(TOP_DIR)/src
 TOP_HEADERS_DIR = $(TOP_SRC_DIR)/include
 
+COMMON_SRC_DIR = $(TOP_SRC_DIR)/common
+COMMON_SRC = $(COMMON_SRC_DIR)/bks_error.c  $(COMMON_SRC_DIR)/bks_thread_queue.c
+
 CTRL_SRC_DIR = $(TOP_SRC_DIR)/controller
 CTRL_HEADERS_DIR = $(CTRL_SRC_DIR)/include
 CTRL_SRC = $(CTRL_SRC_DIR)/bks_controller.c $(CTRL_SRC_DIR)/model.c $(CTRL_SRC_DIR)/ui.c
@@ -24,13 +27,13 @@ UI_CFLAGS = -I$(UI_HEADERS_DIR)
 MAIN_SRC_DIR = $(TOP_SRC_DIR)
 
 CFLAGS = -I$(TOP_HEADERS_DIR) $(CTRL_CFLAGS) $(MODEL_CFLAGS) $(UI_CFLAGS)
-DEBUG_CFLAGS = -ggdb -Wall
+DEBUG_CFLAGS = -ggdb -W -Wall -Wshadow
 SYSTEM_CFLAGS = `pkg-config --cflags elementary,sqlite3`
 SYSTEM_LDFLAGS = `pkg-config --libs elementary,sqlite3`
 
-MAIN_SRC = $(MAIN_SRC_DIR)/main.c $(MAIN_SRC_DIR)/bks_error.c 
+MAIN_SRC = $(MAIN_SRC_DIR)/main.c
 
-SRC = $(MAIN_SRC) $(CTRL_SRC) $(MODEL_SRC) $(UI_SRC)
+SRC = $(MAIN_SRC) $(COMMON_SRC) $(CTRL_SRC) $(MODEL_SRC) $(UI_SRC)
 
 MAIN_OBJ = $(BUILD_DIR)/bksystem
 

@@ -9,18 +9,19 @@
 
 void _products_grid_clear()
 {
-   eina_lock_take(&ui.products.locks.favs);
    printf("GridView wird geleert.\n");
+   bks_ui_products_update_set(EINA_TRUE);
+   ecore_thread_main_loop_begin();
    elm_gengrid_clear(ui.products.grid);
-   eina_lock_release(&ui.products.locks.favs);
+   ecore_thread_main_loop_end();
 }
 
 void products_grid_reset()
 {
    if (!ui.products.grid) return;
-   eina_lock_take(&ui.products.locks.favs);
+   ecore_thread_main_loop_begin();
    elm_gengrid_selection_clear(ui.products.grid);
-   eina_lock_release(&ui.products.locks.favs);
+   ecore_thread_main_loop_end();
 }
 
 static void
@@ -128,7 +129,7 @@ void products_grid_set(Eina_List *products)
 
    printf("Fuelle GridView mit favirisierten Produkten...\n");
 
-   eina_lock_take(&ui.products.locks.favs);
+   ecore_thread_main_loop_begin();
    //add all products to grid
    EINA_LIST_FREE(products, product)
      {
@@ -136,5 +137,5 @@ void products_grid_set(Eina_List *products)
         printf("Fuege Favoritenrepraesentation von Produkt %p an Adresse %p hinzu.\n", product, it);
         //elm_object_item_data_set(it, product);
      }
-   eina_lock_release(&ui.products.locks.favs);
+   ecore_thread_main_loop_end();
 }

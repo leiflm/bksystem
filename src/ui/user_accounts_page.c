@@ -6,9 +6,9 @@
 
 void user_accounts_page_clear(void)
 {
-   eina_lock_take(&ui.user_accounts.lock);
+   ecore_thread_main_loop_begin();
    elm_list_clear(ui.user_accounts.list);
-   eina_lock_release(&ui.user_accounts.lock);
+   ecore_thread_main_loop_end();
 }
 
 static void
@@ -29,10 +29,12 @@ _on_user_accounts_finish_btn_click(void *data, Evas_Object *obj, void *event_inf
 void
 user_accounts_page_reset(void)
 {
-   eina_lock_take(&ui.user_accounts.lock);
+   //lock ui from further user input
+   bks_ui_user_accounts_update_set(EINA_TRUE);
+   ecore_thread_main_loop_begin();
    elm_list_selection_clear(ui.user_accounts.list);
-   eina_lock_release(&ui.user_accounts.lock);
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
+   ecore_thread_main_loop_end();
 }
 
    Evas_Object
@@ -67,13 +69,19 @@ void user_accounts_page_set(Eina_List *user_accounts)
    user_accounts_list_set(user_accounts);
 }
 
-//void _async_page_set(void *data, Ecore_Thread *th)
-void _async_page_set(void *data)
+void _async_page_set(void *data, Ecore_Thread *th)
 {
-   Eina_List *user_accounts = (Eina_List*)data;
+   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
+   Eina_List *users = NULL;
+
+   bks_thread_queue_wait(tqe);
+
+   EINA_SAFETY_ON_NULL_RETURN(tqe->data);
+   user_accounts = (Eina_List*)(tqe->data);
 
    user_accounts_page_set(user_accounts);
    bks_ui_user_accounts_update_set(EINA_FALSE);
+   bks_thread_queue_wake_up_next(tqe);
 }
 
 // API calls
@@ -94,18 +102,23 @@ void bks_ui_user_accounts_update_set(const Eina_Bool update)
    printf("Jetzt sollte der Benutzerlistenschirm %sbenutzbar sein.\n", (update ? "un" : ""));
    if (!update)
      {
+        ecore_thread_main_loop_begin();
         evas_object_hide(ui.user_accounts.lock_window.win);
+        ecore_thread_main_loop_end();
         return;
      }
 
    if (!evas_object_visible_get(ui.lock_window.win))
-     elm_win_inwin_activate(ui.user_accounts.lock_window.win);
+     {
+        ecore_thread_main_loop_begin();
+        elm_win_inwin_activate(ui.user_accounts.lock_window.win);
+        ecore_thread_main_loop_end();
+     }
 }
 
-void bks_ui_user_accounts_page_set(Eina_List *user_accounts)
+void bks_ui_user_accounts_page_set(const Bks_Thread_Queue_Element *element)
 {
-   //ecore_thread_run(_async_page_set, NULL, NULL, user_accounts);
-   ecore_main_loop_thread_safe_call_async(_async_page_set, user_accounts);
+   ecore_thread_run(_async_page_set, NULL, NULL, (void*)element);
 }
 
 /**
@@ -118,8 +131,12 @@ Eina_List *bks_ui_user_accounts_selected_get(void)
    Elm_Object_Item *eoi;
    const Bks_Model_User_Account *acc;
 
+   ecore_thread_main_loop_begin();
    if (!(selected_accounts = elm_list_selected_items_get(ui.user_accounts.list)))
-       return NULL;
+     {
+        ecore_thread_main_loop_end();
+        return NULL;
+     }
 
    // print the names of all selected accounts
    EINA_LIST_FOREACH((Eina_List*)selected_accounts, iter, eoi)
@@ -132,5 +149,6 @@ Eina_List *bks_ui_user_accounts_selected_get(void)
           }
      }
 
+   ecore_thread_main_loop_end();
    return list;
 }

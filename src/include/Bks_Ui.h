@@ -25,17 +25,12 @@ struct _Bks_Ui {
    Evas_Object *win, *naviframe;
    Bks_Ui_Lockwindow lock_window;
    struct {
-        struct {
-             Eina_Lock favs;
-             Eina_Lock alpha;
-        } locks;
         Bks_Ui_Naviframe_Page enp;
         Evas_Object *panes, *favs, *alpha, *list, *grid;
         const Elm_Object_Item *selected;
         Bks_Ui_Lockwindow lock_window;
    } products;
    struct {
-        Eina_Lock lock;
         Bks_Ui_Naviframe_Page enp;
         Evas_Object *list;
         Bks_Ui_Lockwindow lock_window;
@@ -83,8 +78,9 @@ void bks_ui_contoller_sale_finished_cb(Bks_Model_Sale *sale);
 
 /**
  * @brief Clears the user accounts ui elements.
+ * @param element The thread, that has to be waited for.
  */
-void bks_ui_user_accounts_clear(void);
+void bks_ui_user_accounts_clear(const Bks_Thread_Queue_Element *element);
 
 /**
  * @brief Indicates that the user accounts are being refetched.
@@ -93,10 +89,9 @@ void bks_ui_user_accounts_update_set(const Eina_Bool update);
 
 /**
  * @brief fills the UI using @p user_accounts.
- *
- * @param user_accounts list of Bks_ModeL_User_Account.
+ * @param element The thread, that has to be waited for.
  */
-void bks_ui_user_accounts_page_set(Eina_List *user_accounts);
+void bks_ui_user_accounts_page_set(const Bks_Thread_Queue_Element *element);
 
 /**
  * @brief Gets the list of selected user accounts
@@ -109,7 +104,7 @@ Eina_List *bks_ui_user_accounts_selected_get(void);
 /**
  * @brief Clears the products ui elements.
  */
-void bks_ui_products_clear(void);
+void bks_ui_products_clear(const Bks_Thread_Queue_Element *tqe);
 
 /**
  * @brief Indicates that the products are being refetched.
@@ -118,17 +113,16 @@ void bks_ui_products_update_set(const Eina_Bool update);
 
 /**
  * @brief fills the UI's favourite's region using @p products.
+ * @param element The thread, that has to be waited for.
  *
- * @param products list of Bks_ModeL_Product
  */
-void bks_ui_products_page_favs_set(Eina_List *products);
+void bks_ui_products_page_favs_set(const Bks_Thread_Queue_Element *element);
 
 /**
  * @brief fills the UI's alphabetic products list using @p products.
- *
- * @param products list of Bks_ModeL_Product
+ * @param element The thread, that has to be waited for.
  */
-void bks_ui_products_page_alpha_set(Eina_List *products);
+void bks_ui_products_page_alpha_set(const Bks_Thread_Queue_Element *element);
 
 /**
  * @brief Gets the selected product

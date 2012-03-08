@@ -8,20 +8,21 @@
 
 void _products_list_clear()
 {
-   eina_lock_take(&ui.products.locks.alpha);
    printf("Alphabetische Produktliste wird geleert.\n");
+   bks_ui_products_update_set(EINA_TRUE);
+   ecore_thread_main_loop_begin();
    elm_list_clear(ui.products.list);
-   eina_lock_release(&ui.products.locks.alpha);
+   ecore_thread_main_loop_end();
 }
 
 void products_list_reset(void)
 {
    Elm_Object_Item *eoi;
 
-   eina_lock_take(&ui.products.locks.alpha);
+   ecore_thread_main_loop_begin();
    if ((eoi = elm_list_selected_item_get(ui.products.list)))
      elm_list_item_selected_set(eoi, EINA_FALSE);
-   eina_lock_release(&ui.products.locks.alpha);
+   ecore_thread_main_loop_end();
 }
 
 static void
@@ -44,7 +45,7 @@ products_list_set(Eina_List *products)
    EINA_SAFETY_ON_NULL_RETURN(ui.products.list);
    EINA_SAFETY_ON_NULL_RETURN(products);
 
-   eina_lock_take(&ui.products.locks.alpha);
+   ecore_thread_main_loop_begin();
    EINA_LIST_FREE(products, product)
      {
         if (product->image.data)
@@ -59,7 +60,7 @@ products_list_set(Eina_List *products)
         printf("Produkt %p hinzugefuegt.\n", it);
      }
    elm_list_go(ui.products.list);
-   eina_lock_release(&ui.products.locks.alpha);
+   ecore_thread_main_loop_end();
 }
 
 Evas_Object *products_list_add(void)
