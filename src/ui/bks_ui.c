@@ -22,6 +22,8 @@ void bks_ui_init(void)
 
    // add naviframe
    ui.naviframe = elm_naviframe_add(ui.win);
+   evas_object_size_hint_weight_set(ui.naviframe, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(ui.naviframe, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(ui.naviframe);
    // add object as a resize object for the window (controls window minimum
    // size as well as gets resized if window is resized)
@@ -29,10 +31,14 @@ void bks_ui_init(void)
 
    //create and fill products
    ui.products.enp.content = products_page_add();
+   evas_object_size_hint_weight_set(ui.products.enp.content, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(ui.products.enp.content, EVAS_HINT_FILL, EVAS_HINT_FILL);
    ui.products.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Produkte", NULL, NULL, ui.products.enp.content, NULL);
 
    //create, fill and add user_accounts ui elements
    ui.user_accounts.enp.content = user_accounts_page_add();
+   evas_object_size_hint_weight_set(ui.user_accounts.enp.content, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(ui.user_accounts.enp.content, EVAS_HINT_FILL, EVAS_HINT_FILL);
    ui.user_accounts.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Konten", ui.user_accounts.enp.prev_btn, ui.user_accounts.enp.next_btn, ui.user_accounts.enp.content, NULL);
 
    //create lock window

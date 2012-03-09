@@ -83,7 +83,6 @@ void _async_page_set(void *data, Ecore_Thread *th UNUSED)
    Eina_List *user_accounts = NULL;
 
    bks_thread_queue_wait(tqe);
-   printf("Benutzerkonten fuellen thread wird ausgeführt, timestamp: %lf\n", tqe->timestamp);
 
    EINA_SAFETY_ON_NULL_RETURN(tqe->data);
    user_accounts = (Eina_List*)(tqe->data);
@@ -108,7 +107,6 @@ void bks_ui_user_accounts_clear(const Bks_Thread_Queue_Element *element)
  */
 void bks_ui_user_accounts_update_set(const Eina_Bool update)
 {
-   printf("Jetzt sollte der Benutzerlistenschirm %sbenutzbar sein.\n", (update ? "un" : ""));
    if (!update)
      {
         ecore_thread_main_loop_begin();
@@ -143,8 +141,7 @@ Eina_List *bks_ui_user_accounts_selected_get(void)
    ecore_thread_main_loop_begin();
    if (!(selected_accounts = elm_list_selected_items_get(ui.user_accounts.list)))
      {
-        ecore_thread_main_loop_end();
-        return NULL;
+        goto _user_accounts_selected_get_exit;
      }
 
    // print the names of all selected accounts
@@ -158,6 +155,7 @@ Eina_List *bks_ui_user_accounts_selected_get(void)
           }
      }
 
+_user_accounts_selected_get_exit:
    ecore_thread_main_loop_end();
    return list;
 }

@@ -9,7 +9,6 @@
 
 void _products_grid_clear()
 {
-   printf("GridView wird geleert.\n");
    bks_ui_products_update_set(EINA_TRUE);
    ecore_thread_main_loop_begin();
    elm_gengrid_clear(ui.products.grid);
@@ -38,11 +37,11 @@ char *
 grid_text_get(void *data, Evas_Object *obj UNUSED, const char *part UNUSED)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
-   char buf[256];
+   char buf[32];
 
    if (!product) return NULL;
 
-   snprintf(buf, sizeof(buf), "%s, %.2fEuro", product->name, product->price);
+   snprintf(buf, (sizeof(buf) - 1), "%s, %.2f Euro", product->name, product->price);
    return strdup(buf);
 }
 
@@ -51,8 +50,6 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
    Evas_Object *icon = NULL;
-
-   printf("Erstelle Repraesentation fuer Fav.-Objekt %p, data-ptr: %p.\n", obj, data);
 
    if (!strcmp(part, "elm.swallow.icon"))
      {
@@ -127,14 +124,11 @@ void products_grid_set(Eina_List *products)
    gic.func.state_get = grid_state_get;
    gic.func.del = grid_del;
 
-   printf("Fuelle GridView mit favirisierten Produkten...\n");
-
    ecore_thread_main_loop_begin();
    //add all products to grid
    EINA_LIST_FREE(products, product)
      {
         it = elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
-        printf("Fuege Favoritenrepraesentation von Produkt %p an Adresse %p hinzu.\n", product, it);
         //elm_object_item_data_set(it, product);
      }
    ecore_thread_main_loop_end();

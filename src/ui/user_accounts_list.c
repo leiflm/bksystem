@@ -53,7 +53,6 @@ user_accounts_list_set(Eina_List *user_accounts)
          li = elm_list_item_append(ui.user_accounts.list, name, ic, NULL, on_user_account_select, name);
          */
         snprintf(buf, sizeof(buf), "%s, %s", acc->lastname, acc->firstname);
-        printf("Fuege Benutzer %s hinzu.\n", buf);
         li = elm_list_item_append(ui.user_accounts.list, buf, NULL, NULL, _on_user_account_select, NULL);
         elm_object_item_data_set(li, acc);
      }

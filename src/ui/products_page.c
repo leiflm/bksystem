@@ -10,7 +10,6 @@ void _async_products_page_clear(void *data, Ecore_Thread *th UNUSED)
    Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
 
    bks_thread_queue_wait(tqe);
-   printf("Produktseite leeren thread wird ausgeführt, timestamp: %lf\n", tqe->timestamp);
    _products_grid_clear();
    _products_list_clear();
    bks_thread_queue_wake_up_next(tqe);
@@ -77,8 +76,6 @@ void _async_favs_set(void *data, Ecore_Thread *th UNUSED)
    Eina_List *products = NULL;
 
    bks_thread_queue_wait(tqe);
-   printf("Produktseite favs-fuellen thread wird ausgeführt, timestamp: %lf\n", tqe->timestamp);
-
 
    EINA_SAFETY_ON_NULL_RETURN(tqe->data);
    products = (Eina_List*)(tqe->data);
@@ -94,7 +91,6 @@ void _async_alpha_set(void *data, Ecore_Thread *th UNUSED)
    Eina_List *products = NULL;
 
    bks_thread_queue_wait(tqe);
-   printf("Produktseite alpha-fuellen thread wird ausgeführt, timestamp: %lf\n", tqe->timestamp);
 
    EINA_SAFETY_ON_NULL_RETURN(tqe->data);
    products = (Eina_List*)(tqe->data);
@@ -120,7 +116,6 @@ const Bks_Model_Product *bks_ui_product_selected_get(void)
  */
 void bks_ui_products_clear(const Bks_Thread_Queue_Element *element)
 {
-   printf("Produktseite wird geleert.\n");
    ecore_thread_run(_async_products_page_clear, NULL, NULL, (void*)element);
 }
 
@@ -129,8 +124,6 @@ void bks_ui_products_clear(const Bks_Thread_Queue_Element *element)
  */
 void bks_ui_products_update_set(const Eina_Bool update)
 {
-   printf("Jetzt sollte der Produktbildschirm %sbenutzbar sein.\n", (update ? "un" : ""));
-
    if (!update)
      {
         ecore_thread_main_loop_begin();
