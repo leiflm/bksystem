@@ -32,7 +32,7 @@ static void
 _on_user_accounts_finish_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    bks_controller_ui_sale_finish_cb();
-   elm_list_selection_clear(ui.products.list);
+   products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
 
