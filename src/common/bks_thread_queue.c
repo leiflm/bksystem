@@ -44,7 +44,7 @@ Bks_Thread_Queue_Element *bks_thread_queue_append(const Bks_Thread_Type type, co
    return tqe;
 }
 
-void bks_thread_queue_wait(Bks_Thread_Queue_Element *element)
+inline void bks_thread_queue_wait(Bks_Thread_Queue_Element *element)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
@@ -62,11 +62,9 @@ void bks_thread_queue_wait(Bks_Thread_Queue_Element *element)
 
    //or we need to sleep until it's the right time
    eina_lock_take(&element->lock);
-//   safety check:
-//   goto _th_equal_check;
 }
 
-void bks_thread_queue_wake_up_next(Bks_Thread_Queue_Element *element)
+inline void bks_thread_queue_wake_up_next(Bks_Thread_Queue_Element *element)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
@@ -90,11 +88,19 @@ int _queue_sort_cb(const void *data1, const void *data2)
 {
    const Bks_Thread_Queue_Element *tqe1 = (Bks_Thread_Queue_Element*)data1;
    const Bks_Thread_Queue_Element *tqe2 = (Bks_Thread_Queue_Element*)data2;
+   double diff = 0.0;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(tqe1, 1);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(tqe2, -1);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(tqe2, 1);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(tqe1, -1);
 
-   return (tqe2->timestamp - tqe1->timestamp);
+   diff = tqe1->timestamp - tqe2->timestamp;
+
+   if (diff < 0.0)
+     return -1;
+   else if (diff > 0.0)
+     return 1;
+   else
+     return 0;
 }
 
 void _free_queue_element(Bks_Thread_Queue_Element *tqe)

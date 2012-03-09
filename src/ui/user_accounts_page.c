@@ -12,9 +12,12 @@ static void _async_page_clear(void *data, Ecore_Thread *th UNUSED)
    EINA_SAFETY_ON_NULL_RETURN(data);
 
    bks_thread_queue_wait(tqe);
+   printf("Benutzerliste leeren thread wird ausgeführt, timestamp: %lf\n", tqe->timestamp);
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.user_accounts.list);
    ecore_thread_main_loop_end();
+   //lock ui from further user input
+   bks_ui_user_accounts_update_set(EINA_TRUE);
    bks_thread_queue_wake_up_next(tqe);
 }
 
@@ -36,8 +39,6 @@ _on_user_accounts_finish_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, v
 void
 user_accounts_page_reset(void)
 {
-   //lock ui from further user input
-   bks_ui_user_accounts_update_set(EINA_TRUE);
    ecore_thread_main_loop_begin();
    elm_list_selection_clear(ui.user_accounts.list);
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
@@ -82,6 +83,7 @@ void _async_page_set(void *data, Ecore_Thread *th UNUSED)
    Eina_List *user_accounts = NULL;
 
    bks_thread_queue_wait(tqe);
+   printf("Benutzerkonten fuellen thread wird ausgeführt, timestamp: %lf\n", tqe->timestamp);
 
    EINA_SAFETY_ON_NULL_RETURN(tqe->data);
    user_accounts = (Eina_List*)(tqe->data);
