@@ -36,6 +36,7 @@ Bks_Thread_Queue_Element *bks_thread_queue_append(const Bks_Thread_Type type, co
    tqe = malloc(sizeof(*tqe));
    tqe->timestamp = timestamp;
    tqe->type = type;
+   eina_lock_new(&tqe->lock);
    eina_lock_take(&tqe->lock);
    thread_queue.queue = eina_list_sorted_insert(thread_queue.queue, _queue_sort_cb, tqe);
    eina_lock_release(&thread_queue.lock);
@@ -61,8 +62,6 @@ void bks_thread_queue_wait(Bks_Thread_Queue_Element *element)
 
    //or we need to sleep until it's the right time
    eina_lock_take(&element->lock);
-   //make sure the list does not change while we execute our thread code
-   eina_lock_take(&thread_queue.lock);
 //   safety check:
 //   goto _th_equal_check;
 }
@@ -71,6 +70,7 @@ void bks_thread_queue_wake_up_next(Bks_Thread_Queue_Element *element)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
+   eina_lock_take(&thread_queue.lock);
    tqe = eina_list_data_get(thread_queue.queue);
    //verify that the first list element is what it has to be.
    assert(tqe == element);
@@ -78,9 +78,10 @@ void bks_thread_queue_wake_up_next(Bks_Thread_Queue_Element *element)
    thread_queue.queue = eina_list_remove_list(thread_queue.queue, thread_queue.queue);
    _free_queue_element(tqe);
    //wakeup next thread
-   tqe = eina_list_data_get(thread_queue.queue);
-   eina_lock_release(&tqe->lock);
-   //release the lock aquired in previous call of bks_thread_queue_wait
+   if ((tqe = eina_list_data_get(thread_queue.queue)))
+     {
+        eina_lock_release(&tqe->lock);
+     }
    eina_lock_release(&thread_queue.lock);
 }
 
