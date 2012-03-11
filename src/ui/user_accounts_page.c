@@ -12,7 +12,6 @@ static void _async_page_clear(void *data, Ecore_Thread *th UNUSED)
    EINA_SAFETY_ON_NULL_RETURN(data);
 
    bks_thread_queue_wait(tqe);
-   printf("Benutzerliste leeren thread wird ausgeführt, timestamp: %lf\n", tqe->timestamp);
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.user_accounts.list);
    ecore_thread_main_loop_end();
@@ -52,7 +51,7 @@ user_accounts_page_reset(void)
 
    //create, setup and fill user_accounts
    ui.user_accounts.list = user_accounts_page_list_add();
-   evas_object_show(ui.user_accounts.list);
+   EXPAND_AND_FILL(ui.user_accounts.list);
    // Add button to go back to productslist
    ui.user_accounts.enp.prev_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.user_accounts.enp.prev_btn);
@@ -66,6 +65,7 @@ user_accounts_page_reset(void)
 
    ui.user_accounts.lock_window.win = elm_win_inwin_add(ui.win);
    ui.user_accounts.lock_window.content = elm_label_add(ui.user_accounts.lock_window.win);
+   evas_object_size_hint_align_set(ui.user_accounts.lock_window.content, 0.5, 0.5);
    elm_object_text_set(ui.user_accounts.lock_window.content, "Die Benutzerkontenliste wird aktualisiert");
    elm_win_inwin_content_set(ui.user_accounts.lock_window.win, ui.user_accounts.lock_window.content);
 

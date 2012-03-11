@@ -5,6 +5,12 @@
 #include "Bks_Ui.h"
 #include "Bks_Model_Product.h"
 
+//Convenience Macros
+#define EXPAND(o) evas_object_size_hint_weight_set(o, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+#define FILL(o) evas_object_size_hint_fill_set(o, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+#define EXPAND_AND_FILL(o) EXPAND(o);\
+                           FILL(o)
+
 Evas_Object *bks_ui_win_add(void);
 
 // user acounts page related functions
