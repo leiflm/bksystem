@@ -115,10 +115,10 @@ static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
    while (*retry_ptr >= 0) {
       retry_ptr = ecore_thread_local_data_find(th, "no_of_retry");
       eina_lock_take(&mdl.lock);
-      printf("Commiting sale with uid:%llu...\n", sale->uid);
+      printf("Commiting sale with uid:%d...\n", sale->uid);
       sale->status = _bks_model_sql_commit_sale(sale);
-      if (sale->status == BKS_MODEL_SQLITE_DATABASE_LOCKED) {
-         fprintf(stderr, "Failed to commit sale,retry:%d \n", *retry_ptr);
+      if (sale->status == BKS_MODEL_SQLITE_DATABASE_LOCKED || sale->status == BKS_MODEL_SQLITE_OPEN_ERROR) {
+         fprintf(stderr, "Failed to commit sale,retry:%d \n", 4 - (*retry_ptr));
          (*retry_ptr)--;
          ecore_thread_local_data_set(th, "no_of_retry", retry_ptr, _retry_ptr_free_cb); 
          sale->status = BKS_MODEL_SALE_UNFINISHED;
@@ -129,6 +129,9 @@ static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
          break;
       }
    }
+   if (sale->status != BKS_MODEL_SALE_DONE) {
+   ecore_thread_cancel(th);
+   }
 }
 
 static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th UNUSED) {
@@ -138,7 +141,7 @@ static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th UNUSED) {
 
 static void _bks_model_sale_canceled_cb(void *data, Ecore_Thread *th UNUSED) {
    fprintf(stderr,"Sale canceled\n");
-   bks_controller_model_commit_sale_finished_cb(data);
+   bks_controller_model_commit_sale_finished_cb((Bks_Model_Sale *)data);
 }
 
 Ecore_Thread *_bks_model_commit_sale(const Bks_Model_Sale *sale) {

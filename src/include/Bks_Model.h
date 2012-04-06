@@ -104,7 +104,7 @@ Eina_List* bks_model_products_get(unsigned int limit);
  *
  * @return List of struct sale
  */
-const Eina_List* bks_model_sales_from_user_since(const sqlite3_uint64 uid, const char *since);
+const Eina_List* bks_model_sales_from_user_since(const int uid, const char *since);
 
 /**
  * @brief adds up the prices of sales/products bought by @p uid
@@ -114,7 +114,7 @@ const Eina_List* bks_model_sales_from_user_since(const sqlite3_uint64 uid, const
  *
  * @return accumulated sum
  */
-double bks_model_user_balance_get(const sqlite3_uint64 uid, const char *since);
+double bks_model_user_balance_get(const int uid, const char *since);
 
 /**
  * @brief creates a new database with final settlement for all and number of bought products

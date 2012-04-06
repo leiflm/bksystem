@@ -59,7 +59,7 @@ Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
    while (sqlite3_step(stmt) == SQLITE_ROW) {
       i++;
       ptr_current_user = malloc(sizeof(Bks_Model_User_Account));
-      ptr_current_user->uid = sqlite3_column_int64(stmt, 0);
+      ptr_current_user->uid = sqlite3_column_int(stmt, 0);
 
       name = (char*)sqlite3_column_text(stmt, 1);
       ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
@@ -117,7 +117,7 @@ Eina_List* _bks_model_sql_user_accounts_get(void) {
    while (sqlite3_step(stmt) == SQLITE_ROW) {
       ptr_current_user = malloc(sizeof(Bks_Model_User_Account));
 
-      ptr_current_user->uid = sqlite3_column_int64(stmt, 0);
+      ptr_current_user->uid = sqlite3_column_int(stmt, 0);
       name = (char*)sqlite3_column_text(stmt, 1);
       ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_user->firstname, name);
@@ -302,14 +302,14 @@ Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
    retval = sqlite3_finalize(insert_stmt);
 
    _close_and_return:
-   fprintf(stderr, "%s: %s\n"
-                     "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
+  // fprintf(stderr, "%s: %s\n"
+  //                   "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
    sqlite3_close(pDb);
    return error;
 }
 
 // service
-Eina_List* _bks_model_sql_sales_from_user_since(sqlite3_uint64 uid,const char *timestamp) {
+Eina_List* _bks_model_sql_sales_from_user_since(int uid,const char *timestamp) {
 
    Bks_Model_Sale *ptr_current_sale = NULL;
    char *select_query ="SELECT uid,firstname,lastname,status,EAN,name,price,timestamp FROM (((SELECT uid,firstname,lastname,status FROM user_accounts WHERE uid = ?2)INNER JOIN (SELECT userid,product,price,timestamp FROM sales WHERE timestamp > datetime(?1)) ON uid=userid ) INNER JOIN (SELECT EAN,name FROM products) ON EAN = product)ORDER BY uid,product";
@@ -341,7 +341,7 @@ Eina_List* _bks_model_sql_sales_from_user_since(sqlite3_uint64 uid,const char *t
    // For each row copy values into struct BKS_model_sale, alloc mem
    while (sqlite3_step(stmt) == SQLITE_ROW) {
       ptr_current_sale = malloc(sizeof(Bks_Model_Sale));
-      ptr_current_sale->uid = sqlite3_column_int64(stmt, 0);
+      ptr_current_sale->uid = sqlite3_column_int(stmt, 0);
 
       tmp = (char*)sqlite3_column_text(stmt, 1);
       ptr_current_sale->firstname = (char*)malloc(strlen(tmp + 1));
@@ -379,7 +379,7 @@ _close_db:
    return list;
 }
 
-double _bks_model_sql_calculate_sum_from_user_since(sqlite3_uint64 uid, const char *timestamp) {
+double _bks_model_sql_calculate_sum_from_user_since(int uid, const char *timestamp) {
 
    sqlite3 *pDb;
    sqlite3_stmt *stmt;

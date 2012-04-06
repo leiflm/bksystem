@@ -108,12 +108,12 @@ void bks_model_commit_sale(const Bks_Model_Sale *sale) {
 
    }
 
-const Eina_List* bks_model_sales_from_user_since(const sqlite3_uint64 uid UNUSED, const char *since UNUSED) {
+const Eina_List* bks_model_sales_from_user_since(const int uid UNUSED, const char *since UNUSED) {
    
    return NULL;
 }
 
-double bks_model_user_balance_get(const sqlite3_uint64 uid UNUSED, const char *since UNUSED) {
+double bks_model_user_balance_get(const int uid UNUSED, const char *since UNUSED) {
    return 0;
 }
 

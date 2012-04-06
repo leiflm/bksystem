@@ -29,7 +29,7 @@
  *
  * struct Bks_Model_Sale can hold all information associated with a sale derived from different tables
  *
- * @param sqlite3_uint_64 user account ID, also primary key
+ * @param int user account ID, also primary key
  * @param firstname
  * @param lastname
  * @param status indicates success or failure of sale.
@@ -41,7 +41,7 @@
  * */
 
 struct _Bks_Model_Sale {
-     sqlite3_uint64 uid;
+     int uid;
      char *firstname;
      char *lastname;
      Bks_Error status;
@@ -57,7 +57,7 @@ struct _Bks_Model_Sale {
  * @param EAN corresponding ID of the product
  * @param price of the product
  */
-Bks_Model_Sale *bks_model_sale_new(sqlite3_uint64 uid, sqlite3_uint64 EAN, double price);
+Bks_Model_Sale *bks_model_sale_new(int uid, sqlite3_uint64 EAN, double price);
 
 /**
  * @brief frees struct memory and NULLs

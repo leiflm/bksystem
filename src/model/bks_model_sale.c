@@ -22,7 +22,7 @@
 #include "Bks_Types.h"
 #include "Bks_Model_Sale.h"
 
-Bks_Model_Sale *bks_model_sale_new(sqlite3_uint64 uid, sqlite3_uint64 EAN, double price) {
+Bks_Model_Sale *bks_model_sale_new(int uid, sqlite3_uint64 EAN, double price) {
 	
 	Bks_Model_Sale *sale_ptr;
 	sale_ptr = malloc(sizeof(Bks_Model_Sale));

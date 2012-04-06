@@ -27,7 +27,7 @@ enum _Bks_Model_User_Account_Status { BKS_MODEL_USER_ACCOUNT_ACTIVE,
                                       BKS_MODEL_USER_ACCOUNT_LOCKED };
 
     struct _Bks_Model_User_Account {
-      sqlite3_uint64 uid;
+      int uid;
       char *firstname;
       char *lastname;
       Bks_Model_User_Account_Status status;
