@@ -21,5 +21,7 @@ typedef struct _Bks_Transaction Bks_Transaction;
 typedef enum _Bks_Error Bks_Error;
 typedef enum _Bks_Thread_Type Bks_Thread_Type;
 typedef struct _Bks_Thread_Queue_Element Bks_Thread_Queue_Element;
+typedef enum _Bks_Model_Product_Status Bks_Model_Product_Status;
+typedef enum _Bks_Model_User_Account_Status Bks_Model_User_Account_Status;
 
 #endif

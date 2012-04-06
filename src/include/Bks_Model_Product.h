@@ -23,10 +23,15 @@
 #include <sqlite3.h>
 #include "Bks_Types.h"
 
+enum _Bks_Model_Product_Status { BKS_MODEL_PRODUCT_SHOW = 0,
+                                 BKS_MODEL_PRODUCT_HIDE = 1
+                                 };
+
    struct _Bks_Model_Product {
       sqlite3_uint64 EAN;
       char *name;
       double price;
+      Bks_Model_Product_Status status;
       struct {
          void *data;
          int size;
@@ -36,7 +41,7 @@
 /**
  * @brief frees struct memory and NULLs
  *
- * 	frees memory occupied by struct Bks_Model_Product WARNING: Unused pointers must be NULL
+ *  frees memory occupied by struct Bks_Model_Product WARNING: Unused pointers must be NULL
  *
  * @param pointer to struct
  */

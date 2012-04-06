@@ -69,7 +69,7 @@ Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
       ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_user->lastname, name);
 
-      ptr_current_user->status = sqlite3_column_int64(stmt, 3);
+      ptr_current_user->status = sqlite3_column_int(stmt, 3);
       // fetch image
       image = (void*)sqlite3_column_blob(stmt, 5);
       image_size = sqlite3_column_bytes(stmt, 5);
@@ -126,7 +126,7 @@ Eina_List* _bks_model_sql_user_accounts_get(void) {
       ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
       strcpy(ptr_current_user->lastname, name);
 
-      ptr_current_user->status = sqlite3_column_int64(stmt, 3);
+      ptr_current_user->status = sqlite3_column_int(stmt, 3);
 
       ptr_current_user->image.data = NULL;
       ptr_current_user->image.size = 0;
@@ -144,7 +144,7 @@ _close_db:
 
 Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
    Bks_Model_Product *ptr_current_product = NULL;
-   char *select_query ="SELECT products.EAN,name,price,placement,image FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
+   char *select_query ="SELECT products.EAN,name,price,placement,image,status FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -187,8 +187,10 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
          ptr_current_product->image.data = NULL;
          ptr_current_product->image.size = 0;
       }
+      ptr_current_product->status = sqlite3_column_int(stmt, 5);
 
       list = eina_list_append(list, ptr_current_product);
+
       if (i >= limit) { // We only want at most limit Rows
          break;
       }
@@ -223,6 +225,7 @@ Eina_List* _bks_model_sql_products_get(void) {
    }
 
    while (sqlite3_step(stmt) == SQLITE_ROW) {
+  
       ptr_current_product = malloc(sizeof(Bks_Model_Product));
 
       ptr_current_product->EAN = sqlite3_column_int64(stmt, 0);
@@ -235,9 +238,10 @@ Eina_List* _bks_model_sql_products_get(void) {
 
       ptr_current_product->image.data = NULL;
       ptr_current_product->image.size = 0;
-
+      ptr_current_product->status = sqlite3_column_int(stmt, 5);
       list = eina_list_append(list, ptr_current_product);
-    }
+     
+   }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
       fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
@@ -347,7 +351,7 @@ Eina_List* _bks_model_sql_sales_from_user_since(sqlite3_uint64 uid,const char *t
       ptr_current_sale->lastname = (char*)malloc(strlen(tmp + 1));
       strcpy(ptr_current_sale->lastname, tmp);
 
-      ptr_current_sale->status = sqlite3_column_int64(stmt, 3);
+      ptr_current_sale->status = sqlite3_column_int(stmt, 3);
 
       ptr_current_sale->EAN = sqlite3_column_int64(stmt, 4);
 

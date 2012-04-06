@@ -23,11 +23,14 @@
 #include <sqlite3.h>
 #include "Bks_Types.h"
 
+enum _Bks_Model_User_Account_Status { BKS_MODEL_USER_ACCOUNT_ACTIVE,
+                                      BKS_MODEL_USER_ACCOUNT_LOCKED };
+
     struct _Bks_Model_User_Account {
       sqlite3_uint64 uid;
       char *firstname;
       char *lastname;
-      sqlite3_uint64 status;
+      Bks_Model_User_Account_Status status;
       struct {
          void *data;
          int size;
