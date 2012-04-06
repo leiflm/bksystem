@@ -41,7 +41,7 @@ struct _Bks_Ui {
  * @brief initializes the central ui.
  *
  */
-void bks_ui_init(void);
+void bks_ui_init(int argc, char *argv[]);
 
 /**
  * @brief shuts the central Bks_Ui down

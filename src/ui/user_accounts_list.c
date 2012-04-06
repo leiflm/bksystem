@@ -36,7 +36,9 @@ user_accounts_list_set(Eina_List *user_accounts)
 {
    Bks_Model_User_Account *acc;
    Elm_Object_Item *li;
+   Evas_Object *ic = NULL;
    char buf[256];
+   const char *img_name = NULL;
 
    EINA_SAFETY_ON_NULL_RETURN(ui.user_accounts.list);
    EINA_SAFETY_ON_NULL_RETURN(user_accounts);
@@ -44,16 +46,29 @@ user_accounts_list_set(Eina_List *user_accounts)
    ecore_thread_main_loop_begin();
    EINA_LIST_FREE(user_accounts, acc)
      {
-        /*
-         * Disable icons for now
-         ic = elm_icon_add(ui.user_accounts.list);
-         snprintf(buf, sizeof(buf), "%s/images/logo_small.png", elm_app_data_dir_get());
-         elm_icon_file_set(ic, buf, NULL);
-         elm_icon_scale_set(ic, 1, 1);
-         li = elm_list_item_append(ui.user_accounts.list, name, ic, NULL, on_user_account_select, name);
-         */
-        snprintf(buf, sizeof(buf), "%s, %s", acc->lastname, acc->firstname);
-        li = elm_list_item_append(ui.user_accounts.list, buf, NULL, NULL, _on_user_account_select, NULL);
+        switch (acc->status)
+          {
+           case 1:
+              img_name = "locked";
+              break;
+           default:
+              img_name = NULL;
+              break;
+          }
+        if (!img_name)
+          ic = NULL;
+        else
+          {
+             ic = elm_icon_add(ui.user_accounts.list);
+             //snprintf(buf, (sizeof(buf) - 1), "%s/images/accounts/%s.png", elm_app_data_dir_get(), img_name);
+             snprintf(buf, (sizeof(buf) - 1), "images/accounts/%s.png", img_name);
+             elm_icon_file_set(ic, buf, NULL);
+             elm_icon_resizable_set(ic, 0.0, 0.0);
+
+             printf("Trying to open %s as icon\n", buf);
+          }
+        snprintf(buf, (sizeof(buf) - 1), "%s, %s", acc->lastname, acc->firstname);
+        li = elm_list_item_append(ui.user_accounts.list, buf, NULL, ic, _on_user_account_select, NULL);
         elm_object_item_data_set(li, acc);
      }
    elm_list_go(ui.user_accounts.list);
@@ -69,7 +84,7 @@ Evas_Object *user_accounts_page_list_add(void)
 
    // Add callback for doubleclick action
    //evas_object_smart_callback_add(ui.user_accounts.enp.content, "clicked,double", _on_user_account_double_click, NULL);
-   evas_object_smart_callback_add(ui.user_accounts.list, "clicked,double", _on_user_account_double_click, NULL);
+   //evas_object_smart_callback_add(ui.user_accounts.list, "clicked,double", _on_user_account_double_click, NULL);
 
    return ui.user_accounts.list;
 }

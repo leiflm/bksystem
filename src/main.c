@@ -6,7 +6,7 @@
 #include "Bks_Controller.h"
 #include "Bks_Ui.h"
 
-int main(int argc UNUSED, char *argv[] UNUSED)
+int main(int argc, char *argv[])
 {
     //used for debugging infra and locks
     eina_init();
@@ -16,7 +16,7 @@ int main(int argc UNUSED, char *argv[] UNUSED)
     bks_thread_queue_init();
     bks_model_init();
     bks_controller_init();
-    bks_ui_init();
+    bks_ui_init(argc, argv);
 
     //start mainloop
     bks_controller_run();

@@ -12,10 +12,13 @@
 
 static void _ui_window_key(void *data, Evas *e, Evas_Object *obj, void *event_info);
 
-void bks_ui_init(void)
+void bks_ui_init(int argc, char* argv[])
 {
    // initialize Elementary
-   elm_init(0, NULL);
+   elm_init(argc, argv);
+
+   // set app relevant directories
+   elm_app_info_set(main, "bksystem", "images/accounts/locked.png");
 
    // new window - do the usual and give it a name and title
    ui.win = bks_ui_win_add();
@@ -54,7 +57,8 @@ void bks_ui_init(void)
    elm_naviframe_content_preserve_on_pop_set(ui.naviframe, EINA_TRUE);
 
    //finally set size of window
-   elm_win_fullscreen_set(ui.win, EINA_TRUE);
+   evas_object_resize(ui.win, 640, 480);
+   //elm_win_fullscreen_set(ui.win, EINA_TRUE);
 }
 
 void bks_ui_shutdown(void)

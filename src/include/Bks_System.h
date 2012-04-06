@@ -10,4 +10,5 @@ Bks_Ui ui;
 Bks_Controller ctrl;
 Eina_Lock transaction_list;
 
+int main(int argc, char *argv[]);
 #endif
