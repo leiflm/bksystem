@@ -41,9 +41,6 @@ void bks_model_init(void) {
    mdl.recent_user_accounts = NULL;
    mdl.products = NULL;
    mdl.favorite_products = NULL;
-   _bks_model_products_get(6);
-   _bks_model_user_accounts_get(6);
-   //_bks_model_data_get();
 }
 
 void bks_model_shutdown(void) {
