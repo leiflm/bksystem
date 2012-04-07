@@ -6,7 +6,13 @@
 
 //API callbacks for model
 
-void bks_controller_model_user_accounts_reload_cb(void)
+void bks_controller_model_reload_cb(void)
+{
+   bks_controller_model_user_accounts_get_cb();
+   bks_controller_model_products_get_cb();
+}
+
+void bks_controller_model_user_accounts_get_cb(void)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
@@ -18,7 +24,26 @@ void bks_controller_model_user_accounts_reload_cb(void)
    bks_ui_user_accounts_clear(tqe);
 }
 
-void bks_controller_model_products_reload_cb(void)
+void bks_controller_model_user_accounts_get_finished_cb(Eina_List *user_accounts, Bks_Error error)
+{
+   Eina_List *user_accounts = NULL;
+   Bks_Thread_Queue_Element *tqe = NULL;
+
+   switch (error)
+     {
+      case BKS_MODEL_SQLITE_OK:
+         tqe = bks_thread_queue_append(BKS_THREAD_TYPE_USER_ACCOUNTS_GET_FINISHED, ecore_time_get());
+         EINA_SAFETY_ON_NULL_RETURN(tqe);
+         printf("Job zum fuellen der Benutzerlisten hinzugefügt (%p).\n", tqe);
+         tqe->data = (void*)user_accounts;
+         bks_ui_user_accounts_page_set(tqe);
+         break;
+      default:
+         break;
+     }
+}
+
+void bks_controller_model_products_get_cb(void)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
@@ -30,49 +55,29 @@ void bks_controller_model_products_reload_cb(void)
    bks_ui_products_clear(tqe);
 }
 
-void bks_controller_model_reload_cb(void)
-{
-   bks_controller_model_user_accounts_reload_cb();
-   bks_controller_model_products_reload_cb();
-}
-
-void bks_controller_model_user_accounts_reload_finished_cb(void)
-{
-   Eina_List *user_accounts = NULL;
-   Bks_Thread_Queue_Element *tqe = NULL;
-
-   tqe = bks_thread_queue_append(BKS_THREAD_TYPE_USER_ACCOUNTS_GET_FINISHED, ecore_time_get());
-   EINA_SAFETY_ON_NULL_RETURN(tqe);
-   printf("Job zum fuellen der Benutzerlisten hinzugefügt (%p).\n", tqe);
-   user_accounts = bks_model_user_accounts_get(0);
-   tqe->data = (void*)user_accounts;
-   bks_ui_user_accounts_page_set(tqe);
-}
-
-void bks_controller_model_products_reload_finished_cb(void)
+void bks_controller_model_products_get_finished_cb(Eina_List *products_alpha, Eina_List *products_favs, Bks_Error error)
 {
    Eina_List *products = NULL;
    Bks_Thread_Queue_Element *tqe = NULL;
 
-   tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_GET_FINISHED, ecore_time_get());
-   EINA_SAFETY_ON_NULL_RETURN(tqe);
-   printf("Job zum fuellen der alphabetischen Produktliste hinzugefügt (%p).\n", tqe);
-   products = bks_model_products_get(0);
-   tqe->data = (void*)products;
-   bks_ui_products_page_alpha_set(tqe);
+   switch (error)
+     {
+      case BKS_MODEL_SQLITE_OK:
+         tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_GET_FINISHED, ecore_time_get());
+         EINA_SAFETY_ON_NULL_RETURN(tqe);
+         printf("Job zum fuellen der alphabetischen Produktliste hinzugefügt (%p).\n", tqe);
+         tqe->data = (void*)products_alpha;
+         bks_ui_products_page_alpha_set(tqe);
 
-   tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_GET_FINISHED, ecore_time_get());
-   EINA_SAFETY_ON_NULL_RETURN(tqe);
-   printf("Job zum fuellen der Favoritenproduktliste hinzugefügt (%p).\n", tqe);
-   products = bks_model_products_get(6);
-   tqe->data = (void*)products;
-   bks_ui_products_page_favs_set(tqe);
-}
-
-void bks_controller_model_reload_finished_cb(void)
-{
-   bks_controller_model_user_accounts_reload_finished_cb();
-   bks_controller_model_products_reload_finished_cb();
+         tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_GET_FINISHED, ecore_time_get());
+         EINA_SAFETY_ON_NULL_RETURN(tqe);
+         printf("Job zum fuellen der Favoritenproduktliste hinzugefügt (%p).\n", tqe);
+         tqe->data = (void*)products_favs;
+         bks_ui_products_page_favs_set(tqe);
+         break;
+      default:
+         break;
+     }
 }
 
 void bks_controller_model_commit_sale_finished_cb(Bks_Model_Sale *sale)
