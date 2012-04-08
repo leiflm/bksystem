@@ -102,14 +102,24 @@ Eina_List *bks_ui_user_accounts_selected_get(void);
 //Products page
 
 /**
- * @brief Clears the products ui elements.
+ * @brief Clears the products alphabeticaly sorted ui elements.
  */
-void bks_ui_products_clear(const Bks_Thread_Queue_Element *tqe);
+void bks_ui_products_alpha_clear(const Bks_Thread_Queue_Element *tqe);
 
 /**
- * @brief Indicates that the products are being refetched.
+ * @brief Clears the products favourites' ui elements.
  */
-void bks_ui_products_update_set(const Eina_Bool update);
+void bks_ui_products_favs_clear(const Bks_Thread_Queue_Element *tqe);
+
+/**
+ * @brief Indicates that the alphabetically sorted products are being refetched.
+ */
+void bks_ui_products_alpha_update_set(const Eina_Bool update);
+
+/**
+ * @brief Indicates that the favourites products are being refetched.
+ */
+void bks_ui_products_favs_update_set(const Eina_Bool update);
 
 /**
  * @brief fills the UI's favourite's region using @p products.

@@ -43,19 +43,19 @@ void bks_controller_model_user_accounts_get_finished_cb(Eina_List *user_accounts
      }
 }
 
-void bks_controller_model_products_get_cb(void)
+void bks_controller_model_products_alpha_get_cb(void)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
-   tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_GET, ecore_time_get());
+   tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_ALPHA_GET, ecore_time_get());
    EINA_SAFETY_ON_NULL_RETURN(tqe);
-   printf("Job zum leeren der Produktlisten hinzugefügt (%p).\n", tqe);
+   printf("Job zum leeren der alphabetisch sortierten Produktlisten hinzugefügt (%p).\n", tqe);
 
    //clear ui
-   bks_ui_products_clear(tqe);
+   bks_ui_products_alpha_clear(tqe);
 }
 
-void bks_controller_model_products_get_finished_cb(Eina_List *products_alpha, Eina_List *products_favs, Bks_Error error)
+void bks_controller_model_products_alpha_get_finished_cb(Eina_List *products_favs, Bks_Error error)
 {
    Eina_List *products = NULL;
    Bks_Thread_Queue_Element *tqe = NULL;
@@ -68,7 +68,32 @@ void bks_controller_model_products_get_finished_cb(Eina_List *products_alpha, Ei
          printf("Job zum fuellen der alphabetischen Produktliste hinzugefügt (%p).\n", tqe);
          tqe->data = (void*)products_alpha;
          bks_ui_products_page_alpha_set(tqe);
+         break;
+      default:
+         break;
+     }
+}
 
+void bks_controller_model_products_favs_get_cb(void)
+{
+   Bks_Thread_Queue_Element *tqe = NULL;
+
+   tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_FAVS_GET, ecore_time_get());
+   EINA_SAFETY_ON_NULL_RETURN(tqe);
+   printf("Job zum leeren der favorierten Produktliste hinzugefügt (%p).\n", tqe);
+
+   //clear ui
+   bks_ui_products_favs_clear(tqe);
+}
+
+void bks_controller_model_products_favs_get_finished_cb(Eina_List *products_favs, Bks_Error error)
+{
+   Eina_List *products = NULL;
+   Bks_Thread_Queue_Element *tqe = NULL;
+
+   switch (error)
+     {
+      case BKS_MODEL_SQLITE_OK:
          tqe = bks_thread_queue_append(BKS_THREAD_TYPE_PRODUCTS_GET_FINISHED, ecore_time_get());
          EINA_SAFETY_ON_NULL_RETURN(tqe);
          printf("Job zum fuellen der Favoritenproduktliste hinzugefügt (%p).\n", tqe);

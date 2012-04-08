@@ -5,12 +5,20 @@
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-void _async_products_page_clear(void *data, Ecore_Thread *th UNUSED)
+void _async_products_page_alpha_clear(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
 
    bks_thread_queue_wait(tqe);
    _products_grid_clear();
+   bks_thread_queue_wake_up_next(tqe);
+}
+
+void _async_products_page_favs_clear(void *data, Ecore_Thread *th UNUSED)
+{
+   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
+
+   bks_thread_queue_wait(tqe);
    _products_list_clear();
    bks_thread_queue_wake_up_next(tqe);
 }
@@ -85,7 +93,7 @@ void _async_favs_set(void *data, Ecore_Thread *th UNUSED)
    products = (Eina_List*)(tqe->data);
 
    products_grid_set(products);
-   bks_ui_products_update_set(EINA_FALSE);
+   bks_ui_products_favs_update_set(EINA_FALSE);
    bks_thread_queue_wake_up_next(tqe);
 }
 
@@ -100,7 +108,7 @@ void _async_alpha_set(void *data, Ecore_Thread *th UNUSED)
    products = (Eina_List*)(tqe->data);
 
    products_list_set(products);
-   bks_ui_products_update_set(EINA_FALSE);
+   bks_ui_products_alpha_update_set(EINA_FALSE);
    bks_thread_queue_wake_up_next(tqe);
 }
 
@@ -115,18 +123,35 @@ const Bks_Model_Product *bks_ui_product_selected_get(void)
 
 //API calls
 
-/**
- * @brief Clears the products ui elements.
- */
-void bks_ui_products_clear(const Bks_Thread_Queue_Element *element)
+void bks_ui_products_alpha_clear(const Bks_Thread_Queue_Element *element)
 {
-   ecore_thread_run(_async_products_page_clear, NULL, NULL, (void*)element);
+   ecore_thread_run(_async_products_page_alpha_clear, NULL, NULL, (void*)element);
 }
 
-/**
- * @brief Indicates that the products are being refetched.
- */
-void bks_ui_products_update_set(const Eina_Bool update)
+void bks_ui_products_favs_clear(const Bks_Thread_Queue_Element *element)
+{
+   ecore_thread_run(_async_products_page_favs_clear, NULL, NULL, (void*)element);
+}
+
+void bks_ui_products_alpha_update_set(const Eina_Bool update)
+{
+   if (!update)
+     {
+        ecore_thread_main_loop_begin();
+        evas_object_hide(ui.products.lock_window.win);
+        ecore_thread_main_loop_end();
+        return;
+     }
+
+   if (!evas_object_visible_get(ui.lock_window.win))
+     {
+        ecore_thread_main_loop_begin();
+        elm_win_inwin_activate(ui.products.lock_window.win);
+        ecore_thread_main_loop_end();
+     }
+}
+
+void bks_ui_products_favs_update_set(const Eina_Bool update)
 {
    if (!update)
      {
