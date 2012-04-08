@@ -35,127 +35,73 @@
 const char *database = BKSYSTEMDB;
 
 // data retrieval
-Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit) {
 
-   Bks_Model_User_Account *ptr_current_user = NULL;
-   char *select_query = "SELECT user_accounts.uid,firstname,lastname,status,placement,image FROM user_accounts, recent_user_accounts WHERE user_accounts.uid=recent_user_accounts.uid ORDER BY placement";
+Bks_Error _bks_model_sql_products_get(Eina_List* list) {
+
+   Bks_Model_Product *ptr_current_product = NULL;
+   char *select_query = "SELECT EAN,name,price FROM products ORDER BY name";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
-   Eina_List *list = NULL;
    int retval;
-   unsigned int i = 0;
-   void *image;
-   int image_size;
+   Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open(database, &pDb);
-   if (retval != SQLITE_OK) {
+   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   if (retval ) {
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
-    retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
-   if (retval != SQLITE_OK) {
-      goto _finalize;
-   }
-   while (sqlite3_step(stmt) == SQLITE_ROW) {
-      i++;
-      ptr_current_user = malloc(sizeof(Bks_Model_User_Account));
-      ptr_current_user->uid = sqlite3_column_int(stmt, 0);
 
-      name = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
-      strcpy(ptr_current_user->firstname, name);
-
-      name = (char*)sqlite3_column_text(stmt, 2);
-      ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
-      strcpy(ptr_current_user->lastname, name);
-
-      ptr_current_user->status = sqlite3_column_int(stmt, 3);
-      // fetch image
-      image = (void*)sqlite3_column_blob(stmt, 5);
-      image_size = sqlite3_column_bytes(stmt, 5);
-      ptr_current_user->image.data = (void*)malloc(image_size);
-      if (ptr_current_user->image.data) { // check if we got the mem for the image
-         memcpy(ptr_current_user->image.data, image, (size_t)image_size);
-         ptr_current_user->image.size = image_size;
-      } else {
-         fprintf(stderr, "Not enough memory for image: %s\n", name);
-         ptr_current_user->image.data = NULL;
-         ptr_current_user->image.size = 0;
-      }
-      list = eina_list_append(list, ptr_current_user);
-      if (i >= limit) {// We only want at most limit Rows
-         break;
-      }
-   }
-_finalize:
-   if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr,"Couldnt finalize statment, Error: %s\n", sqlite3_errmsg(pDb));
-   }
-_close_db:
-   sqlite3_close(pDb);
-   return list;
-}
-
-Eina_List* _bks_model_sql_user_accounts_get(void) {
-
-   Bks_Model_User_Account *ptr_current_user = NULL;
-   char *select_query = "SELECT uid,firstname,lastname,status FROM user_accounts ORDER BY lastname,firstname";
-   char *name;
-   sqlite3 *pDb;
-   sqlite3_stmt *stmt;
-   Eina_List *list = NULL;
-   int retval;
-
-   retval = sqlite3_open(database, &pDb);
-   if (retval !=SQLITE_OK) {
-      goto _close_db;
-   }
-   retval = sqlite3_prepare_v2(pDb,select_query,-1,&stmt,0);
+   retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
    if (retval != SQLITE_OK ) {
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _finalize;
    }
+
    while (sqlite3_step(stmt) == SQLITE_ROW) {
-      ptr_current_user = malloc(sizeof(Bks_Model_User_Account));
+  
+      ptr_current_product = malloc(sizeof(Bks_Model_Product));
 
-      ptr_current_user->uid = sqlite3_column_int(stmt, 0);
+      ptr_current_product->EAN = sqlite3_column_int64(stmt, 0);
+
       name = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
-      strcpy(ptr_current_user->firstname, name);
+      ptr_current_product->name = (char*)malloc((strlen(name) + 1));
+      strcpy(ptr_current_product->name, name);
 
-      name = (char*)sqlite3_column_text(stmt, 2);
-      ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
-      strcpy(ptr_current_user->lastname, name);
+      ptr_current_product->price = sqlite3_column_double(stmt, 2);
 
-      ptr_current_user->status = sqlite3_column_int(stmt, 3);
-
-      ptr_current_user->image.data = NULL;
-      ptr_current_user->image.size = 0;
-
-      list = eina_list_append(list, ptr_current_user);
+      ptr_current_product->image.data = NULL;
+      ptr_current_product->image.size = 0;
+      ptr_current_product->status = sqlite3_column_int(stmt, 5);
+      list = eina_list_append(list, ptr_current_product);
+     
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt finalize statment, Error: %s\n", sqlite3_errmsg(pDb));
+      fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
+   } else {
+      error = BKS_MODEL_SQLITE_OK;
    }
 _close_db:
    sqlite3_close(pDb);
-   return list;
+   return error;
 }
 
-Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
+Bks_Error _bks_model_sql_favorite_products_get(Eina_List* list, const unsigned int limit) {
    Bks_Model_Product *ptr_current_product = NULL;
    char *select_query ="SELECT products.EAN,name,price,placement,image,status FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
-   Eina_List *list= NULL;
    int retval;
    unsigned int i = 0;
    void *image;
    int image_size;
+   Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open(database, &pDb);
+   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
    if (retval ) {
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
    retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
@@ -198,57 +144,125 @@ Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit) {
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
       fprintf(stderr,"Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
+   } else {
+      error = BKS_MODEL_SQLITE_OK;
    }
 _close_db:
    sqlite3_close(pDb);
-   return list;
+   return error;
 }
 
-Eina_List* _bks_model_sql_products_get(void) {
+Bks_Error _bks_model_sql_user_accounts_get(Eina_List* list) {
 
-   Bks_Model_Product *ptr_current_product = NULL;
-   char *select_query = "SELECT EAN,name,price FROM products ORDER BY name";
+   Bks_Model_User_Account *ptr_current_user = NULL;
+   char *select_query = "SELECT uid,firstname,lastname,status FROM user_accounts ORDER BY lastname,firstname";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
-   Eina_List *list = NULL;
    int retval;
+   Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open(database, &pDb);
-   if (retval ) {
+   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   if (retval !=SQLITE_OK) {
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
-
-   retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
+   retval = sqlite3_prepare_v2(pDb,select_query,-1,&stmt,0);
    if (retval != SQLITE_OK ) {
       goto _finalize;
    }
-
    while (sqlite3_step(stmt) == SQLITE_ROW) {
-  
-      ptr_current_product = malloc(sizeof(Bks_Model_Product));
+      ptr_current_user = malloc(sizeof(Bks_Model_User_Account));
 
-      ptr_current_product->EAN = sqlite3_column_int64(stmt, 0);
-
+      ptr_current_user->uid = sqlite3_column_int(stmt, 0);
       name = (char*)sqlite3_column_text(stmt, 1);
-      ptr_current_product->name = (char*)malloc((strlen(name) + 1));
-      strcpy(ptr_current_product->name, name);
+      ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
+      strcpy(ptr_current_user->firstname, name);
 
-      ptr_current_product->price = sqlite3_column_double(stmt, 2);
+      name = (char*)sqlite3_column_text(stmt, 2);
+      ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
+      strcpy(ptr_current_user->lastname, name);
 
-      ptr_current_product->image.data = NULL;
-      ptr_current_product->image.size = 0;
-      ptr_current_product->status = sqlite3_column_int(stmt, 5);
-      list = eina_list_append(list, ptr_current_product);
-     
+      ptr_current_user->status = sqlite3_column_int(stmt, 3);
+
+      ptr_current_user->image.data = NULL;
+      ptr_current_user->image.size = 0;
+
+      list = eina_list_append(list, ptr_current_user);
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
+      fprintf(stderr, "Couldnt finalize statment, Error: %s\n", sqlite3_errmsg(pDb));
+   } else {
+      error = BKS_MODEL_SQLITE_OK;
    }
 _close_db:
    sqlite3_close(pDb);
-   return list;
+   return error;
+}
+
+Bks_Error _bks_model_sql_recent_user_accounts_get(Eina_List* list, const unsigned int limit) {
+
+   Bks_Model_User_Account *ptr_current_user = NULL;
+   char *select_query = "SELECT user_accounts.uid,firstname,lastname,status,placement,image FROM user_accounts, recent_user_accounts WHERE user_accounts.uid=recent_user_accounts.uid ORDER BY placement";
+   char *name;
+   sqlite3 *pDb;
+   sqlite3_stmt *stmt;
+   int retval;
+   unsigned int i = 0;
+   void *image;
+   int image_size;
+   Bks_Error error = BKS_MODEL_SQLITE_ERROR;
+
+   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   if (retval != SQLITE_OK) {
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
+      goto _close_db;
+   }
+    retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
+   if (retval != SQLITE_OK) {
+      goto _finalize;
+   }
+   while (sqlite3_step(stmt) == SQLITE_ROW) {
+      i++;
+      ptr_current_user = malloc(sizeof(Bks_Model_User_Account));
+      ptr_current_user->uid = sqlite3_column_int(stmt, 0);
+
+      name = (char*)sqlite3_column_text(stmt, 1);
+      ptr_current_user->firstname = (char*)malloc((strlen(name) + 1));
+      strcpy(ptr_current_user->firstname, name);
+
+      name = (char*)sqlite3_column_text(stmt, 2);
+      ptr_current_user->lastname = (char*)malloc((strlen(name) + 1));
+      strcpy(ptr_current_user->lastname, name);
+
+      ptr_current_user->status = sqlite3_column_int(stmt, 3);
+      // fetch image
+      image = (void*)sqlite3_column_blob(stmt, 5);
+      image_size = sqlite3_column_bytes(stmt, 5);
+      ptr_current_user->image.data = (void*)malloc(image_size);
+      if (ptr_current_user->image.data) { // check if we got the mem for the image
+         memcpy(ptr_current_user->image.data, image, (size_t)image_size);
+         ptr_current_user->image.size = image_size;
+      } else {
+         fprintf(stderr, "Not enough memory for image: %s\n", name);
+         ptr_current_user->image.data = NULL;
+         ptr_current_user->image.size = 0;
+      }
+      list = eina_list_append(list, ptr_current_user);
+      if (i >= limit) {// We only want at most limit Rows
+         break;
+      }
+   }
+_finalize:
+   if (sqlite3_finalize(stmt) != SQLITE_OK) {
+      fprintf(stderr,"Couldnt finalize statment, Error: %s\n", sqlite3_errmsg(pDb));
+   } else {
+      error = BKS_MODEL_SQLITE_OK;
+   }
+_close_db:
+   sqlite3_close(pDb);
+   return error;
 }
 
 // buying
@@ -258,9 +272,9 @@ Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
    sqlite3 *pDb;
    sqlite3_stmt *insert_stmt;
    int retval;
-   Bks_Error error = BKS_MODEL_SQLITE_OK;
+   Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open(database, &pDb);
+   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READWRITE, NULL);
    if(retval != SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_and_return;
@@ -297,31 +311,36 @@ Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
    goto _close_and_return;
 
    finalize_close_and_return:
-   fprintf(stderr, "%s: %s\n"
-                     "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
+ //  fprintf(stderr, "%s: %s\n"
+ //                    "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
    retval = sqlite3_finalize(insert_stmt);
 
    _close_and_return:
-  // fprintf(stderr, "%s: %s\n"
-  //                   "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
+   if (retval != SQLITE_OK) {
+      fprintf(stderr, "%s: %s\n"
+                      "\tSQL Errno: %d\n", BKS_ERROR_STRINGS[error], sqlite3_errmsg(pDb), retval);
+   }  else {
+      error = BKS_MODEL_SQLITE_OK;
+   }
    sqlite3_close(pDb);
    return error;
 }
 
 // service
-Eina_List* _bks_model_sql_sales_from_user_since(int uid,const char *timestamp) {
+Bks_Error _bks_model_sql_sales_from_user_since(Eina_List* list, int uid, const char *timestamp) {
 
    Bks_Model_Sale *ptr_current_sale = NULL;
    char *select_query ="SELECT uid,firstname,lastname,status,EAN,name,price,timestamp FROM (((SELECT uid,firstname,lastname,status FROM user_accounts WHERE uid = ?2)INNER JOIN (SELECT userid,product,price,timestamp FROM sales WHERE timestamp > datetime(?1)) ON uid=userid ) INNER JOIN (SELECT EAN,name FROM products) ON EAN = product)ORDER BY uid,product";
    char *tmp;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
-   Eina_List *list = NULL;
    int retval;
+   Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
     // Open DB
-   retval = sqlite3_open(database, &pDb);
+   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
    if (retval) {
+      error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
    // Prepare SQL Statement
@@ -373,10 +392,12 @@ Eina_List* _bks_model_sql_sales_from_user_since(int uid,const char *timestamp) {
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
       fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
+   } else {
+      error = BKS_MODEL_SQLITE_OK;
    }
 _close_db:
    sqlite3_close(pDb);
-   return list;
+   return error;
 }
 
 double _bks_model_sql_calculate_sum_from_user_since(int uid, const char *timestamp) {
@@ -386,7 +407,7 @@ double _bks_model_sql_calculate_sum_from_user_since(int uid, const char *timesta
    char *query = "SELECT userid,sum(price) FROM sales WHERE userid = ?1 AND timestamp > datetime(?2)";
    int retval;
    double sum = 0.0;
-   retval = sqlite3_open(database, &pDb);
+   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
    if (retval != SQLITE_OK) {
       sum = -1;
       goto _close_db;

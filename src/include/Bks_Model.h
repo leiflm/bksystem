@@ -84,7 +84,7 @@ void bks_model_commit_sale(const Bks_Model_Sale *sale);
  * @return Pointer to Eina_List of struct Bks_Model_User_Account, NULL on
  * failure.
  */
-Eina_List* bks_model_user_accounts_get(unsigned int limit);
+void bks_model_user_accounts_get(unsigned int limit);
 
 /**
  * @brief get up to @p limit favorite products, ordered by sales volume
@@ -94,7 +94,7 @@ Eina_List* bks_model_user_accounts_get(unsigned int limit);
  * @return Eina_List* of struct Bks_Model_Product, NULL on
  *
  */
-Eina_List* bks_model_products_get(unsigned int limit);
+void bks_model_products_get(unsigned int limit);
 
 /**
  * @brief gets all products bought by user newer then @p since

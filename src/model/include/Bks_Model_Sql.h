@@ -4,6 +4,8 @@
 /**
  * @brief Commits a sale to the database
  *
+ * @param Bks_Model_Sale sale contains sale info (uid, EAN, price, status, etc.) with sale that should be performed on database
+ *
  * @return Bks_Error indicator
  */
 Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale);
@@ -11,30 +13,36 @@ Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale);
 /**
  * @brief does SQL querry to sqlite3 database, blocking function
  *
- * @return Eina_List* of user_accounts sorted by sales volume since last bill
+ * @param Eina_List* list should be set to NULL and will after return contain a list of user_accounts sorted by sales volume since last bill
+ * @param limit # of user accounts returned
+ * @return Bks_Error indicator
  */
-Eina_List* _bks_model_sql_recent_user_accounts_get(const unsigned int limit); 
+Bks_Error _bks_model_sql_recent_user_accounts_get(Eina_List* list, const unsigned int limit); 
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function
  *
- * @return Eina_List* of all user_accounts
+ * @param Eina_List* list should be set to NULL and will after return contain a list of of all user_accounts
+ * @return Bks_Error indicator
  */
-Eina_List* _bks_model_sql_user_accounts_get(void); 
+Bks_Error _bks_model_sql_user_accounts_get(Eina_List* list); 
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function
  *
- * @return Eina_List*
+ * @param Eina_List* list should be set to NULL and will after return contain a list of all products
+ * @return Bks_Error indicator
  */
-Eina_List* _bks_model_sql_products_get(void); 
+Bks_Error _bks_model_sql_products_get(Eina_List* list); 
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function
  *
- * @return Eina_List*
+ * @param Eina_List* list should be set to NULL and will after return contain a list of limit products with consumption
+ * @param limit # of items return
+ * @return Bks_Error indicator
  */
-Eina_List* _bks_model_sql_favorite_products_get(const unsigned int limit); 
+Bks_Error _bks_model_sql_favorite_products_get(Eina_List* list, const unsigned int limit); 
 
 /**
  * @brief timestring of current local time in required format

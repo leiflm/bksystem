@@ -34,6 +34,11 @@
 #include "Bks_Model_Threading.h"
 #include "Bks_Error.h"
 
+// error 
+static void _error_ptr_free_cb(void *data) {
+   free((Bks_Error *)data);
+}
+
 // All Data
 static void _bks_model_data_get_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
@@ -65,10 +70,10 @@ static void _bks_model_data_get_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
       }
    }
    // getting new data
-   mdl.user_accounts = _bks_model_sql_user_accounts_get();
-   mdl.recent_user_accounts = _bks_model_sql_recent_user_accounts_get(10);
-   mdl.products = _bks_model_sql_products_get();
-   mdl.favorite_products = _bks_model_sql_favorite_products_get(10);
+   _bks_model_sql_user_accounts_get(mdl.user_accounts);
+   _bks_model_sql_recent_user_accounts_get(mdl.recent_user_accounts,10);
+   _bks_model_sql_products_get(mdl.products);
+   _bks_model_sql_favorite_products_get(mdl.favorite_products,10);
    eina_lock_release(&mdl.lock);
 
 }
@@ -117,20 +122,23 @@ static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
       eina_lock_take(&mdl.lock);
       printf("Commiting sale with uid:%d...\n", sale->uid);
       sale->status = _bks_model_sql_commit_sale(sale);
-      if (sale->status == BKS_MODEL_SQLITE_DATABASE_LOCKED || sale->status == BKS_MODEL_SQLITE_OPEN_ERROR) {
-         fprintf(stderr, "Failed to commit sale,retry:%d \n", 4 - (*retry_ptr));
-         (*retry_ptr)--;
-         ecore_thread_local_data_set(th, "no_of_retry", retry_ptr, _retry_ptr_free_cb); 
-         sale->status = BKS_MODEL_SALE_UNFINISHED;
-         eina_lock_release(&mdl.lock);
-         ecore_thread_reschedule(th);
-      } else {
-         eina_lock_release(&mdl.lock);
-         break;
+      switch (sale->status) {
+         case BKS_MODEL_SQLITE_DATABASE_LOCKED:
+         case BKS_MODEL_SQLITE_OPEN_ERROR: 
+            fprintf(stderr, "Failed to commit sale,retry:%d \n", 4 - (*retry_ptr));
+            (*retry_ptr)--;
+            ecore_thread_local_data_set(th, "no_of_retry", retry_ptr, _retry_ptr_free_cb); 
+            sale->status = BKS_MODEL_SALE_UNFINISHED;
+            eina_lock_release(&mdl.lock);
+            ecore_thread_reschedule(th);
+            break;
+         case BKS_MODEL_SALE_DONE :
+            eina_lock_release(&mdl.lock);
+            return;
+         default:
+            eina_lock_release(&mdl.lock);
+            return;
       }
-   }
-   if (sale->status != BKS_MODEL_SALE_DONE) {
-   ecore_thread_cancel(th);
    }
 }
 
@@ -140,7 +148,7 @@ static void _bks_model_sale_finished_cb(void *data, Ecore_Thread *th UNUSED) {
 }
 
 static void _bks_model_sale_canceled_cb(void *data, Ecore_Thread *th UNUSED) {
-   fprintf(stderr,"Sale canceled\n");
+   fprintf(stderr,"Sale thread canceled\n");
    bks_controller_model_commit_sale_finished_cb((Bks_Model_Sale *)data);
 }
 
@@ -149,94 +157,141 @@ Ecore_Thread *_bks_model_commit_sale(const Bks_Model_Sale *sale) {
 }
 
 // Products
+
 static void _bks_model_products_get_cb(void *data UNUSED, Ecore_Thread *th) {
 
-   Bks_Model_Product *product_data;
+   //Bks_Model_Product *product_data;
+   Bks_Error *error = malloc(sizeof(Bks_Error));
 
-   bks_controller_model_products_reload_cb();
+   bks_controller_model_products_alpha_get_cb();
    eina_lock_take(&mdl.lock);
-
-   // free old data
-   if (!mdl.products) {
-      EINA_LIST_FREE(mdl.products, product_data) {
-         bks_model_product_free(product_data);
-      }
-   }
-   if (!mdl.favorite_products) {
-      EINA_LIST_FREE(mdl.favorite_products, product_data) {
-         bks_model_product_free(product_data);
-      }
-   }
-
-   mdl.products = _bks_model_sql_products_get();
-   if (!mdl.products) {
-      eina_lock_release(&mdl.lock);
-      ecore_thread_cancel(th);
-      return;
-   }
-   mdl.favorite_products = _bks_model_sql_favorite_products_get(5);
+   // free old data (does contoller?)
+   //~ if (!mdl.products) {
+      //~ EINA_LIST_FREE(mdl.products, product_data) {
+         //~ bks_model_product_free(product_data);
+      //~ }
+   //~ }
+   mdl.products = NULL;
+   // get new data
+   *error = _bks_model_sql_products_get(mdl.products);
    eina_lock_release(&mdl.lock);
+   // save error value in thread context
+   ecore_thread_local_data_add(th, "error", error, _error_ptr_free_cb, EINA_FALSE);
 }
 
-static void _bks_model_products_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
+static void _bks_model_products_get_finished_cb(void *data UNUSED, Ecore_Thread *th) {
 
-   bks_controller_model_products_reload_finished_cb();
+   Bks_Error *error;
+   error = ecore_thread_local_data_find(th,"error");
+   bks_controller_model_products_get_alpha_finished_cb(mdl.products, *error);
 }
 
 static void _bks_model_products_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
+   fprintf(stderr,"Loading products thread canceled\n");
+   bks_controller_model_products_get_alpha_finished_cb(NULL, BKS_MODEL_THREAD_ERROR);
+}
+
+
+// Favorite products
+static void _bks_model_fav_products_get_cb(void *data, Ecore_Thread *th) {
+
+   //Bks_Model_Product *product_data;
+   Bks_Error *error = malloc(sizeof(Bks_Error));
+   unsigned int *limit;
+   limit = (unsigned int *)data;
+
+   bks_controller_model_products_alpha_get_cb();
+   eina_lock_take(&mdl.lock);
+   // get products or favorite products
+   // free old data (does contoller?)
+   //~ if (!mdl.favorite_products) {
+      //~ EINA_LIST_FREE(mdl.favorite_products, product_data) {
+         //~ bks_model_product_free(product_data);
+      //~ }
+   //~ }
+   mdl.favorite_products = NULL;
+   // get new data
+   *error = _bks_model_sql_favorite_products_get(mdl.favorite_products, *limit);
+   eina_lock_release(&mdl.lock);
+   
+   // save error value in thread context
+   ecore_thread_local_data_add(th, "error", error, _error_ptr_free_cb, EINA_FALSE);
+}
+
+static void _bks_model_fav_products_get_finished_cb(void *data UNUSED, Ecore_Thread *th) {
+
+   Bks_Error *error;
+   free((unsigned int *)data);
+   error = ecore_thread_local_data_find(th,"error");
+   bks_controller_model_products_get_favs_finished_cb(mdl.favorite_products, *error);
+}
+
+static void _bks_model_fav_products_get_canceled_cb(void *data, Ecore_Thread *th UNUSED) {
+
+   free((unsigned int *)data);
    fprintf(stderr,"Loading products canceled\n");
-   bks_controller_model_products_reload_finished_cb();
+   bks_controller_model_products_get_favs_finished_cb(NULL, BKS_MODEL_THREAD_ERROR);
+   
 }
 
-Ecore_Thread *_bks_model_products_get(const unsigned int limit) {
-   //FIXME: don't pass pointer of stack variable!!!
-   return ecore_thread_run(_bks_model_products_get_cb, _bks_model_products_get_finished_cb, _bks_model_products_get_canceled_cb, &limit);
+Ecore_Thread *_bks_model_products_get(unsigned int limit) {
 
+   if (limit == 0) {
+      return ecore_thread_run(_bks_model_products_get_cb, _bks_model_products_get_finished_cb, _bks_model_products_get_canceled_cb, NULL);
+   } else {
+      unsigned int *limit_ptr = malloc(sizeof(unsigned int));
+      *limit_ptr = limit; 
+      return ecore_thread_run(_bks_model_fav_products_get_cb, _bks_model_fav_products_get_finished_cb, _bks_model_fav_products_get_canceled_cb, limit_ptr);
+   }
 }
+
 
 // User Accounts
 static void _bks_model_user_accounts_get_cb(void *data UNUSED, Ecore_Thread *th) {
 
-   Bks_Model_User_Account *user_data;
-   bks_controller_model_user_accounts_reload_cb();
+   //Bks_Model_User_Account *user_data;
+   Bks_Error *error = malloc(sizeof(Bks_Error));
+   
+   bks_controller_model_user_accounts_get_cb();
    eina_lock_take(&mdl.lock);
    
    // freeing old data
-   if (!mdl.user_accounts) {
-      EINA_LIST_FREE(mdl.user_accounts, user_data) {
-         bks_model_user_account_free(user_data);
-      }
-   }
-   if (!mdl.recent_user_accounts) {
-      EINA_LIST_FREE(mdl.recent_user_accounts, user_data) {
-         bks_model_user_account_free(user_data);
-      }
-   }
-
-   mdl.user_accounts = _bks_model_sql_user_accounts_get();
-   if (!mdl.user_accounts) {
-      eina_lock_release(&mdl.lock);
-      ecore_thread_cancel(th);
-      return;
-   }
-   mdl.recent_user_accounts = _bks_model_sql_recent_user_accounts_get(5);
-   
+   //~ if (!mdl.user_accounts) {
+      //~ EINA_LIST_FREE(mdl.user_accounts, user_data) {
+         //~ bks_model_user_account_free(user_data);
+      //~ }
+   //~ }
+   // get new data
+   *error = _bks_model_sql_user_accounts_get(mdl.user_accounts);
    eina_lock_release(&mdl.lock);
+
+   eina_lock_release(&mdl.lock);
+   // save error value in thread context
+   ecore_thread_local_data_add(th, "error", error, _error_ptr_free_cb, EINA_FALSE);
 }
 
-static void _bks_model_user_accounts_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
+static void _bks_model_user_accounts_get_finished_cb(void *data UNUSED, Ecore_Thread *th) {
 
-   bks_controller_model_user_accounts_reload_finished_cb();
+   Bks_Error *error;
+   error = ecore_thread_local_data_find(th,"error");
+   bks_controller_model_user_accounts_get_finished_cb(mdl.user_accounts, *error);
 }
 
 static void _bks_model_user_accounts_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
+
    fprintf(stderr,"Loading user accounts canceled\n");
-   bks_controller_model_user_accounts_reload_finished_cb();
+   bks_controller_model_user_accounts_get_finished_cb(NULL, BKS_MODEL_THREAD_ERROR);
 }
 
-Ecore_Thread *_bks_model_user_accounts_get(unsigned int limit) {
-   //FIXME: don't pass pointer of stack variable!!!
-   return ecore_thread_run(_bks_model_user_accounts_get_cb, _bks_model_user_accounts_get_finished_cb, _bks_model_user_accounts_get_canceled_cb, &limit);
 
+
+Ecore_Thread *_bks_model_user_accounts_get(unsigned int limit) {
+   
+   if (limit == 0) {     
+      return ecore_thread_run(_bks_model_user_accounts_get_cb, _bks_model_user_accounts_get_finished_cb, _bks_model_user_accounts_get_canceled_cb, &limit);
+   } else {
+      fprintf(stderr, "Recent user accounts UNUSED\n");
+      return NULL;
+   }
 }
 

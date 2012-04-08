@@ -33,6 +33,7 @@
 #include "Bks_Model_Threading.h"
 #include "Bks_Error.h"
 
+
 // Interface functions
 
 void bks_model_init(void) {
@@ -49,7 +50,7 @@ void bks_model_shutdown(void) {
    Bks_Model_Product *product_data;
 
    // freeing old data
-      if (!mdl.user_accounts) {
+   if (!mdl.user_accounts) {
       EINA_LIST_FREE(mdl.user_accounts, user_data) {
          bks_model_user_account_free(user_data);
       }
@@ -58,7 +59,7 @@ void bks_model_shutdown(void) {
       EINA_LIST_FREE(mdl.recent_user_accounts, user_data) {
          bks_model_user_account_free(user_data);
       }
-   }
+   }   
    if (!mdl.products) {
       EINA_LIST_FREE(mdl.products, product_data) {
          bks_model_product_free(product_data);
@@ -73,30 +74,16 @@ void bks_model_shutdown(void) {
 }
 
 
-Eina_List* bks_model_user_accounts_get(unsigned int limit) {
-   Eina_List *list = NULL, *rest = NULL;
-   if (limit == 0) {
-      list = eina_list_clone(mdl.user_accounts);
-   } else {
-      list = eina_list_clone(mdl.recent_user_accounts);
-      limit = (limit > eina_list_count(list)) ? eina_list_count(list) : limit;
-      list = eina_list_split_list(list, eina_list_nth_list(list, (limit - 1)), &rest);
-      eina_list_free(rest);
-   }
-   return list;
+void bks_model_user_accounts_get(unsigned int limit) {
+
+   _bks_model_user_accounts_get(limit);
+
 }
 
-Eina_List* bks_model_products_get(unsigned int limit) {
-   Eina_List *list = NULL, *rest = NULL;
-   if (limit == 0) {
-      list = eina_list_clone(mdl.products);
-   } else {
-      list = eina_list_clone(mdl.favorite_products);
-      limit = (limit > eina_list_count(list)) ? eina_list_count(list) : limit;
-      list = eina_list_split_list(list, eina_list_nth_list(list, (limit - 1)), &rest);
-      eina_list_free(rest);
-   }
-   return list;
+void bks_model_products_get(unsigned int limit) {
+
+   _bks_model_products_get(limit);
+
 }
 
 void bks_model_commit_sale(const Bks_Model_Sale *sale) {
