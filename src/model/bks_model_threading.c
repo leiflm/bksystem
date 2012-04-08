@@ -39,67 +39,10 @@ static void _error_ptr_free_cb(void *data) {
    free((Bks_Error *)data);
 }
 
-// All Data
-static void _bks_model_data_get_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
-
-   Bks_Model_User_Account *user_data;
-   Bks_Model_Product *product_data;
-
-   // tell controller that now reloading and lock model
-   bks_controller_model_reload_cb();
-   eina_lock_take(&mdl.lock);
-   // freeing old data
-   if (!mdl.user_accounts) {
-      EINA_LIST_FREE(mdl.user_accounts, user_data) {
-         bks_model_user_account_free(user_data);
-      }
-   }
-   if (!mdl.recent_user_accounts) {
-      EINA_LIST_FREE(mdl.recent_user_accounts, user_data) {
-         bks_model_user_account_free(user_data);
-      }
-   }
-   if (!mdl.products) {
-      EINA_LIST_FREE(mdl.products, product_data) {
-         bks_model_product_free(product_data);
-      }
-   }
-   if (!mdl.favorite_products) {
-      EINA_LIST_FREE(mdl.favorite_products, product_data) {
-         bks_model_product_free(product_data);
-      }
-   }
-   // getting new data
-   _bks_model_sql_user_accounts_get(mdl.user_accounts);
-   _bks_model_sql_recent_user_accounts_get(mdl.recent_user_accounts,10);
-   _bks_model_sql_products_get(mdl.products);
-   _bks_model_sql_favorite_products_get(mdl.favorite_products,10);
-   eina_lock_release(&mdl.lock);
-
-}
-
-static void _bks_model_data_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
-   printf("Loading data finished...\n");
-   bks_controller_model_reload_finished_cb();
-}
-
-static void _bks_model_data_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
-   fprintf(stderr, "Loading data got canceled\n");
-   bks_controller_model_reload_finished_cb();
-}
-
 static void _retry_ptr_free_cb(void *data) {
    int *ptr = (int*)data;
    free(ptr);
 }
-
-Ecore_Thread *_bks_model_data_get(void) {
-   Ecore_Thread *th;
-   th = ecore_thread_run(_bks_model_data_get_cb, _bks_model_data_get_finished_cb, _bks_model_data_get_canceled_cb, NULL);
-   return th;
-}
-
-
 
 // Sales
 static void _bks_model_commit_sale_cb(void *data, Ecore_Thread *th) {
