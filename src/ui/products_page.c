@@ -34,6 +34,7 @@ void _product_selected_set(const Elm_Object_Item *product)
    ecore_thread_main_loop_end();
 }
 
+
 /**
  * @brief This function resets the product selection. It does not reload the
  * data.

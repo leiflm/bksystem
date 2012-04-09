@@ -6,9 +6,11 @@
 #include "Bks_Ui_Private.h"
 #include "Bks_Ui.h"
 
+static void _product_obj_del_cb(void *data, Evas *e, Evas_Object *obj, void *event_info);
+
 void _products_list_clear()
 {
-   bks_ui_products_update_set(EINA_TRUE);
+   bks_ui_products_alpha_update_set(EINA_TRUE);
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.products.list);
    ecore_thread_main_loop_end();
@@ -57,11 +59,13 @@ products_list_set(Eina_List *products)
           {
              icon = evas_object_image_filled_add(evas);
              evas_object_image_memfile_set(icon, product->image.data, product->image.size, NULL, NULL);
-             evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             //evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             evas_object_size_hint_align_set(icon, EVAS_HINT_FILL, EVAS_HINT_FILL);
              evas_object_show(icon);
           }
         price = elm_label_add(ui.products.list);
         snprintf(buf, (sizeof(buf) - 1), "%.2f Euro", product->price);
+        evas_object_event_callback_add(price, EVAS_CALLBACK_DEL, _product_obj_del_cb, product);
         elm_object_text_set(price, buf);
         evas_object_show(price);
         it = elm_list_item_append(ui.products.list, product->name, icon, price, _on_product_select, NULL);
@@ -78,4 +82,15 @@ Evas_Object *products_list_add(void)
    ui.products.list = elm_list_add(ui.win);
 
    return ui.products.list;
+}
+
+static void
+_product_obj_del_cb(void *data, Evas *e UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
+{
+   Bks_Model_Product *product = (Bks_Model_Product*)data;
+
+   if (!product)
+     return;
+
+   bks_model_product_free(product);
 }

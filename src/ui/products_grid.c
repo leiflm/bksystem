@@ -9,7 +9,7 @@
 
 void _products_grid_clear()
 {
-   bks_ui_products_update_set(EINA_TRUE);
+   bks_ui_products_favs_update_set(EINA_TRUE);
    ecore_thread_main_loop_begin();
    elm_gengrid_clear(ui.products.grid);
    ecore_thread_main_loop_end();
@@ -86,8 +86,14 @@ grid_state_get(void *data UNUSED, Evas_Object *obj UNUSED, const char *part UNUS
 }
 
    void
-grid_del(void *data UNUSED, Evas_Object *obj UNUSED)
+grid_del(void *data, Evas_Object *obj UNUSED)
 {
+   Bks_Model_Product *product = (Bks_Model_Product*)data;
+
+   if (!product)
+     return;
+
+   bks_model_product_free(product);
 }
 
 /*
@@ -113,7 +119,6 @@ void products_grid_set(Eina_List *products)
 {
    Bks_Model_Product *product;
    static Elm_Gengrid_Item_Class gic;
-   Elm_Object_Item *it = NULL;
 
    EINA_SAFETY_ON_NULL_RETURN(ui.products.grid);
 
@@ -128,8 +133,7 @@ void products_grid_set(Eina_List *products)
    //add all products to grid
    EINA_LIST_FREE(products, product)
      {
-        it = elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
-        //elm_object_item_data_set(it, product);
+        elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
      }
    ecore_thread_main_loop_end();
 }

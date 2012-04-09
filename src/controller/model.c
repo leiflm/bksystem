@@ -9,7 +9,8 @@
 void bks_controller_model_reload_cb(void)
 {
    bks_controller_model_user_accounts_get_cb();
-   bks_controller_model_products_get_cb();
+   bks_controller_model_products_alpha_get_cb();
+   bks_controller_model_products_favs_get_cb();
 }
 
 void bks_controller_model_user_accounts_get_cb(void)
