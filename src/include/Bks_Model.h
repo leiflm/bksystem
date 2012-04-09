@@ -27,12 +27,9 @@
 #include "Bks_Ui.h"
 
 
-#define BKSYSTEMDB "bksystem.sqlite"   //! This sqlite database holds our users, products, sales etc., should reside in main directory
-#define BILLDB "Abrechnung_"         //! Used for naming the sqlite database which is created for billing accounts (date will be appended)
-#define BILLDBLENGTH 29               //! Should be strlen(BILLDB + 18) to alloc buffer for DB
+#define BKSYSTEMDB "bksystem.sqlite"   //! (default) This sqlite database holds our users, products, sales etc., should reside in main directory
 
-
-#define EVER "0000-01-01 00:00:00"       //! Timestamp usable as parameter to
+#define EVER "0000-01-01 00:00:00"       //! Timestamp usable as parameter
 
 
 //       Flags for
@@ -48,15 +45,12 @@
  * @brief Model in MVC
  *
  * >struct Bks_Model is for internal use
- * @param products list of Bks_Model_Product
- * @param user_accounts list of Bks_Model_User_Account
+ * @param lock database for exclusive access
+ * @param DBPath contains location and filename of DB
  */
 struct _Bks_Model {
-   Eina_List *products;
-   Eina_List *favorite_products;
-   Eina_List *user_accounts;
-   Eina_List *recent_user_accounts;
    Eina_Lock lock;
+   char *db_path;
 };
 
 /**
@@ -68,6 +62,11 @@ void bks_model_init(void);
  * @brief shuts the central model down.
  */
 void bks_model_shutdown(void);
+
+/**
+ * @brief sets a new path for the database and saves it to a file for later use.
+ */
+void bks_model_set_path(char *path);
 
 /**
  * @brief Commits a sale to the database

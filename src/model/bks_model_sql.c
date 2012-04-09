@@ -26,17 +26,16 @@
 
 #include "Bks_Types.h"
 #include "Bks_Model.h"
+#include "Bks_System.h"
 #include "Bks_Model_User_Account.h"
 #include "Bks_Model_Sale.h"
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
 #include "Bks_Error.h"
 
-const char *database = BKSYSTEMDB;
-
 // data retrieval
 
-Bks_Error _bks_model_sql_products_get(Eina_List* list) {
+Bks_Error _bks_model_sql_products_get(Eina_List **list) {
 
    Bks_Model_Product *ptr_current_product = NULL;
    char *select_query = "SELECT EAN,name,price FROM products ORDER BY name";
@@ -46,7 +45,7 @@ Bks_Error _bks_model_sql_products_get(Eina_List* list) {
    int retval;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READONLY, NULL);
    if (retval ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -73,7 +72,7 @@ Bks_Error _bks_model_sql_products_get(Eina_List* list) {
       ptr_current_product->image.data = NULL;
       ptr_current_product->image.size = 0;
       ptr_current_product->status = sqlite3_column_int(stmt, 5);
-      list = eina_list_append(list, ptr_current_product);
+      *list = eina_list_append(*list, ptr_current_product);
      
    }
 _finalize:
@@ -87,7 +86,7 @@ _close_db:
    return error;
 }
 
-Bks_Error _bks_model_sql_favorite_products_get(Eina_List* list, const unsigned int limit) {
+Bks_Error _bks_model_sql_favorite_products_get(Eina_List **list, const unsigned int limit) {
    Bks_Model_Product *ptr_current_product = NULL;
    char *select_query ="SELECT products.EAN,name,price,placement,image,status FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
    char *name;
@@ -99,7 +98,7 @@ Bks_Error _bks_model_sql_favorite_products_get(Eina_List* list, const unsigned i
    int image_size;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READONLY, NULL);
    if (retval ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -135,7 +134,7 @@ Bks_Error _bks_model_sql_favorite_products_get(Eina_List* list, const unsigned i
       }
       ptr_current_product->status = sqlite3_column_int(stmt, 5);
 
-      list = eina_list_append(list, ptr_current_product);
+      *list = eina_list_append(*list, ptr_current_product);
 
       if (i >= limit) { // We only want at most limit Rows
          break;
@@ -152,7 +151,7 @@ _close_db:
    return error;
 }
 
-Bks_Error _bks_model_sql_user_accounts_get(Eina_List* list) {
+Bks_Error _bks_model_sql_user_accounts_get(Eina_List **list) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
    char *select_query = "SELECT uid,firstname,lastname,status FROM user_accounts ORDER BY lastname,firstname";
@@ -162,7 +161,7 @@ Bks_Error _bks_model_sql_user_accounts_get(Eina_List* list) {
    int retval;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READONLY, NULL);
    if (retval !=SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -188,7 +187,7 @@ Bks_Error _bks_model_sql_user_accounts_get(Eina_List* list) {
       ptr_current_user->image.data = NULL;
       ptr_current_user->image.size = 0;
 
-      list = eina_list_append(list, ptr_current_user);
+      *list = eina_list_append(*list, ptr_current_user);
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
@@ -201,7 +200,7 @@ _close_db:
    return error;
 }
 
-Bks_Error _bks_model_sql_recent_user_accounts_get(Eina_List* list, const unsigned int limit) {
+Bks_Error _bks_model_sql_recent_user_accounts_get(Eina_List **list, const unsigned int limit) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
    char *select_query = "SELECT user_accounts.uid,firstname,lastname,status,placement,image FROM user_accounts, recent_user_accounts WHERE user_accounts.uid=recent_user_accounts.uid ORDER BY placement";
@@ -214,7 +213,7 @@ Bks_Error _bks_model_sql_recent_user_accounts_get(Eina_List* list, const unsigne
    int image_size;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READONLY, NULL);
    if (retval != SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -249,7 +248,7 @@ Bks_Error _bks_model_sql_recent_user_accounts_get(Eina_List* list, const unsigne
          ptr_current_user->image.data = NULL;
          ptr_current_user->image.size = 0;
       }
-      list = eina_list_append(list, ptr_current_user);
+      *list = eina_list_append(*list, ptr_current_user);
       if (i >= limit) {// We only want at most limit Rows
          break;
       }
@@ -274,7 +273,7 @@ Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
    int retval;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READWRITE, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READWRITE, NULL);
    if(retval != SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_and_return;
@@ -327,7 +326,7 @@ Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
 }
 
 // service
-Bks_Error _bks_model_sql_sales_from_user_since(Eina_List* list, int uid, const char *timestamp) {
+Bks_Error _bks_model_sql_sales_from_user_since(Eina_List **list, int uid, const char *timestamp) {
 
    Bks_Model_Sale *ptr_current_sale = NULL;
    char *select_query ="SELECT uid,firstname,lastname,status,EAN,name,price,timestamp FROM (((SELECT uid,firstname,lastname,status FROM user_accounts WHERE uid = ?2)INNER JOIN (SELECT userid,product,price,timestamp FROM sales WHERE timestamp > datetime(?1)) ON uid=userid ) INNER JOIN (SELECT EAN,name FROM products) ON EAN = product)ORDER BY uid,product";
@@ -338,7 +337,7 @@ Bks_Error _bks_model_sql_sales_from_user_since(Eina_List* list, int uid, const c
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
     // Open DB
-   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READONLY, NULL);
    if (retval) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -385,7 +384,7 @@ Bks_Error _bks_model_sql_sales_from_user_since(Eina_List* list, int uid, const c
       strcpy(ptr_current_sale->timestamp, tmp);
 
       // append struct to list
-      list = eina_list_append(list, ptr_current_sale);
+      *list = eina_list_append(*list, ptr_current_sale);
    }
 
    // Cleanup
@@ -407,7 +406,7 @@ double _bks_model_sql_calculate_sum_from_user_since(int uid, const char *timesta
    char *query = "SELECT userid,sum(price) FROM sales WHERE userid = ?1 AND timestamp > datetime(?2)";
    int retval;
    double sum = 0.0;
-   retval = sqlite3_open_v2(database, &pDb, SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READONLY, NULL);
    if (retval != SQLITE_OK) {
       sum = -1;
       goto _close_db;

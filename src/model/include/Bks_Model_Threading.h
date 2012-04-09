@@ -5,6 +5,8 @@
 
 #include "Bks_Types.h"
 
+Ecore_Thread *_bks_model_save_path(const char *path);
+
 /**
  * @brief Commits a sale to the database, starts therefore a new thread, 
  * @param struct sale with uid and EAN 

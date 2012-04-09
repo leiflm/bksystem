@@ -32,47 +32,49 @@
 #include "Bks_Model_Sale.h"
 #include "Bks_Model_Threading.h"
 #include "Bks_Error.h"
+#include <Eet.h>
 
+
+
+// Internal functions
+
+// Path to database
+static char* bks_model_get_path(void) {
+
+   char *path;
+   char *default_path = BKSYSTEMDB;
+   size_t len;
+   if (0) {
+      // load path from file here
+      path = NULL;
+   } else {
+      // set default path and name
+      len = strlen(BKSYSTEMDB) + 6;
+      path = malloc(len);
+      snprintf(path, len, "file:%s",  default_path);      
+   }
+   return path;
+   }
 
 // Interface functions
+void bks_model_set_path(char *path) {
+
+   if (!mdl.db_path) {
+      free(mdl.db_path);
+   }
+   mdl.db_path = path;
+   _bks_model_save_path(path);
+}
 
 void bks_model_init(void) {
    eina_lock_new(&mdl.lock);
-   mdl.user_accounts = NULL;
-   mdl.recent_user_accounts = NULL;
-   mdl.products = NULL;
-   mdl.favorite_products = NULL;
+   mdl.db_path = bks_model_get_path();
 }
 
 void bks_model_shutdown(void) {
 
-   Bks_Model_User_Account *user_data;
-   Bks_Model_Product *product_data;
-
-   // freeing old data
-   if (!mdl.user_accounts) {
-      EINA_LIST_FREE(mdl.user_accounts, user_data) {
-         bks_model_user_account_free(user_data);
-      }
-   }
-   if (!mdl.recent_user_accounts) {
-      EINA_LIST_FREE(mdl.recent_user_accounts, user_data) {
-         bks_model_user_account_free(user_data);
-      }
-   }   
-   if (!mdl.products) {
-      EINA_LIST_FREE(mdl.products, product_data) {
-         bks_model_product_free(product_data);
-      }
-   }
-   if (!mdl.favorite_products) {
-      EINA_LIST_FREE(mdl.favorite_products, product_data) {
-         bks_model_product_free(product_data);
-      }
-   }
    eina_lock_free(&mdl.lock);
 }
-
 
 void bks_model_user_accounts_get(unsigned int limit) {
 
