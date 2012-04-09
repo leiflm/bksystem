@@ -34,19 +34,10 @@
 #include "Bks_Model_Threading.h"
 #include "Bks_Error.h"
 
-// free_cb 
-static void _error_ptr_free_cb(void *data) {
-   free((Bks_Error *)data);
-}
 
 static void _retry_ptr_free_cb(void *data) {
    free((int*)data);
 }
-
-static void _list_ptr_free_cb(void *data) {
-   free((Eina_List*)data);
-}
-
 
 // save path of DB to file
 static void _bks_model_save_path_cb(void *data, Ecore_Thread *th UNUSED) {
@@ -54,7 +45,7 @@ static void _bks_model_save_path_cb(void *data, Ecore_Thread *th UNUSED) {
    char *path;
    //~ Eet_File *file;
    path = (char *)data;
-   fprintf(stderr, "Path: %s now saved to file! TODO!!", path);
+   fprintf(stderr, "Path: %s now saved to file! TODO!!\n", path);
    //~ eet_init();
    //~ file = eet_open("path", EET_FILE_MODE_WRITE);
    //~ eet_delete(file, "path");
@@ -132,98 +123,80 @@ Ecore_Thread *_bks_model_commit_sale(const Bks_Model_Sale *sale) {
 
 // Products
 
-static void _bks_model_products_get_cb(void *data UNUSED, Ecore_Thread *th) {
+static void _bks_model_products_get_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
-   Bks_Error *error = malloc(sizeof(Bks_Error));
-   Eina_List **products = calloc(1, sizeof(Eina_List*));
-
+   Eina_List **products = calloc(1, sizeof(Eina_List*)); 
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
+ 
    bks_controller_model_products_alpha_get_cb();
    eina_lock_take(&mdl.lock);
 
    // get new data
-   *error = _bks_model_sql_products_get(products);
+   th_data->error = _bks_model_sql_products_get(products);
+   th_data->list = *products;
    eina_lock_release(&mdl.lock);
-   // save error value and list in thread context
-   ecore_thread_local_data_add(th, "error", error, _error_ptr_free_cb, EINA_FALSE);
-   ecore_thread_local_data_add(th, "products", products, _list_ptr_free_cb, EINA_FALSE);
 }
 
-static void _bks_model_products_get_finished_cb(void *data UNUSED, Ecore_Thread *th) {
+static void _bks_model_products_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
-   Bks_Error *error;
-   Eina_List **products;
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
 
-   error = ecore_thread_local_data_find(th,"error");
-   products = ecore_thread_local_data_find(th,"products");
-   bks_controller_model_products_alpha_get_finished_cb(*products, *error);
+   bks_controller_model_products_alpha_get_finished_cb(th_data->list, th_data->error);
+   free(th_data);
 }
 
-static void _bks_model_products_get_canceled_cb(void *data UNUSED, Ecore_Thread *th) {
-   Eina_List **products;
+static void _bks_model_products_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
+
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
    Bks_Model_Product *current_product;
+
    //Since we don't pass the list, we must free it, if exists
-   products = ecore_thread_local_data_find(th,"products");
-   if (!products) { // calloc was executed
-      if (!*products) { // List was created
-         EINA_LIST_FREE(*products, current_product) {
-            bks_model_product_free(current_product);
-         }
+   if (!th_data->list) { // list was created
+      EINA_LIST_FREE(th_data->list, current_product) {
+         bks_model_product_free(current_product);
       }
    }
-   fprintf(stderr,"Loading products thread canceled\n");
+   free((Bks_Thread_Data*)th_data);
+   fprintf(stderr,"Loading products canceled\n");
    bks_controller_model_products_alpha_get_finished_cb(NULL, BKS_MODEL_THREAD_ERROR);
 }
 
 
 // Favorite products
-static void _bks_model_fav_products_get_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_fav_products_get_cb(void *data, Ecore_Thread *th UNUSED) {
 
-   Bks_Error *error; 
-   Eina_List **products; 
-   unsigned int *limit;
-   
-   limit = (unsigned int *)data;
-   error = malloc(sizeof(Bks_Error));
-   products = calloc(1, sizeof(Eina_List*));
-   
-   bks_controller_model_products_alpha_get_cb();
+   Eina_List **products = calloc(1, sizeof(Eina_List*)); 
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
+
+   bks_controller_model_products_favs_get_cb();
    eina_lock_take(&mdl.lock);
 
-
    // get new data
-   *error = _bks_model_sql_favorite_products_get(products, *limit);
+   th_data->error = _bks_model_sql_favorite_products_get(products, th_data->limit);
+   th_data->list = *products;
    eina_lock_release(&mdl.lock);
-   
-   // save error value in thread context
-   ecore_thread_local_data_add(th, "error", error, _error_ptr_free_cb, EINA_FALSE);
-   ecore_thread_local_data_add(th, "products", products, _list_ptr_free_cb, EINA_FALSE);
    
 }
 
-static void _bks_model_fav_products_get_finished_cb(void *data, Ecore_Thread *th) {
+static void _bks_model_fav_products_get_finished_cb(void *data, Ecore_Thread *th UNUSED) {
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
 
-   Bks_Error *error;
-   Eina_List **products;
-   free((unsigned int *)data);
-   error = ecore_thread_local_data_find(th,"error");
-   products = ecore_thread_local_data_find(th,"products");
-   bks_controller_model_products_favs_get_finished_cb(*products, *error);
+   bks_controller_model_products_favs_get_finished_cb(th_data->list, th_data->error);
+   free(th_data);
 }
 
 static void _bks_model_fav_products_get_canceled_cb(void *data, Ecore_Thread *th UNUSED) {
-   Eina_List **products;
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
    Bks_Model_Product *current_product;
-   
+
    //Since we don't pass the list, we must free it, if exists
-   products = ecore_thread_local_data_find(th,"products");
-   if (!products) { // calloc was executed
-      if (!*products) { // list was created
-         EINA_LIST_FREE(*products, current_product) {
-            bks_model_product_free(current_product);
-         }
+
+   if (!th_data->list) { // list was created
+      EINA_LIST_FREE(th_data->list, current_product) {
+         bks_model_product_free(current_product);
       }
    }
-   free((unsigned int *)data);
+   free((Bks_Thread_Data*)th_data);
    fprintf(stderr,"Loading products canceled\n");
    bks_controller_model_products_favs_get_finished_cb(NULL, BKS_MODEL_THREAD_ERROR);
    
@@ -231,58 +204,54 @@ static void _bks_model_fav_products_get_canceled_cb(void *data, Ecore_Thread *th
 
 Ecore_Thread *_bks_model_products_get(unsigned int limit) {
 
+   Bks_Thread_Data *data;
+   data = calloc(1, sizeof(Bks_Thread_Data));
+   data->list = NULL;
+   data->limit = limit;
+
    if (limit == 0) {
-      return ecore_thread_run(_bks_model_products_get_cb, _bks_model_products_get_finished_cb, _bks_model_products_get_canceled_cb, NULL);
+      return ecore_thread_run(_bks_model_products_get_cb, _bks_model_products_get_finished_cb, _bks_model_products_get_canceled_cb, data);
    } else {
-      unsigned int *limit_ptr = malloc(sizeof(unsigned int));
-      *limit_ptr = limit; 
-      return ecore_thread_run(_bks_model_fav_products_get_cb, _bks_model_fav_products_get_finished_cb, _bks_model_fav_products_get_canceled_cb, limit_ptr);
+      return ecore_thread_run(_bks_model_fav_products_get_cb, _bks_model_fav_products_get_finished_cb, _bks_model_fav_products_get_canceled_cb, data);
    }
 }
 
 
 // User Accounts
-static void _bks_model_user_accounts_get_cb(void *data UNUSED, Ecore_Thread *th) {
+static void _bks_model_user_accounts_get_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
-   Bks_Error *error = malloc(sizeof(Bks_Error));
-   Eina_List **user_accounts = calloc(1, sizeof(Eina_List*));
-   
+   Eina_List **user_accounts = calloc(1, sizeof(Eina_List*)); 
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
+ 
    bks_controller_model_user_accounts_get_cb();
    eina_lock_take(&mdl.lock);
 
    // get new data
-   *error = _bks_model_sql_user_accounts_get(user_accounts);
+   th_data->error = _bks_model_sql_user_accounts_get(user_accounts);
+   th_data->list = *user_accounts;
    eina_lock_release(&mdl.lock);
-
-   // save error value in thread context
-   ecore_thread_local_data_add(th, "error", error, _error_ptr_free_cb, EINA_FALSE);
-   ecore_thread_local_data_add(th, "user_accounts", user_accounts, _list_ptr_free_cb, EINA_FALSE);
       
 }
 
-static void _bks_model_user_accounts_get_finished_cb(void *data UNUSED, Ecore_Thread *th) {
+static void _bks_model_user_accounts_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
 
-   Bks_Error *error;
-   Eina_List **user_accounts;
-   user_accounts = ecore_thread_local_data_find(th,"user_accounts");
-   error = ecore_thread_local_data_find(th,"error");
-   
-   bks_controller_model_user_accounts_get_finished_cb(*user_accounts, *error);
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
+
+   bks_controller_model_user_accounts_get_finished_cb(th_data->list, th_data->error);
+   free(th_data);
 }
 
 static void _bks_model_user_accounts_get_canceled_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
-   Eina_List **user_accounts;
+   Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
    Bks_Model_User_Account *current_user;
-   
+
    //Since we don't pass the list, we must free it, if exists
-   user_accounts = ecore_thread_local_data_find(th,"user_accounts");
-   if (!user_accounts) { // calloc was executed
-      if (!*user_accounts) { // list was created
-         EINA_LIST_FREE(*user_accounts, current_user) {
-            bks_model_user_account_free(current_user);
-         }
+   if (!th_data->list) { // list was created
+      EINA_LIST_FREE(th_data->list, current_user) {
+         bks_model_user_account_free(current_user);
       }
    }
+   free((Bks_Thread_Data*)th_data);
    fprintf(stderr,"Loading user accounts canceled\n");
    bks_controller_model_user_accounts_get_finished_cb(NULL, BKS_MODEL_THREAD_ERROR);
 }
@@ -290,9 +259,14 @@ static void _bks_model_user_accounts_get_canceled_cb(void *data UNUSED, Ecore_Th
 
 
 Ecore_Thread *_bks_model_user_accounts_get(unsigned int limit) {
-   
+
+   Bks_Thread_Data *data;
+   data = calloc(1, sizeof(Bks_Thread_Data));
+   data->list = NULL;
+   data->limit = limit;
+
    if (limit == 0) {     
-      return ecore_thread_run(_bks_model_user_accounts_get_cb, _bks_model_user_accounts_get_finished_cb, _bks_model_user_accounts_get_canceled_cb, &limit);
+      return ecore_thread_run(_bks_model_user_accounts_get_cb, _bks_model_user_accounts_get_finished_cb, _bks_model_user_accounts_get_canceled_cb, data);
    } else {
       fprintf(stderr, "Recent user accounts UNUSED\n");
       return NULL;

@@ -44,15 +44,10 @@ static char* bks_model_get_path(void) {
    char *path;
    char *default_path = BKSYSTEMDB;
    size_t len;
-   if (0) {
-      // load path from file here
-      path = NULL;
-   } else {
       // set default path and name
-      len = strlen(BKSYSTEMDB) + 6;
+      len = strlen(BKSYSTEMDB) + 256;
       path = malloc(len);
-      snprintf(path, len, "file:%s",  default_path);      
-   }
+      snprintf(path, len, "file:/home/matthias/Projekte/bksystem/build/%s",  default_path);      
    return path;
    }
 
@@ -68,7 +63,9 @@ void bks_model_set_path(char *path) {
 
 void bks_model_init(void) {
    eina_lock_new(&mdl.lock);
+
    mdl.db_path = bks_model_get_path();
+   fprintf(stderr, "Path: %s", mdl.db_path);
 }
 
 void bks_model_shutdown(void) {

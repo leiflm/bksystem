@@ -17,5 +17,8 @@ void bks_controller_shutdown(void)
 
 void bks_controller_run(void)
 {
+   bks_model_products_get(0);
+   bks_model_products_get(5);
+   bks_model_user_accounts_get(0);
    ecore_main_loop_begin();
 }

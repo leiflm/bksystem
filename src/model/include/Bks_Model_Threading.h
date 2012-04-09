@@ -5,6 +5,15 @@
 
 #include "Bks_Types.h"
 
+struct _Bks_Thread_Data {
+
+   Eina_List *list;
+   Bks_Error error;
+   unsigned int limit;
+};
+
+typedef struct _Bks_Thread_Data Bks_Thread_Data;
+
 Ecore_Thread *_bks_model_save_path(const char *path);
 
 /**
