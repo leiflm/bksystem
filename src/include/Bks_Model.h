@@ -66,7 +66,7 @@ void bks_model_shutdown(void);
 /**
  * @brief sets a new path for the database and saves it to a file for later use.
  */
-void bks_model_set_path(char *path);
+void bks_model_path_set(char *path);
 
 /**
  * @brief Commits a sale to the database

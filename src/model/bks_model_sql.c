@@ -45,7 +45,7 @@ Bks_Error _bks_model_sql_products_get(Eina_List **list) {
    int retval;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(BKSYSTEMDB/*mdl.db_path*/, &pDb, /*SQLITE_OPEN_URI &*/ SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY, NULL);
    if (retval ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -98,7 +98,7 @@ Bks_Error _bks_model_sql_favorite_products_get(Eina_List **list, const unsigned 
    int image_size;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(BKSYSTEMDB/*mdl.db_path*/, &pDb, /*SQLITE_OPEN_URI &*/ SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
    if (retval ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -161,7 +161,7 @@ Bks_Error _bks_model_sql_user_accounts_get(Eina_List **list) {
    int retval;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(BKSYSTEMDB/*mdl.db_path*/, &pDb, /*SQLITE_OPEN_URI &*/ SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY, NULL);
    if (retval !=SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -213,7 +213,7 @@ Bks_Error _bks_model_sql_recent_user_accounts_get(Eina_List **list, const unsign
    int image_size;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
 
-   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI & SQLITE_OPEN_READONLY, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY, NULL);
    if (retval != SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
@@ -273,7 +273,7 @@ Bks_Error _bks_model_sql_commit_sale(const Bks_Model_Sale *sale) {
    int retval;
    Bks_Error error = BKS_MODEL_SQLITE_ERROR;
    
-   retval = sqlite3_open_v2(BKSYSTEMDB/*mdl.db_path*/, &pDb, /*SQLITE_OPEN_URI &*/ SQLITE_OPEN_READWRITE, NULL);
+   retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READWRITE, NULL);
    if(retval != SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_and_return;
