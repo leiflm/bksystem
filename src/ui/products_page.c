@@ -90,7 +90,6 @@ void _async_favs_set(void *data, Ecore_Thread *th UNUSED)
 
    bks_thread_queue_wait(tqe);
 
-   EINA_SAFETY_ON_NULL_RETURN(tqe->data);
    products = (Eina_List*)(tqe->data);
 
    products_grid_set(products);
@@ -105,7 +104,6 @@ void _async_alpha_set(void *data, Ecore_Thread *th UNUSED)
 
    bks_thread_queue_wait(tqe);
 
-   EINA_SAFETY_ON_NULL_RETURN(tqe->data);
    products = (Eina_List*)(tqe->data);
 
    products_list_set(products);

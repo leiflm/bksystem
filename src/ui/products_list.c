@@ -39,22 +39,25 @@ _on_product_select(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
 void
 products_list_set(Eina_List *products)
 {
-   Evas_Object *icon = NULL, *price = NULL;
+   Evas_Object *icon = NULL, *lbl = NULL;
    Elm_Object_Item *it;
    Bks_Model_Product *product;
    static Evas *evas = NULL;
-   static char buf[32];
+   static char buf[128];
 
    EINA_SAFETY_ON_NULL_RETURN(ui.products.list);
-   EINA_SAFETY_ON_NULL_RETURN(products);
 
    ecore_thread_main_loop_begin();
    if (!evas)
      evas = evas_object_evas_get(ui.products.list);
+
+   if (!products)
+     elm_list_item_append(ui.products.list, "Keine Produkte in der Datenbank gefunden.", NULL, NULL, NULL, NULL);
+
    EINA_LIST_FREE(products, product)
      {
         it = NULL;
-        icon = price = NULL;
+        icon = lbl = NULL;
         if (product->image.data)
           {
              icon = evas_object_image_filled_add(evas);
@@ -63,12 +66,12 @@ products_list_set(Eina_List *products)
              evas_object_size_hint_align_set(icon, EVAS_HINT_FILL, EVAS_HINT_FILL);
              evas_object_show(icon);
           }
-        price = elm_label_add(ui.products.list);
+        lbl = elm_label_add(ui.products.list);
         snprintf(buf, (sizeof(buf) - 1), "%.2f Euro", product->price);
-        evas_object_event_callback_add(price, EVAS_CALLBACK_DEL, _product_obj_del_cb, product);
-        elm_object_text_set(price, buf);
-        evas_object_show(price);
-        it = elm_list_item_append(ui.products.list, product->name, icon, price, _on_product_select, NULL);
+        evas_object_event_callback_add(lbl, EVAS_CALLBACK_DEL, _product_obj_del_cb, product);
+        elm_object_text_set(lbl, buf);
+        evas_object_show(lbl);
+        it = elm_list_item_append(ui.products.list, product->name, icon, lbl, _on_product_select, NULL);
         elm_object_item_data_set(it, product);
      }
    elm_list_go(ui.products.list);

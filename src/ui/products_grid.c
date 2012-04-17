@@ -39,9 +39,11 @@ grid_text_get(void *data, Evas_Object *obj UNUSED, const char *part UNUSED)
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
    char buf[32];
 
-   if (!product) return NULL;
+   if (product)
+     snprintf(buf, (sizeof(buf) - 1), "%s, %.2f Euro", product->name, product->price);
+   else
+     snprintf(buf, (sizeof(buf) - 1), "Keine Favoriten vorhanden");
 
-   snprintf(buf, (sizeof(buf) - 1), "%s, %.2f Euro", product->name, product->price);
    return strdup(buf);
 }
 
@@ -53,7 +55,7 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
 
    if (!strcmp(part, "elm.swallow.icon"))
      {
-        if (product->image.data)
+        if (product && product->image.data)
           {
              icon = evas_object_image_filled_add(evas_object_evas_get(obj));
              evas_object_image_memfile_set(icon, product->image.data, product->image.size, NULL, NULL);
@@ -130,6 +132,10 @@ void products_grid_set(Eina_List *products)
    gic.func.del = grid_del;
 
    ecore_thread_main_loop_begin();
+
+   if (!products) //Add fake element if none are present
+     elm_gengrid_item_append(ui.products.grid, &gic, NULL, NULL, NULL);
+
    //add all products to grid
    EINA_LIST_FREE(products, product)
      {
