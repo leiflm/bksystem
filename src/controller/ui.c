@@ -44,3 +44,13 @@ void bks_controller_ui_sale_finish_cb(void)
    //CREATE ECORE_THREAD that calls ui cb when finished
    ecore_thread_run(_sale_finish_cb, NULL, NULL, NULL);
 }
+
+static void _bks_controller_ui_db_path_set(void *data, Ecore_Thread *th UNUSED)
+{
+   bks_model_controller_db_path_set((Eina_Stringshare*)data);
+}
+
+void bks_controller_ui_db_path_set(Eina_Stringshare *path)
+{
+   ecore_thread_run(_bks_controller_ui_db_path_set, NULL, NULL, (void*)path);
+}

@@ -1,5 +1,5 @@
 #include <Ecore.h>
-#include "Bks_Types.h"
+#include "Bks_System.h"
 #include "Bks_Ui.h"
 #include "Bks_Controller.h"
 #include "Bks_Thread_Queue.h"
@@ -111,4 +111,14 @@ void bks_controller_model_commit_sale_finished_cb(Bks_Model_Sale *sale)
 void bks_controller_model_create_bill_table_cb(void)
 {
         printf("Bill created.\n");
+}
+
+static void _bks_controller_model_db_path_get(void *data UNUSED, Ecore_Thread *th UNUSED)
+{
+   bks_ui_controller_db_path_get();
+}
+
+void bks_controller_model_db_path_get(void)
+{
+   ecore_thread_run(_bks_controller_model_db_path_get, NULL, NULL, NULL);
 }
