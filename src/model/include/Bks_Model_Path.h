@@ -1,6 +1,6 @@
 //      Bks_Model_Path.h
 //      
-//      Copyright 2012 Matthias Wauer <matthias@linux-u88d>
+//      Copyright 2012 Matthias Wauer <matthias@googlemail.com>
 //      
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -19,6 +19,6 @@
 //      
 //      
 
-void _bks_model_path_set(char *path);
+void _bks_model_path_set(Eina_Stringshare *path);
 char *_bks_model_path_get(void);
 

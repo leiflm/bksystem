@@ -50,7 +50,7 @@
  */
 struct _Bks_Model {
    Eina_Lock lock;
-   char *db_path;
+   Eina_Stringshare *db_path;
 };
 
 /**
@@ -66,7 +66,7 @@ void bks_model_shutdown(void);
 /**
  * @brief sets a new path for the database and saves it to a file for later use.
  */
-void bks_model_path_set(char *path);
+void bks_model_controller_db_path_set(Eina_Stringshare *path);
 
 /**
  * @brief Commits a sale to the database

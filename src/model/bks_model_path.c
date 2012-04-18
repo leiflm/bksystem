@@ -44,13 +44,13 @@ char *_bks_model_path_get(void) {
    return path;
    }
 
-void _bks_model_path_set(char *path) {
+void _bks_model_path_set(Eina_Stringshare *path) {
 
    if (!mdl.db_path) {
-      free(mdl.db_path);
+      eina_stringshare_del(mdl.db_path);
    }
    mdl.db_path = path;
-   _bks_model_path_save(path);
+   _bks_model_path_save((char*)path);
 }
 
 static char *_bks_model_path_load() {

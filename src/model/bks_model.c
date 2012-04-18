@@ -36,12 +36,10 @@
 
 
 // Interface functions
-void bks_model_path_set(char *path) {
+void bks_model_controller_db_path_set(Eina_Stringshare *path) {
 
    _bks_model_path_set(path);
-   bks_model_products_get(0);
-   bks_model_products_get(5);
-   bks_model_user_accounts_get(0);
+   eina_lock_release(&mdl.lock);
 
 }
 

@@ -129,12 +129,12 @@ static void _bks_model_products_get_cb(void *data UNUSED, Ecore_Thread *th UNUSE
    Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
  
    bks_controller_model_products_alpha_get_cb();
-   eina_lock_take(&mdl.lock);
+   //eina_lock_take(&mdl.lock);
 
    // get new data
    th_data->error = _bks_model_sql_products_get(products);
    th_data->list = *products;
-   eina_lock_release(&mdl.lock);
+   //eina_lock_release(&mdl.lock);
 }
 
 static void _bks_model_products_get_finished_cb(void *data UNUSED, Ecore_Thread *th UNUSED) {
@@ -169,12 +169,12 @@ static void _bks_model_fav_products_get_cb(void *data, Ecore_Thread *th UNUSED) 
    Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
 
    bks_controller_model_products_favs_get_cb();
-   eina_lock_take(&mdl.lock);
+   //eina_locl_take(&mdl.lock);
 
    // get new data
    th_data->error = _bks_model_sql_favorite_products_get(products, th_data->limit);
    th_data->list = *products;
-   eina_lock_release(&mdl.lock);
+   //eina_locl_release(&mdl.lock);
    
 }
 
@@ -224,12 +224,12 @@ static void _bks_model_user_accounts_get_cb(void *data UNUSED, Ecore_Thread *th 
    Bks_Thread_Data *th_data = (Bks_Thread_Data*)data;
  
    bks_controller_model_user_accounts_get_cb();
-   eina_lock_take(&mdl.lock);
+   //eina_locl_take(&mdl.lock);
 
    // get new data
    th_data->error = _bks_model_sql_user_accounts_get(user_accounts);
    th_data->list = *user_accounts;
-   eina_lock_release(&mdl.lock);
+   //eina_locl_release(&mdl.lock);
       
 }
 
