@@ -4,7 +4,7 @@ TOP_SRC_DIR = $(TOP_DIR)/src
 TOP_HEADERS_DIR = $(TOP_SRC_DIR)/include
 
 COMMON_SRC_DIR = $(TOP_SRC_DIR)/common
-COMMON_SRC = $(COMMON_SRC_DIR)/bks_error.c  $(COMMON_SRC_DIR)/bks_thread_queue.c
+COMMON_SRC = $(COMMON_SRC_DIR)/bks_events.c $(COMMON_SRC_DIR)/bks_error.c  $(COMMON_SRC_DIR)/bks_thread_queue.c
 
 CTRL_SRC_DIR = $(TOP_SRC_DIR)/controller
 CTRL_HEADERS_DIR = $(CTRL_SRC_DIR)/include

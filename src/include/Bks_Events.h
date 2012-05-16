@@ -1,0 +1,15 @@
+extern int BKS_EVENT_DB_NOT_FOUND;
+extern int BKS_EVENT_DB_PATH_RETRIEVED;
+extern int BKS_EVENT_ACCOUNTS_RELOAD;
+extern int BKS_EVENT_ACCOUNTS_RELOADED;
+extern int BKS_EVENT_PRODS_ALPHA_RELOAD;
+extern int BKS_EVENT_PRODS_ALPHA_RELOADED;
+extern int BKS_EVENT_PRODS_FAVS_RELOAD;
+extern int BKS_EVENT_PRODS_FAVS_RELOADED;
+extern int BKS_EVENT_SALE_TRY;
+extern int BKS_EVENT_SALE_FINISHED;
+extern int BKS_EVENT_UI_BLOCK_INPUT;
+extern int BKS_EVENT_UI_UNBLOCK_INPUT;
+
+void bks_events_init(void);
+void bks_events_shutdown(void);
