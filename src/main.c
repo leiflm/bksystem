@@ -1,7 +1,6 @@
 #include <Eina.h>
 #include <Ecore.h>
 #include "Bks_System.h"
-#include "Bks_Events.h"
 #include "Bks_Model.h"
 #include "Bks_Controller.h"
 #include "Bks_Ui.h"

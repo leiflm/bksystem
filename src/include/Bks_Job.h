@@ -1,6 +1,7 @@
 #ifndef __BKS_JOB_H__
 #define __BKS_JOB_H__
 
+#include "Bks_Status.h"
 #include "Bks_Types.h"
 
 enum _Bks_Job_Type { BKS_JOB_SALE,
@@ -13,4 +14,4 @@ struct _Bks_Job {
      void *data;
 };
 
-#endif __BKS_JOB_H__
+#endif
