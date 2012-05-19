@@ -53,18 +53,13 @@ void bks_ui_shutdown(void);
  * @brief Clears the ui elements (lists, etc.). Selected elements and accounts
  * are reset as well.
  */
-void bks_ui_clear(void);
+void bks_ui_controller_clear(void);
 
 /**
- * @brief Locks the ui so no input is possible anymore.
+ * @brief Updates the UI to reflect the given status
+ * @param status status to be reflected
  */
-void bks_ui_update_set(const Eina_Bool update);
-
-/**
- * @brief generic interface to display an error that occured.
- * @param data Bks_Status
- */
-void bks_ui_display_error(const Bks_Status error);
+void bks_ui_controller_status_set(const Bks_Status status);
 
 /**
  * @brief called, when a product sale was successful registered by the model.
@@ -78,71 +73,56 @@ void bks_ui_contoller_sale_finished_cb(Bks_Model_Sale *sale);
 
 /**
  * @brief Clears the user accounts ui elements.
- * @param element The thread, that has to be waited for.
  */
-void bks_ui_user_accounts_clear(const Bks_Thread_Queue_Element *element);
-
-/**
- * @brief Indicates that the user accounts are being refetched.
- */
-void bks_ui_user_accounts_update_set(const Eina_Bool update);
+void bks_ui_controller_user_accounts_clear(void);
 
 /**
  * @brief fills the UI using @p user_accounts.
- * @param element The thread, that has to be waited for.
+ * @param accounts The user accounts used to fill the list.
  */
-void bks_ui_user_accounts_page_set(const Bks_Thread_Queue_Element *element);
+void bks_ui_controller_user_accounts_page_set(Eina_List *accounts);
 
 /**
  * @brief Gets the list of selected user accounts
  * @return List of Bks_Model_User_Account elements
  */
-Eina_List *bks_ui_user_accounts_selected_get(void);
+Eina_List *bks_ui_controller_user_accounts_selected_get(void);
 
 //Products page
 
 /**
  * @brief Clears the products alphabeticaly sorted ui elements.
  */
-void bks_ui_products_alpha_clear(const Bks_Thread_Queue_Element *tqe);
+void bks_ui_controller_products_alpha_clear(void);
 
 /**
  * @brief Clears the products favourites' ui elements.
  */
-void bks_ui_products_favs_clear(const Bks_Thread_Queue_Element *tqe);
-
-/**
- * @brief Indicates that the alphabetically sorted products are being refetched.
- */
-void bks_ui_products_alpha_update_set(const Eina_Bool update);
-
-/**
- * @brief Indicates that the favourites products are being refetched.
- */
-void bks_ui_products_favs_update_set(const Eina_Bool update);
+void bks_ui_controller_products_favs_clear(void);
 
 /**
  * @brief fills the UI's favourite's region using @p products.
  * @param element The thread, that has to be waited for.
  *
  */
-void bks_ui_products_page_favs_set(const Bks_Thread_Queue_Element *element);
+void bks_ui_controller_products_page_favs_set(Eina_List *products);
 
 /**
  * @brief fills the UI's alphabetic products list using @p products.
  * @param element The thread, that has to be waited for.
  */
-void bks_ui_products_page_alpha_set(const Bks_Thread_Queue_Element *element);
+void bks_ui_controller_products_page_alpha_set(Eina_List *products);
 
 /**
  * @brief Gets the selected product
  * @return The selected Bks_Model_Product element.
  */
-const Bks_Model_Product *bks_ui_product_selected_get(void);
+const Bks_Model_Product *bks_ui_controller_product_selected_get(void);
 
 /**
  * @brief Opens a "Open file" dialog to retrieve the location of the database
  * file.
  */
-void bks_ui_controller_db_path_get(void);
+void bks_ui_controller_db_path_get(Bks_Job *job);
+
 #endif

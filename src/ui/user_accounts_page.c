@@ -5,21 +5,6 @@
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-static void _async_page_clear(void *data, Ecore_Thread *th UNUSED)
-{
-   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element*)data;
-
-   EINA_SAFETY_ON_NULL_RETURN(data);
-
-   bks_thread_queue_wait(tqe);
-   ecore_thread_main_loop_begin();
-   elm_list_clear(ui.user_accounts.list);
-   ecore_thread_main_loop_end();
-   //lock ui from further user input
-   bks_ui_user_accounts_update_set(EINA_TRUE);
-   bks_thread_queue_wake_up_next(tqe);
-}
-
 static void
 _on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
@@ -77,21 +62,6 @@ void user_accounts_page_set(Eina_List *user_accounts)
    user_accounts_list_set(user_accounts);
 }
 
-void _async_page_set(void *data, Ecore_Thread *th UNUSED)
-{
-   Bks_Thread_Queue_Element *tqe = (Bks_Thread_Queue_Element *)data;
-   Eina_List *user_accounts = NULL;
-
-   bks_thread_queue_wait(tqe);
-
-   EINA_SAFETY_ON_NULL_RETURN(tqe->data);
-   user_accounts = (Eina_List*)(tqe->data);
-
-   user_accounts_page_set(user_accounts);
-   bks_ui_user_accounts_update_set(EINA_FALSE);
-   bks_thread_queue_wake_up_next(tqe);
-}
-
 // API calls
 
 /**
@@ -99,33 +69,17 @@ void _async_page_set(void *data, Ecore_Thread *th UNUSED)
  */
 void bks_ui_user_accounts_clear(const Bks_Thread_Queue_Element *element)
 {
-   ecore_thread_run(_async_page_clear, NULL, NULL, (void*)element);
+   ecore_thread_main_loop_begin();
+   elm_list_clear(ui.user_accounts.list);
+   ecore_thread_main_loop_end();
 }
 
-/**
- * @brief Indicates that the user accounts are being refetched.
- */
-void bks_ui_user_accounts_update_set(const Eina_Bool update)
+void bks_ui_user_accounts_page_set(Eina_List *user_accounts)
 {
-   if (!update)
-     {
-        ecore_thread_main_loop_begin();
-        evas_object_hide(ui.user_accounts.lock_window.win);
-        ecore_thread_main_loop_end();
-        return;
-     }
+   EINA_SAFETY_ON_NULL_RETURN(user_accounts);
 
-   if (!evas_object_visible_get(ui.lock_window.win))
-     {
-        ecore_thread_main_loop_begin();
-        elm_win_inwin_activate(ui.user_accounts.lock_window.win);
-        ecore_thread_main_loop_end();
-     }
-}
-
-void bks_ui_user_accounts_page_set(const Bks_Thread_Queue_Element *element)
-{
-   ecore_thread_run(_async_page_set, NULL, NULL, (void*)element);
+   user_accounts_page_set(user_accounts);
+   bks_ui_user_accounts_update_set(EINA_FALSE);
 }
 
 /**

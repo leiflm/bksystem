@@ -13,9 +13,15 @@
  */
 
 
+/**
+ * Emitters: model
+ * Listeners: controller
+ */
 extern int BKS_EVENT_DB_NOT_FOUND;
 
 /**
+ * Emitters: ui
+ * Listeners: contoller
  * Event structure *ev:
  * const char *path
  */
