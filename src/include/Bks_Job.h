@@ -14,4 +14,7 @@ struct _Bks_Job {
      void *data;
 };
 
+Bks_Job* bks_job_new(Bks_Job_Type type);
+void bks_job_free(Bks_Job *job);
+
 #endif

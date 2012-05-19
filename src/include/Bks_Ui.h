@@ -71,7 +71,7 @@ void bks_ui_controller_status_set(const Bks_Status status);
  * The given sale has to be freed afterwards.
  * @param sale The sale that was finished and has to be freed.
  */
-void bks_ui_contoller_sale_finished_cb(Bks_Model_Sale *sale);
+void bks_ui_controller_sale_finished(Bks_Model_Sale *sale);
 
 //User accounts page
 

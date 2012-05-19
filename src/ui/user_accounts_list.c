@@ -26,7 +26,7 @@ _on_user_account_double_click(void *data UNUSED, Evas_Object *obj UNUSED, void *
    //Only react if only a single account is selected
    if (eina_list_count(elm_list_selected_items_get(ui.user_accounts.enp.content)) > 1)
      return;
-   bks_controller_ui_sale_finish_cb();
+   bks_controller_ui_sale_finish();
    products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }

@@ -1,7 +1,6 @@
 #include <Elementary.h>
 #include "Elm_Utils.h"
 #include "Bks_System.h"
-#include "Bks_Thread_Queue.h"
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
@@ -65,7 +64,7 @@ Evas_Object *products_page_add(void)
    return ui.products.panes;
 }
 
-const Bks_Model_Product *bks_ui_product_selected_get(void)
+const Bks_Model_Product *bks_ui_controller_product_selected_get(void)
 {
    const Bks_Model_Product *product;
 
@@ -91,12 +90,12 @@ void bks_ui_products_favs_clear(void)
  *
  * @param products list of Bks_Model_Product
  */
-void bks_ui_products_page_favs_set(Eina_List *products)
+void bks_ui_controller_products_page_favs_set(Eina_List *products)
 {
    products_grid_set(products);
 }
 
-void bks_ui_products_page_alpha_set(const Bks_Thread_Queue_Element *element)
+void bks_ui_controller_products_page_alpha_set(Eina_List *products)
 {
    products_list_set(products);
 }

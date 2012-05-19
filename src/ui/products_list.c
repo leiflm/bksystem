@@ -10,7 +10,6 @@ static void _product_obj_del_cb(void *data, Evas *e, Evas_Object *obj, void *eve
 
 void _products_list_clear()
 {
-   bks_ui_products_alpha_update_set(EINA_TRUE);
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.products.list);
    ecore_thread_main_loop_end();

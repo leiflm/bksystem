@@ -5,11 +5,15 @@
 #include "Bks_Ui_Private.h"
 
 // API callbacks
-void bks_ui_contoller_sale_finished_cb(Bks_Model_Sale *sale)
+void bks_ui_controller_sale_finished(Bks_Model_Sale *sale)
 {
+   Eina_List *l, *accs = (Eina_List*)sale->user_accounts;
+   Bks_Model_User_Account *acc = NULL;
+
    EINA_SAFETY_ON_NULL_RETURN(sale);
 
-   printf("Produktkauf %s durch %s, %s wurde in Rechnung gestellt.\n", sale->ean, sale->lastname, sale->firstname);
+   EINA_LIST_FOREACH(accs, l, acc)
+      printf("Produktkauf %llu durch %s, %s wurde in Rechnung gestellt.\n", sale->EAN, acc->lastname, acc->firstname);
 
    bks_model_sale_free(sale);
 }

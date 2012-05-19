@@ -5,16 +5,34 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
-void
-_products_alpha_get(Ecore_Thread *th, void *data)
-{
-   Bks_Job *job = (Bks_Job*)data;
 
-   job->status = (void*)bks_model_controller_products_get(0);
+void bks_controller_init(void)
+{
+}
+
+void bks_controller_shutdown(void)
+{
+}
+
+void bks_controller_run(void)
+{
+    bks_controller_products_alpha_get();
+    bks_controller_products_favs_get(5);
+    bks_controller_user_accounts_get();
+    ecore_main_loop_begin();
 }
 
 void
-_products_alpha_get_finished(Ecore_Thread *th, void *data)
+_products_alpha_get(void *data, Ecore_Thread *th UNUSED)
+{
+   Bks_Job *job = (Bks_Job*)data;
+
+   job->data = NULL;
+   job->status = bks_model_controller_products_alpha_get((Eina_List**)&job->data);
+}
+
+void
+_products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
@@ -23,10 +41,10 @@ _products_alpha_get_finished(Ecore_Thread *th, void *data)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-         ui_db_path_get(job);
+         bks_ui_controller_db_path_get(job);
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
-         bks_ui_controller_products_alpha_set((Eina_List*)job->data);
+         bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
       default:
          printf("Some error during alpha products fetch!\n");
@@ -42,15 +60,20 @@ bks_controller_products_alpha_get(void)
 }
 
 void
-_products_favs_get(Ecore_Thread *th, void *data)
+_products_favs_get(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
+   unsigned int count;
 
-   job->data = (void*)bks_model_controller_products_get((unsigned int)job->data);
+   EINA_SAFETY_ON_NULL_RETURN(job);
+
+   count = (unsigned int)job->data;
+   job->data = NULL;
+   job->status = bks_model_controller_products_fav_get((Eina_List**)&job->data, count);
 }
 
 void
-_products_favs_get_finished(Ecore_Thread *th, void *data)
+_products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
@@ -59,10 +82,10 @@ _products_favs_get_finished(Ecore_Thread *th, void *data)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-         ui_db_path_get(job);
+         bks_ui_controller_db_path_get(job);
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
-         bks_ui_controller_products_favs_set((Eina_List*)job->data);
+         bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
       default:
          printf("Some error during favs products fetch!\n");
@@ -79,15 +102,16 @@ bks_controller_products_favs_get(unsigned int count)
 }
 
 void
-_user_accounts_get(Ecore_Thread *th, void *data)
+_user_accounts_get(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
-   job->data = bks_model_controller_user_accounts_get(5);
+   job->data = NULL;
+   job->status = bks_model_controller_user_accounts_get((Eina_List**)job->data);
 }
 
 void
-_user_accounts_get_finished(Ecore_Thread *th, void *data)
+_user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
@@ -96,10 +120,10 @@ _user_accounts_get_finished(Ecore_Thread *th, void *data)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-         ui_db_path_get(job);
+         bks_ui_controller_db_path_get(job);
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
-         bks_ui_controller_user_accounts_set((Eina_List*)job->data);
+         bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
       default:
          printf("Some error during user accounts fetch!\n");
@@ -116,14 +140,14 @@ bks_controller_user_accounts_get(void)
 
 // API for UI callbacks
 void
-_sale(Ecore_Thread *th, void *data)
+_sale(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
    job->status = bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
 }
 
-void _sale_finished(Ecore_Thread *th, void *data)
+void _sale_finished(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
@@ -132,10 +156,10 @@ void _sale_finished(Ecore_Thread *th, void *data)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-         ui_db_path_get(job);
+         bks_ui_controller_db_path_get(job);
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
-         bks_ui_contoller_sale_finished_cb((Bks_Model_Sale*)job->data);
+         bks_ui_controller_sale_finished((Bks_Model_Sale*)job->data);
          printf("DB access was successful!\n");
       default:
          printf("Some error during sale!\n");
@@ -144,14 +168,13 @@ void _sale_finished(Ecore_Thread *th, void *data)
 
 void bks_controller_ui_sale_finish(void)
 {
-   const Bks_Model_User_Account *acc = NULL;
-   Eina_List *accounts = NULL;
-   Bks_Model_Product *product = NULL;
+   const Eina_List *accounts = NULL;
+   const Bks_Model_Product *product = NULL;
    Bks_Model_Sale *sale = NULL;
    Bks_Job *job = bks_job_new(BKS_JOB_SALE);
 
-   product = bks_ui_product_selected_get();
-   accounts = bks_ui_user_accounts_selected_get();
+   product = bks_ui_controller_product_selected_get();
+   accounts = bks_ui_controller_user_accounts_selected_get();
 
    EINA_SAFETY_ON_NULL_GOTO(product, _incomplete_sale);
    EINA_SAFETY_ON_NULL_GOTO(accounts, _incomplete_sale);
@@ -181,13 +204,13 @@ void _job_continue(Bks_Job *job)
    switch(job->type)
      {
       case BKS_JOB_PRODUCTS_ALPHA_GET:
-         bks_controller_products_alpha_get((int)job->data);
+         bks_controller_products_alpha_get();
          break;
       case BKS_JOB_PRODUCTS_FAVS_GET:
-         controller_products_favs_get((int)job->data);
+         bks_controller_products_favs_get((unsigned int)job->data);
          break;
       case BKS_JOB_SALE:
-         bks_model_controller_commit_sale((Bks_Sale*)job->data);
+         bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
          break;
       default:
          printf("Unkown job type (%d) scheduled for continuation.\n", job->type);
@@ -195,7 +218,7 @@ void _job_continue(Bks_Job *job)
      }
 }
 
-bks_controller_ui_db_path_retrieved(Bks_Job *job)
+void bks_controller_ui_db_path_retrieved(Bks_Job *job)
 {
    EINA_SAFETY_ON_NULL_RETURN(job);
 

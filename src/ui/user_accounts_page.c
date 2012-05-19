@@ -1,7 +1,6 @@
 #include <Evas.h>
 #include "Elm_Utils.h"
 #include "Bks_System.h"
-#include "Bks_Thread_Queue.h"
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
@@ -15,7 +14,7 @@ _on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, voi
 static void
 _on_user_accounts_finish_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
-   bks_controller_ui_sale_finish_cb();
+   bks_controller_ui_sale_finish();
    products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
@@ -67,25 +66,24 @@ void user_accounts_page_set(Eina_List *user_accounts)
 /**
  * @brief Clears the user accounts ui elements.
  */
-void bks_ui_user_accounts_clear(const Bks_Thread_Queue_Element *element)
+void bks_ui_user_accounts_clear(void)
 {
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.user_accounts.list);
    ecore_thread_main_loop_end();
 }
 
-void bks_ui_user_accounts_page_set(Eina_List *user_accounts)
+void bks_ui_controller_user_accounts_page_set(Eina_List *user_accounts)
 {
    EINA_SAFETY_ON_NULL_RETURN(user_accounts);
 
    user_accounts_page_set(user_accounts);
-   bks_ui_user_accounts_update_set(EINA_FALSE);
 }
 
 /**
  * @return List of Bks_Model_User_Account elements
  */
-Eina_List *bks_ui_user_accounts_selected_get(void)
+Eina_List *bks_ui_controller_user_accounts_selected_get(void)
 {
    const Eina_List *selected_accounts;
    Eina_List *iter, *list = NULL;

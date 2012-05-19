@@ -9,7 +9,6 @@
 
 void _products_grid_clear()
 {
-   bks_ui_products_favs_update_set(EINA_TRUE);
    ecore_thread_main_loop_begin();
    elm_gengrid_clear(ui.products.grid);
    ecore_thread_main_loop_end();
