@@ -8,7 +8,7 @@
  *
  * @return Bks_Status indicator
  */
-Bks_Status _bks_model_sql_commit_sale(const Bks_Model_sale *sales);
+Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales);
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function

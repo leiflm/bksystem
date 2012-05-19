@@ -30,7 +30,7 @@
 #include "Bks_Model_User_Account.h"
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
-#include "Bks_Model_Threading.h"
+#include "Bks_Model_Sql.h"
 #include "Bks_Status.h" 
 #include "Bks_Model_Path.h"
 
@@ -69,7 +69,7 @@ Bks_Status bks_model_controller_products_fav_get(Eina_List **products, unsigned 
 
 Bks_Status bks_model_controller_commit_sale(const Bks_Model_Sale *sales) {
    
-  return _bks_model_sql_commit_sales(sales); 
+  return _bks_model_sql_commit_sale(sales); 
 }
 
 const Eina_List* bks_model_sales_from_user_since(const int uid UNUSED, const char *since UNUSED) {
