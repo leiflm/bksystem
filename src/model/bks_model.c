@@ -31,7 +31,7 @@
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
 #include "Bks_Model_Threading.h"
-#include "Bks_Error.h"
+#include "Bks_Status.h" 
 #include "Bks_Model_Path.h"
 
 
@@ -39,8 +39,6 @@
 void bks_model_controller_db_path_set(Eina_Stringshare *path) {
 
    _bks_model_path_set(path);
-   eina_lock_release(&mdl.lock);
-
 }
 
 void bks_model_init(void) {
@@ -54,23 +52,25 @@ void bks_model_shutdown(void) {
    eina_lock_free(&mdl.lock);
 }
 
-void bks_model_user_accounts_get(unsigned int limit) {
+Bks_Status bks_model_controller_user_accounts_get(Eina_List **user_accounts) {
 
-   _bks_model_user_accounts_get(limit);
-
+   return _bks_model_sql_user_accounts_get(user_accounts);
 }
 
-void bks_model_products_get(unsigned int limit) {
+Bks_Status bks_model_controller_products_alpha_get(Eina_List **products) {
 
-   _bks_model_products_get(limit);
-
+   return _bks_model_sql_products_get(products);
 }
 
-void bks_model_commit_sale(const Bks_Model_Sale *sale) {
+Bks_Status bks_model_controller_products_fav_get(Eina_List **products, unsigned int limit) {
+
+   return _bks_model_sql_favorite_products_get(products, limit);
+}
+
+Bks_Status bks_model_controller_commit_sale(const Bks_Model_Sale *sales) {
    
-   _bks_model_commit_sale(sale); 
-
-   }
+  return _bks_model_sql_commit_sales(sales); 
+}
 
 const Eina_List* bks_model_sales_from_user_since(const int uid UNUSED, const char *since UNUSED) {
    

@@ -19,28 +19,27 @@
 
 #include <stdlib.h>
 #include <sqlite3.h>
+#include <Eina.h>
 #include "Bks_Types.h"
 #include "Bks_Model_Sale.h"
+#include "Bks_Model_User_Account.h"
+#include "Bks_Model_Product.h"
 
-Bks_Model_Sale *bks_model_sale_new(int uid, sqlite3_uint64 EAN, double price) {
-	
-	Bks_Model_Sale *sale_ptr;
-	sale_ptr = malloc(sizeof(Bks_Model_Sale));
-	sale_ptr->uid=uid;
-	sale_ptr->EAN=EAN;
-	sale_ptr->price=price;
-	sale_ptr->status=BKS_MODEL_SALE_UNFINISHED;
+Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, Bks_Model_Product *product) {
 
-    return sale_ptr;
+   Bks_Model_Sale *sale_ptr;
+   sale_ptr = malloc(sizeof(Bks_Model_Sale));
+   sale_ptr->user_accounts = user_accounts;
+   sale_ptr->EAN = product->EAN;
+   sale_ptr->price = product->price;
+   sale_ptr->status = BKS_MODEL_SALE_UNFINISHED;
+
+   return sale_ptr;
 }
 
 
-void bks_model_sale_free(Bks_Model_Sale *sale_ptr) {	
+void bks_model_sale_free(Bks_Model_Sale *sale_ptr) {
     if (!sale_ptr)
         return;
-    free(sale_ptr->firstname);
-    free(sale_ptr->lastname);
-    free(sale_ptr->productname);
-    free(sale_ptr->timestamp);
     free(sale_ptr);
 }

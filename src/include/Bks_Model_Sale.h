@@ -21,8 +21,9 @@
 #define __BKS_MODEL_SALE_H__
 
 #include <sqlite3.h>
+#include <Eina.h>
 #include "Bks_Types.h"
-#include "Bks_Error.h"
+#include "Bks_Status.h"
 
 /**
  * @brief All info about a sale
@@ -41,14 +42,12 @@
  * */
 
 struct _Bks_Model_Sale {
-     int uid;
-     char *firstname;
-     char *lastname;
-     Bks_Error status;
-     sqlite3_uint64 EAN;
-     char * productname;
-     double price;
-     char *timestamp;
+   Eina_List *user_accounts;
+   Bks_Status status;
+   sqlite3_uint64 EAN;
+   char *productname;
+   double price;
+   char *timestamp;
 };
 
 /** @brief allocates a new Bks_Model_Sale element and initializes it with the
@@ -57,7 +56,7 @@ struct _Bks_Model_Sale {
  * @param EAN corresponding ID of the product
  * @param price of the product
  */
-Bks_Model_Sale *bks_model_sale_new(int uid, sqlite3_uint64 EAN, double price);
+Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, Bks_Model_Product *product);
 
 /**
  * @brief frees struct memory and NULLs

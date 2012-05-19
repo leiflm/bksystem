@@ -4,7 +4,7 @@
 #include <Ecore.h>
 #include <Evas.h>
 #include <Elementary.h>
-#include "Bks_Error.h"
+#include "Bks_Status.h"
 #include "Bks_Types.h"
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
@@ -62,9 +62,9 @@ void bks_ui_update_set(const Eina_Bool update);
 
 /**
  * @brief generic interface to display an error that occured.
- * @param data Bks_Error
+ * @param data Bks_Status
  */
-void bks_ui_display_error(const Bks_Error error);
+void bks_ui_display_error(const Bks_Status error);
 
 /**
  * @brief called, when a product sale was successful registered by the model.

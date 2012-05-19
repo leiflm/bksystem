@@ -63,7 +63,7 @@ extern int BKS_EVENT_UI_UNLOCK;
 
 /**
  * Event structure *ev:
- * Bks_Error error
+ * Bks_Status error
  */
 extern int BKS_EVENT_UI_ERROR;
 

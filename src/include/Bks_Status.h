@@ -1,7 +1,7 @@
-#ifndef __BKS_ERROR_H__
-#define __BKS_ERROR_H__
+#ifndef __BKS_STATUS_H__
+#define __BKS_STATUS_H__
 
-enum _Bks_Error { BKS_MODEL_USERACCOUNTS_GET,
+enum _Bks_Status { BKS_MODEL_USERACCOUNTS_GET,
                   BKS_MODEL_PRODUCTS_GET,
                   BKS_MODEL_BILL_GET,
                   BKS_CONTROLLER_SALE,
@@ -16,6 +16,6 @@ enum _Bks_Error { BKS_MODEL_USERACCOUNTS_GET,
                   BKS_MODEL_SQLITE_ROW_MISSING,
                   BKS_MODEL_SQLITE_OK };
 
-extern const char *BKS_ERROR_STRINGS[];
+extern const char *BKS_STATUS_STRINGS[];
 
 #endif

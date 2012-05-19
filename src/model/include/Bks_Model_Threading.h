@@ -8,7 +8,7 @@
 struct _Bks_Thread_Data {
 
    Eina_List *list;
-   Bks_Error error;
+   Bks_Status error;
    unsigned int limit;
 };
 

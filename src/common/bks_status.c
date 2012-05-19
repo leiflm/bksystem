@@ -1,6 +1,6 @@
-#include "Bks_Error.h"
+#include "Bks_Status.h"
 
-const char *BKS_ERROR_STRINGS[] = {
+const char *BKS_STATUS_STRINGS[] = {
                   "BKS_MODEL_USERACCOUNTS_GET",
                   "BKS_MODEL_PRODUCTS_GET",
                   "BKS_MODEL_BILL_GET",

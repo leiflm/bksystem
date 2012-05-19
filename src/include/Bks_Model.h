@@ -69,56 +69,37 @@ void bks_model_shutdown(void);
 void bks_model_controller_db_path_set(Eina_Stringshare *path);
 
 /**
- * @brief Commits a sale to the database
+ * @brief Commits a List of sales to the database, blocking function
  *
+ * @param Eina_List of Bks_Model_Sale: sale contains sale info (uid, EAN, price, status, etc.) with sale that should be performed on database
+ *
+ * @return Bks_Status indicator
  */
-void bks_model_commit_sale(const Bks_Model_Sale *sale);
+Bks_Status _bks_model_controller_commit_sale(const Bks_Model_Sale *sales);
 
 /**
- * @brief get up to @p limit user accounts sorted by sales volume
+ * @brief does SQL querry to sqlite3 database, blocking function
  *
- * @param limit number of accounts to @p limit number of accounts (ordered by
- * sales volume). If 0, all accounts are returned.
- *
- * @return Pointer to Eina_List of struct Bks_Model_User_Account, NULL on
- * failure.
+ * @param Eina_List* list should be set to NULL and will after return contain a list of of all user_accounts
+ * @return Bks_Status indicator
  */
-void bks_model_user_accounts_get(unsigned int limit);
+Bks_Status _bks_model_controller_user_accounts_get(Eina_List **user_accounts); 
 
 /**
- * @brief get up to @p limit favorite products, ordered by sales volume
+ * @brief does SQL querry to sqlite3 database, blocking function
  *
- * @param limit Number of products returned, ordered by 'most often bought'.
- *
- * @return Eina_List* of struct Bks_Model_Product, NULL on
- *
+ * @param Eina_List* list should be set to NULL and will after return contain a list of all products
+ * @return Bks_Status indicator
  */
-void bks_model_products_get(unsigned int limit);
+Bks_Status _bks_model_controller_products_fav_get(Eina_List **products, const unsigned int limit);
 
 /**
- * @brief gets all products bought by user newer then @p since
+ * @brief does SQL querry to sqlite3 database, blocking function
  *
- * @param uid id of the user, the information is queried for.
- * @param since timestamp until sales are dated back to
- *
- * @return List of struct sale
+ * @param Eina_List* list should be set to NULL and will after return contain a list of all products
+ * @return Bks_Status indicator
  */
-const Eina_List* bks_model_sales_from_user_since(const int uid, const char *since);
+Bks_Status _bks_model_controller_products_alpha_get(Eina_List **products); 
 
-/**
- * @brief adds up the prices of sales/products bought by @p uid
- *
- * @param uid user that bought
- * @param since sales dating back to given timestamp.
- *
- * @return accumulated sum
- */
-double bks_model_user_balance_get(const int uid, const char *since);
 
-/**
- * @brief creates a new database with final settlement for all and number of bought products
- *
- * @return success indicator
- */
-void bks_model_create_bill_table();
 #endif

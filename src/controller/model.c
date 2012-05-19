@@ -25,7 +25,7 @@ void bks_controller_model_user_accounts_get_cb(void)
    bks_ui_user_accounts_clear(tqe);
 }
 
-void bks_controller_model_user_accounts_get_finished_cb(Eina_List *user_accounts, Bks_Error error)
+void bks_controller_model_user_accounts_get_finished_cb(Eina_List *user_accounts, Bks_Status error)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
@@ -55,7 +55,7 @@ void bks_controller_model_products_alpha_get_cb(void)
    bks_ui_products_alpha_clear(tqe);
 }
 
-void bks_controller_model_products_alpha_get_finished_cb(Eina_List *products_alpha, Bks_Error error)
+void bks_controller_model_products_alpha_get_finished_cb(Eina_List *products_alpha, Bks_Status error)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 
@@ -85,7 +85,7 @@ void bks_controller_model_products_favs_get_cb(void)
    bks_ui_products_favs_clear(tqe);
 }
 
-void bks_controller_model_products_favs_get_finished_cb(Eina_List *products_favs, Bks_Error error)
+void bks_controller_model_products_favs_get_finished_cb(Eina_List *products_favs, Bks_Status error)
 {
    Bks_Thread_Queue_Element *tqe = NULL;
 

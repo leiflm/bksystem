@@ -4,7 +4,7 @@ TOP_SRC_DIR = $(TOP_DIR)/src
 TOP_HEADERS_DIR = $(TOP_SRC_DIR)/include
 
 COMMON_SRC_DIR = $(TOP_SRC_DIR)/common
-COMMON_SRC = $(COMMON_SRC_DIR)/bks_events.c $(COMMON_SRC_DIR)/bks_error.c  $(COMMON_SRC_DIR)/bks_thread_queue.c
+COMMON_SRC = $(COMMON_SRC_DIR)/bks_events.c $(COMMON_SRC_DIR)/bks_status.c  $(COMMON_SRC_DIR)/bks_thread_queue.c
 
 CTRL_SRC_DIR = $(TOP_SRC_DIR)/controller
 CTRL_HEADERS_DIR = $(CTRL_SRC_DIR)/include
@@ -13,7 +13,7 @@ CTRL_CFLAGS = -I$(CTRL_HEADERS_DIR)
 
 MODEL_SRC_DIR = $(TOP_SRC_DIR)/model
 MODEL_HEADERS_DIR = $(MODEL_SRC_DIR)/include
-MODEL_SRC = $(MODEL_SRC_DIR)/bks_model.c $(MODEL_SRC_DIR)/bks_model_path.c $(MODEL_SRC_DIR)/bks_model_user_account.c $(MODEL_SRC_DIR)/bks_model_product.c $(MODEL_SRC_DIR)/bks_model_sale.c $(MODEL_SRC_DIR)/bks_model_threading.c $(MODEL_SRC_DIR)/bks_model_sql.c
+MODEL_SRC = $(MODEL_SRC_DIR)/bks_model.c $(MODEL_SRC_DIR)/bks_model_path.c $(MODEL_SRC_DIR)/bks_model_user_account.c $(MODEL_SRC_DIR)/bks_model_product.c $(MODEL_SRC_DIR)/bks_model_sale.c $(MODEL_SRC_DIR)/bks_model_sql.c
 MODEL_CFLAGS = -I$(MODEL_HEADERS_DIR)
 
 UI_SRC_DIR = $(TOP_SRC_DIR)/ui
