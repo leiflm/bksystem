@@ -27,6 +27,8 @@ _products_alpha_get(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
+   EINA_SAFETY_ON_NULL_RETURN(job);
+
    job->data = NULL;
    job->status = bks_model_controller_products_alpha_get((Eina_List**)&job->data);
 }
@@ -47,7 +49,7 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
          bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
       default:
-         printf("Some error during alpha products fetch!\n");
+         printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
      }
 }
 
@@ -88,7 +90,7 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
          bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
       default:
-         printf("Some error during favs products fetch!\n");
+         printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
      }
 }
 
@@ -107,7 +109,7 @@ _user_accounts_get(void *data, Ecore_Thread *th UNUSED)
    Bks_Job *job = (Bks_Job*)data;
 
    job->data = NULL;
-   job->status = bks_model_controller_user_accounts_get((Eina_List**)job->data);
+   job->status = bks_model_controller_user_accounts_get((Eina_List**)&job->data);
 }
 
 void
@@ -126,7 +128,7 @@ _user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
       default:
-         printf("Some error during user accounts fetch!\n");
+         printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
      }
 }
 
