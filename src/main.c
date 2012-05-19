@@ -2,7 +2,6 @@
 #include <Ecore.h>
 #include "Bks_System.h"
 #include "Bks_Events.h"
-#include "Bks_Thread_Queue.h"
 #include "Bks_Model.h"
 #include "Bks_Controller.h"
 #include "Bks_Ui.h"
@@ -14,8 +13,6 @@ int main(int argc, char *argv[])
     //gimme threads!
     ecore_init();
 
-    bks_events_init();
-    bks_thread_queue_init();
     bks_model_init();
     bks_controller_init();
     bks_ui_init(argc, argv);
@@ -23,8 +20,6 @@ int main(int argc, char *argv[])
     //start mainloop
     bks_controller_run();
 
-    bks_events_shutdown();
-    bks_thread_queue_shutdown();
     bks_ui_shutdown();
     bks_controller_shutdown();
     bks_model_shutdown();

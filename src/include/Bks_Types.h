@@ -1,7 +1,6 @@
 #ifndef __BKS_TYPES_H__
 #define __BKS_TYPES_H__
 
-/*
 #include "Bks_Controller.h"
 #include "Bks_Ui.h"
 #include "Bks_Model.h"
@@ -9,7 +8,6 @@
 #include "Bks_Model_Product.h"
 #include "Bks_Model_Sale.h"
 #include "Bks_Status.h"
-*/
 
 typedef struct _Bks_Controller Bks_Controller;
 typedef struct _Bks_Ui Bks_Ui;

@@ -4,10 +4,14 @@
 #include <Ecore.h>
 #include <Evas.h>
 #include <Elementary.h>
-#include "Bks_Status.h"
 #include "Bks_Types.h"
+#include "Bks_Status.h"
+#include "Bks_Job.h"
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
+#include "Bks_Model_Product.h"
+#include "Bks_Model_Sale.h"
+#include "Bks_Model_User_Account.h"
 
 typedef struct _Bks_Ui_Naviframe_Page Bks_Ui_Naviframe_Page;
 typedef struct _Bks_Ui_Lockwindow Bks_Ui_Lockwindow;

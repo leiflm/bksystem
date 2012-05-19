@@ -23,9 +23,6 @@
 #include <sqlite3.h>
 #include "Bks_Types.h"
 
-enum _Bks_Model_User_Account_Status { BKS_MODEL_USER_ACCOUNT_ACTIVE,
-                                      BKS_MODEL_USER_ACCOUNT_LOCKED };
-
     struct _Bks_Model_User_Account {
       int uid;
       char *firstname;
@@ -36,6 +33,9 @@ enum _Bks_Model_User_Account_Status { BKS_MODEL_USER_ACCOUNT_ACTIVE,
          int size;
       } image;
     };
+
+enum _Bks_Model_User_Account_Status { BKS_MODEL_USER_ACCOUNT_ACTIVE,
+                                      BKS_MODEL_USER_ACCOUNT_LOCKED };
 
 /**
  * @brief frees struct memory and NULLs
