@@ -8,6 +8,7 @@
 
 Bks_Model mdl;
 Bks_Ui ui;
+Bks_Controller ctrl;
 
 int main(int argc, char *argv[]);
 #endif

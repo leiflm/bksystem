@@ -6,6 +6,10 @@
 #include "Bks_Model.h"
 #include "Bks_Ui.h"
 
+struct _Bks_Controller {
+    Eina_Lock db_lock;
+};
+
 // Adminstrative calls
 void bks_controller_init(void);
 void bks_controller_shutdown(void);

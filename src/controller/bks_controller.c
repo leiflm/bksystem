@@ -5,21 +5,49 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
+Eina_Bool _event_refresh_prods_alpha(void *data UNUSED, int type UNUSED, void *event UNUSED)
+{
+   bks_controller_products_alpha_get();
+
+   return ECORE_CALLBACK_RENEW;
+}
+
+Eina_Bool _event_refresh_prods_favs(void *data UNUSED, int type UNUSED, void *event UNUSED)
+{
+   bks_controller_products_favs_get(5);
+
+   return ECORE_CALLBACK_RENEW;
+}
+
+Eina_Bool _event_refresh_user_accounts(void *data UNUSED, int type UNUSED, void *event UNUSED)
+{
+   bks_controller_user_accounts_get();
+
+   return ECORE_CALLBACK_RENEW;
+}
 
 void bks_controller_init(void)
 {
+   eina_lock_new(&ctrl.db_lock);
+
+   //add event handlers
+   ecore_event_handler_add(BKS_JOB_PRODUCTS_ALPHA_GET, _event_refresh_prods_alpha, NULL);
+   ecore_event_handler_add(BKS_JOB_PRODUCTS_FAVS_GET, _event_refresh_prods_favs, NULL);
+   ecore_event_handler_add(BKS_JOB_USER_ACCOUNTS_GET, _event_refresh_user_accounts, NULL);
 }
 
 void bks_controller_shutdown(void)
 {
+   eina_lock_free(&ctrl.db_lock);
 }
 
 void bks_controller_run(void)
 {
-    bks_controller_products_alpha_get();
-    bks_controller_products_favs_get(5);
-    bks_controller_user_accounts_get();
-    ecore_main_loop_begin();
+   //Add events processed later by the main loop
+   ecore_event_add(BKS_JOB_PRODUCTS_ALPHA_GET, NULL, NULL, NULL);
+   ecore_event_add(BKS_JOB_PRODUCTS_FAVS_GET, NULL, NULL, NULL);
+   ecore_event_add(BKS_JOB_USER_ACCOUNTS_GET, NULL, NULL, NULL);
+   ecore_main_loop_begin();
 }
 
 void
@@ -40,6 +68,10 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
 
    EINA_SAFETY_ON_NULL_RETURN(job);
 
+   /*
+   if (eina_lock_take_try(&ctrl.db_lock))
+     ;
+     */
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
@@ -98,6 +130,7 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
          printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
          break;
      }
+
 }
 
 void
@@ -177,6 +210,7 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
          printf("Some error during sale!\n");
          break;
      }
+
 }
 
 void bks_controller_ui_sale_finish(void)
@@ -222,6 +256,9 @@ void _job_continue(Bks_Job *job)
       case BKS_JOB_PRODUCTS_FAVS_GET:
          bks_controller_products_favs_get((unsigned int)job->data);
          break;
+      case BKS_JOB_USER_ACCOUNTS_GET:
+         bks_controller_user_accounts_get();
+         break;
       case BKS_JOB_SALE:
          bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
          break;
@@ -229,6 +266,7 @@ void _job_continue(Bks_Job *job)
          printf("Unkown job type (%d) scheduled for continuation.\n", job->type);
          break;
      }
+   bks_job_free(job);
 }
 
 void bks_controller_ui_db_path_retrieved(Bks_Job *job)
