@@ -44,12 +44,15 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
          bks_ui_controller_db_path_get(job);
+         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
+         break;
       default:
          printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
+         break;
      }
 }
 
@@ -85,12 +88,15 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
          bks_ui_controller_db_path_get(job);
+         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
+         break;
       default:
          printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
+         break;
      }
 }
 
@@ -123,10 +129,12 @@ _user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
          bks_ui_controller_db_path_get(job);
+         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
          printf("DB access was successful!\n");
+         break;
       default:
          printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
      }
@@ -159,12 +167,15 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
          bks_ui_controller_db_path_get(job);
+         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_sale_finished((Bks_Model_Sale*)job->data);
          printf("DB access was successful!\n");
+         break;
       default:
          printf("Some error during sale!\n");
+         break;
      }
 }
 
