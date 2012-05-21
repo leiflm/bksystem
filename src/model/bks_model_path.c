@@ -17,16 +17,21 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-#include "Bks_Types.h"
-#include "Bks_Model.h"
-#include "Bks_System.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <Ecore.h>
+#include <Eina.h>
+#include "Bks_Model.h"
+#include "Bks_System.h"
+
+
+#define BKS_DB_PATH_FILE "db_path.txt"
 
 static Ecore_Thread *_bks_model_path_save(char *path);
 static char* _bks_model_path_load();
 
+static const char *fname = BKS_DB_PATH_FILE;
 
 // Path to database
 char *_bks_model_path_get(void) {
@@ -36,6 +41,7 @@ char *_bks_model_path_get(void) {
    size_t len;
    path = _bks_model_path_load();
    if (!path) {
+      printf("loading default path\n");
       // no path found: set default path and name
       len = strlen(BKSYSTEMDB) + 6;
       path = malloc(len);
@@ -55,14 +61,50 @@ void _bks_model_path_set(Eina_Stringshare *path) {
 
 static char *_bks_model_path_load() {
 
-   return NULL;
+   char *path = NULL;   
+   FILE *fp;
+   int c,i;
+   path = calloc(256,1);
+   fp = fopen(fname, "r");
+   i = 0;
+   if (fp) {
+      c = fgetc(fp);
+      while (c != EOF && i < 255) {
+         *(path + i) = c;
+         i++;
+         c = fgetc(fp);   
+      }
+      *(path + i) = '\0';
+      fclose(fp);
+   } else {
+      fprintf(stderr, "cannot open file: %s \n", fname);
+      free(path);
+      path = NULL;
    }
+   return path;
+}
 
 // Save path async
 static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
 
    char *path = (char*)data;
-   fprintf(stderr, "Path: %s saved! //TODO!!", path);
+   FILE *fp;
+
+   if ((path!= NULL) | (strlen(path) == 0)) {
+      fprintf(stderr, "Path: %s saved to file %s \n", path, fname);
+
+      fp = fopen(fname, "w");
+      if (fp) {
+         while (*(path) != '\0') {
+            fputc(*(path++), fp);
+         }
+      fclose(fp);
+      } else {
+         fprintf(stderr, "cannot open path file: %s \n", fname);
+      }
+   } else {
+      fprintf(stderr, "Returned Path is (null) or length 0\n");
+   }
 }
 
 static Ecore_Thread *_bks_model_path_save(char *path) {
