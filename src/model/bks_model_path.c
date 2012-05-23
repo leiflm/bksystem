@@ -26,10 +26,11 @@
 #include "Bks_System.h"
 
 
-#define BKS_DB_PATH_FILE "db_path.txt"
+
 
 static Ecore_Thread *_bks_model_path_save(char *path);
 static char* _bks_model_path_load();
+static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED);
 
 static const char *fname = BKS_DB_PATH_FILE;
 
@@ -51,11 +52,16 @@ char *_bks_model_path_get(void) {
    }
 
 void _bks_model_path_set(Eina_Stringshare *path) {
-
+   char *chpath, *newpath;
+   
    if (!mdl.db_path) {
       eina_stringshare_del(mdl.db_path);
    }
-   mdl.db_path = path;
+   chpath = (char*)path;
+   newpath = calloc(1, 256);
+   strncpy(newpath, chpath, 256);
+   mdl.db_path = newpath;
+   
    _bks_model_path_save((char*)path);
 }
 
@@ -90,7 +96,7 @@ static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
    char *path = (char*)data;
    FILE *fp;
 
-   if ((path!= NULL) | (strlen(path) == 0)) {
+   if ((path)) {
       fprintf(stderr, "Path: %s saved to file %s \n", path, fname);
 
       fp = fopen(fname, "w");
@@ -103,7 +109,7 @@ static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
          fprintf(stderr, "cannot open path file: %s \n", fname);
       }
    } else {
-      fprintf(stderr, "Returned Path is (null) or length 0\n");
+      fprintf(stderr, "Returned Path is (null)\n");
    }
 }
 

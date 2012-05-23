@@ -28,7 +28,7 @@
 
 
 #define BKSYSTEMDB "bksystem.sqlite"   //! (default) This sqlite database holds our users, products, sales etc., should reside in main directory
-
+#define BKS_DB_PATH_FILE "db_path.txt" //! (default) This file holds path/name to database
 #define EVER "0000-01-01 00:00:00"       //! Timestamp usable as parameter
 
 
