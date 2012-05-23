@@ -127,6 +127,6 @@ const Bks_Model_Product *bks_ui_controller_product_selected_get(void);
  * @brief Opens a "Open file" dialog to retrieve the location of the database
  * file.
  */
-void bks_ui_controller_db_path_get(Bks_Job *job);
+void bks_ui_controller_db_path_get(void);
 
 #endif

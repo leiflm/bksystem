@@ -51,7 +51,7 @@ void bks_controller_run(void)
 }
 
 void
-_products_alpha_get(void *data, Ecore_Thread *th UNUSED)
+_products_alpha_get(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
 
@@ -59,6 +59,14 @@ _products_alpha_get(void *data, Ecore_Thread *th UNUSED)
 
    job->data = NULL;
    job->status = bks_model_controller_products_alpha_get((Eina_List**)&job->data);
+
+   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+     {
+        if (eina_lock_take_try(&ctrl.db_lock))
+          bks_ui_controller_db_path_get();
+        ecore_thread_reschedule(th);
+     }
+
 }
 
 void
@@ -74,9 +82,6 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
      */
    switch (job->status)
      {
-      case BKS_MODEL_SQLITE_OPEN_ERROR:
-         bks_ui_controller_db_path_get(job);
-         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
@@ -97,7 +102,7 @@ bks_controller_products_alpha_get(void)
 }
 
 void
-_products_favs_get(void *data, Ecore_Thread *th UNUSED)
+_products_favs_get(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
    unsigned int count;
@@ -107,6 +112,14 @@ _products_favs_get(void *data, Ecore_Thread *th UNUSED)
    count = (unsigned int)job->data;
    job->data = NULL;
    job->status = bks_model_controller_products_fav_get((Eina_List**)&job->data, count);
+
+   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+     {
+        if (eina_lock_take_try(&ctrl.db_lock))
+          bks_ui_controller_db_path_get();
+        ecore_thread_reschedule(th);
+     }
+
 }
 
 void
@@ -118,9 +131,6 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
 
    switch (job->status)
      {
-      case BKS_MODEL_SQLITE_OPEN_ERROR:
-         bks_ui_controller_db_path_get(job);
-         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
@@ -143,12 +153,20 @@ bks_controller_products_favs_get(unsigned int count)
 }
 
 void
-_user_accounts_get(void *data, Ecore_Thread *th UNUSED)
+_user_accounts_get(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
 
    job->data = NULL;
    job->status = bks_model_controller_user_accounts_get((Eina_List**)&job->data);
+
+   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+     {
+        if (eina_lock_take_try(&ctrl.db_lock))
+          bks_ui_controller_db_path_get();
+        ecore_thread_reschedule(th);
+     }
+
 }
 
 void
@@ -160,9 +178,6 @@ _user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
 
    switch (job->status)
      {
-      case BKS_MODEL_SQLITE_OPEN_ERROR:
-         bks_ui_controller_db_path_get(job);
-         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
@@ -183,11 +198,18 @@ bks_controller_user_accounts_get(void)
 
 // API for UI callbacks
 void
-_sale(void *data, Ecore_Thread *th UNUSED)
+_sale(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
 
    job->status = bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
+
+   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+     {
+        if (eina_lock_take_try(&ctrl.db_lock))
+          bks_ui_controller_db_path_get();
+        ecore_thread_reschedule(th);
+     }
 }
 
 void _sale_finished(void *data, Ecore_Thread *th UNUSED)
@@ -198,9 +220,6 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
 
    switch (job->status)
      {
-      case BKS_MODEL_SQLITE_OPEN_ERROR:
-         bks_ui_controller_db_path_get(job);
-         break;
       case BKS_MODEL_SQLITE_OK:
          bks_job_free(job);
          bks_ui_controller_sale_finished((Bks_Model_Sale*)job->data);
@@ -244,35 +263,8 @@ _incomplete_sale:
    printf("UI sale finished, but product is:%p and customer: %p.\n", product, accounts);
 }
 
-void _job_continue(Bks_Job *job)
+void bks_controller_ui_db_path_retrieved(Eina_Stringshare *path)
 {
-   EINA_SAFETY_ON_NULL_RETURN(job);
-
-   switch(job->type)
-     {
-      case BKS_JOB_PRODUCTS_ALPHA_GET:
-         bks_controller_products_alpha_get();
-         break;
-      case BKS_JOB_PRODUCTS_FAVS_GET:
-         bks_controller_products_favs_get((unsigned int)job->data);
-         break;
-      case BKS_JOB_USER_ACCOUNTS_GET:
-         bks_controller_user_accounts_get();
-         break;
-      case BKS_JOB_SALE:
-         bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
-         break;
-      default:
-         printf("Unkown job type (%d) scheduled for continuation.\n", job->type);
-         break;
-     }
-   bks_job_free(job);
-}
-
-void bks_controller_ui_db_path_retrieved(Bks_Job *job)
-{
-   EINA_SAFETY_ON_NULL_RETURN(job);
-
-   bks_model_controller_db_path_set((Eina_Stringshare*)job->data);
-   _job_continue(job);
+   bks_model_controller_db_path_set(path);
+   eina_lock_release(&ctrl.db_lock);
 }

@@ -16,7 +16,7 @@ void bks_controller_shutdown(void);
 void bks_controller_run(void);
 
 // Business logic
-void bks_controller_ui_db_path_retrieved(Bks_Job *job);
+void bks_controller_ui_db_path_retrieved(Eina_Stringshare *path);
 void bks_controller_ui_product_selected(void);
 void bks_controller_ui_users_selected(void);
 void bks_controller_ui_sale_finish(void);
