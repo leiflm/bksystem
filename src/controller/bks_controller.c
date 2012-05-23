@@ -246,7 +246,7 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
 
 void bks_controller_ui_sale_finish(void)
 {
-   const Eina_List *accounts = NULL;
+   Eina_List *accounts = NULL;
    const Bks_Model_Product *product = NULL;
    Bks_Model_Sale *sale = NULL;
    Bks_Job *job = bks_job_new(BKS_JOB_SALE);
