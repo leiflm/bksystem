@@ -5,6 +5,15 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
+Eina_Bool _event_refresh_data(void *data UNUSED)
+{
+   bks_controller_products_alpha_get();
+   bks_controller_products_favs_get(5);
+   bks_controller_user_accounts_get();
+
+   return ECORE_CALLBACK_CANCEL;
+}
+
 Eina_Bool _event_refresh_prods_alpha(void *data UNUSED, int type UNUSED, void *event UNUSED)
 {
    bks_controller_products_alpha_get();
@@ -44,9 +53,12 @@ void bks_controller_shutdown(void)
 void bks_controller_run(void)
 {
    //Add events processed later by the main loop
+   /*
    ecore_event_add(BKS_JOB_PRODUCTS_ALPHA_GET, NULL, NULL, NULL);
    ecore_event_add(BKS_JOB_PRODUCTS_FAVS_GET, NULL, NULL, NULL);
    ecore_event_add(BKS_JOB_USER_ACCOUNTS_GET, NULL, NULL, NULL);
+   */
+   ecore_timer_add(0.01, _event_refresh_data, NULL);
    ecore_main_loop_begin();
 }
 
@@ -83,8 +95,8 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OK:
-         bks_job_free(job);
          bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
+         bks_job_free(job);
          printf("DB access was successful!\n");
          break;
       default:
@@ -132,8 +144,8 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OK:
-         bks_job_free(job);
          bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
+         bks_job_free(job);
          printf("DB access was successful!\n");
          break;
       default:
@@ -179,8 +191,8 @@ _user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OK:
-         bks_job_free(job);
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
+         bks_job_free(job);
          printf("DB access was successful!\n");
          break;
       default:
@@ -221,8 +233,8 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OK:
-         bks_job_free(job);
          bks_ui_controller_sale_finished((Bks_Model_Sale*)job->data);
+         bks_job_free(job);
          printf("DB access was successful!\n");
          break;
       default:

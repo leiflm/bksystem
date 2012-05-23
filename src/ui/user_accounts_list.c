@@ -20,6 +20,7 @@ _on_user_account_select(void *data UNUSED, Evas_Object *obj UNUSED, void *event_
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_FALSE);
 }
 
+/*
 static void
 _on_user_account_double_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
@@ -30,6 +31,7 @@ _on_user_account_double_click(void *data UNUSED, Evas_Object *obj UNUSED, void *
    products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
+*/
 
 void
 user_accounts_list_set(Eina_List *user_accounts)

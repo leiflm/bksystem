@@ -42,7 +42,7 @@
  * */
 
 struct _Bks_Model_Sale {
-   const Eina_List *user_accounts;
+   Eina_List *user_accounts;
    Bks_Status status;
    sqlite3_uint64 EAN;
    char *productname;
@@ -56,7 +56,7 @@ struct _Bks_Model_Sale {
  * @param EAN corresponding ID of the product
  * @param price of the product
  */
-Bks_Model_Sale *bks_model_sale_new(const Eina_List *user_accounts, const Bks_Model_Product *product);
+Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Product *product);
 
 /**
  * @brief frees struct memory and NULLs

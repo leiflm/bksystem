@@ -25,7 +25,7 @@
 #include "Bks_Model_User_Account.h"
 #include "Bks_Model_Product.h"
 
-Bks_Model_Sale *bks_model_sale_new(const Eina_List *user_accounts, const Bks_Model_Product *product) {
+Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Product *product) {
 
    Bks_Model_Sale *sale_ptr;
    sale_ptr = malloc(sizeof(Bks_Model_Sale));
