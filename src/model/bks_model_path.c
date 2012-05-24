@@ -63,7 +63,7 @@ void _bks_model_path_set(char *path) {
    
       _bks_model_path_save(newpath);
    } else {
-      fprintf(stderr, "Path to set and save is (null)\n";
+      fprintf(stderr, "Path to set and save is (null)\n");
    }
 }
 
