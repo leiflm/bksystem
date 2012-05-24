@@ -41,11 +41,16 @@ _products_alpha_get(void *data, Ecore_Thread *th)
    job->data = NULL;
    job->status = bks_model_controller_products_alpha_get((Eina_List**)&job->data);
 
-   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+   switch (job->status)
      {
+      case BKS_MODEL_SQLITE_OPEN_ERROR:
         if (eina_lock_take_try(&ctrl.db_lock))
           bks_ui_controller_db_path_get();
+      case BKS_MODEL_SQLITE_OPEN_RUNNING:
         ecore_thread_reschedule(th);
+        break;
+      default:
+        break;
      }
 
 }
@@ -95,11 +100,16 @@ _products_favs_get(void *data, Ecore_Thread *th)
    job->data = NULL;
    job->status = bks_model_controller_products_fav_get((Eina_List**)&job->data, count);
 
-   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+   switch (job->status)
      {
+      case BKS_MODEL_SQLITE_OPEN_ERROR:
         if (eina_lock_take_try(&ctrl.db_lock))
           bks_ui_controller_db_path_get();
+      case BKS_MODEL_SQLITE_OPEN_RUNNING:
         ecore_thread_reschedule(th);
+        break;
+      default:
+        break;
      }
 
 }
@@ -143,11 +153,16 @@ _user_accounts_get(void *data, Ecore_Thread *th)
    job->data = NULL;
    job->status = bks_model_controller_user_accounts_get((Eina_List**)&job->data);
 
-   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+   switch (job->status)
      {
+      case BKS_MODEL_SQLITE_OPEN_ERROR:
         if (eina_lock_take_try(&ctrl.db_lock))
           bks_ui_controller_db_path_get();
+      case BKS_MODEL_SQLITE_OPEN_RUNNING:
         ecore_thread_reschedule(th);
+        break;
+      default:
+        break;
      }
 
 }
@@ -188,12 +203,18 @@ _sale(void *data, Ecore_Thread *th)
 
    job->status = bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
 
-   if (job->status == BKS_MODEL_SQLITE_OPEN_ERROR)
+   switch (job->status)
      {
+      case BKS_MODEL_SQLITE_OPEN_ERROR:
         if (eina_lock_take_try(&ctrl.db_lock))
           bks_ui_controller_db_path_get();
+      case BKS_MODEL_SQLITE_OPEN_RUNNING:
         ecore_thread_reschedule(th);
+        break;
+      default:
+        break;
      }
+
 }
 
 void _sale_finished(void *data, Ecore_Thread *th UNUSED)
