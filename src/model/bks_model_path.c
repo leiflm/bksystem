@@ -50,18 +50,17 @@ char *_bks_model_path_get(void) {
    return path;
    }
 
-void _bks_model_path_set(Eina_Stringshare *path) {
-   char *chpath, *newpath;
+void _bks_model_path_set(char *path) {
+   char *newpath;
    
    if (!mdl.db_path) {
-      eina_stringshare_del(mdl.db_path);
+      free(mdl.db_path);
    }
-   chpath = (char*)path;
    newpath = calloc(1, 256);
-   strncpy(newpath, chpath, 256);
+   strncpy(newpath, path, 256);
    mdl.db_path = newpath;
    
-   _bks_model_path_save((char*)path);
+   _bks_model_path_save(newpath);
 }
 
 static char *_bks_model_path_load() {
