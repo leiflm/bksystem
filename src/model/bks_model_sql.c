@@ -46,6 +46,13 @@ Bks_Status _bks_model_sql_products_get(Eina_List **list) {
    int retval;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
 
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      error = BKS_MODEL_SQLITE_OPEN_RUNNING;
+      goto _return;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+   }
+
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
    if (retval ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
@@ -84,6 +91,7 @@ _finalize:
    }
 _close_db:
    sqlite3_close(pDb);
+_return:
    return error;
 }
 
@@ -98,6 +106,13 @@ Bks_Status _bks_model_sql_favorite_products_get(Eina_List **list, const unsigned
    void *image;
    int image_size;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
+
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      error = BKS_MODEL_SQLITE_OPEN_RUNNING;
+      goto _return;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+   }
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
    if (retval ) {
@@ -150,6 +165,7 @@ _finalize:
    }
 _close_db:
    sqlite3_close(pDb);
+_return:
    return error;
 }
 
@@ -162,6 +178,13 @@ Bks_Status _bks_model_sql_user_accounts_get(Eina_List **list) {
    sqlite3_stmt *stmt;
    int retval;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
+
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      error = BKS_MODEL_SQLITE_OPEN_RUNNING;
+      goto _return;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+   }
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
    if (retval ) {
@@ -199,6 +222,7 @@ _finalize:
    }
 _close_db:
    sqlite3_close(pDb);
+_return:
    return error;
 }
 
@@ -214,6 +238,13 @@ Bks_Status _bks_model_sql_recent_user_accounts_get(Eina_List **list, const unsig
    void *image;
    int image_size;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
+
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      error = BKS_MODEL_SQLITE_OPEN_RUNNING;
+      goto _return;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+   }
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
    if (retval ) {
@@ -263,6 +294,7 @@ _finalize:
    }
 _close_db:
    sqlite3_close(pDb);
+_return:
    return error;
 }
 
@@ -276,6 +308,13 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
    Bks_Model_User_Account *current_user;
    Eina_List *current_node;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
+
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      error = BKS_MODEL_SQLITE_OPEN_RUNNING;
+      goto _return;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+   }
    
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READWRITE, NULL);
    if(retval != SQLITE_OK) {
@@ -331,6 +370,7 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
       error = BKS_MODEL_SQLITE_OK;
    }
    sqlite3_close(pDb);
+_return:
    return error;
 }
 

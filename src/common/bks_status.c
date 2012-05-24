@@ -10,6 +10,7 @@ const char *BKS_STATUS_STRINGS[] = {
                   "BKS_MODEL_SALE_ERROR",
                   "BKS_MODEL_SQLITE_ERROR",
                   "BKS_MODEL_SQLITE_OPEN_ERROR",
+                  "BKS_MODEL_SQLITE_OPEN_RUNNING",
                   "BKS_MODEL_SQLITE_WRITE_ERROR",
                   "BKS_MODEL_SQLITE_DATABASE_LOCKED",
                   "BKS_MODEL_SQLITE_ROW_MISSING",
