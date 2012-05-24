@@ -106,6 +106,7 @@ _products_favs_get(void *data, Ecore_Thread *th)
         if (eina_lock_take_try(&ctrl.db_lock))
           bks_ui_controller_db_path_get();
       case BKS_MODEL_SQLITE_OPEN_RUNNING:
+        job->data = (void*)count;
         ecore_thread_reschedule(th);
         break;
       default:
