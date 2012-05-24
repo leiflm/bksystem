@@ -5,7 +5,7 @@
 
 static void _db_path_selected(void *data, Evas_Object *obj UNUSED, void *event_info)
 {
-   Eina_Stringshare *path = (Eina_Stringshare*)event_info;
+   Eina_Stringshare *path = event_info ? eina_stringshare_add((const char *)event_info) : NULL;
    Evas_Object *inwin = (Evas_Object*)data;
 
    evas_object_del(inwin);
