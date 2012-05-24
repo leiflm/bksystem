@@ -27,7 +27,6 @@
 
 
 
-
 static Ecore_Thread *_bks_model_path_save(char *path);
 static char* _bks_model_path_load();
 static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED);
@@ -95,6 +94,7 @@ static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
 
    char *path = (char*)data;
    FILE *fp;
+
 
    if ((path)) {
       fprintf(stderr, "Path: %s saved to file %s \n", path, fname);
