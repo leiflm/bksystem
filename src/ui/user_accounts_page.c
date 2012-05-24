@@ -66,7 +66,7 @@ void user_accounts_page_set(Eina_List *user_accounts)
 /**
  * @brief Clears the user accounts ui elements.
  */
-void bks_ui_user_accounts_clear(void)
+void bks_ui_controller_user_accounts_clear(void)
 {
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.user_accounts.list);

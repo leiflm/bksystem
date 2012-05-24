@@ -6,18 +6,27 @@
 #include "Bks_Ui_Private.h"
 
 static void
-_on_user_account_select(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
+_on_user_account_select(void *data, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
-   Elm_Object_Item *li = (Elm_Object_Item*)event_info;
    const Bks_Model_User_Account *acc = NULL;
 
-   EINA_SAFETY_ON_NULL_RETURN(li);
-   acc = (const Bks_Model_User_Account*)elm_object_item_data_get(li);
+   acc = (const Bks_Model_User_Account*)data;
    EINA_SAFETY_ON_NULL_RETURN(acc);
 
    printf("Account %s, %s was selected\n", acc->lastname, acc->firstname);
 
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_FALSE);
+}
+
+static void
+_del_cb(void *data, Evas_Object *obj UNUSED, void *event_info UNUSED)
+{
+   Bks_Model_User_Account *acc = NULL;
+
+   acc = (Bks_Model_User_Account*)data;
+   EINA_SAFETY_ON_NULL_RETURN(acc);
+
+   bks_model_user_account_free(acc);
 }
 
 /*
@@ -70,8 +79,8 @@ user_accounts_list_set(Eina_List *user_accounts)
              printf("Trying to open %s as icon\n", buf);
           }
         snprintf(buf, (sizeof(buf) - 1), "%s, %s", acc->lastname, acc->firstname);
-        li = elm_list_item_append(ui.user_accounts.list, buf, NULL, ic, _on_user_account_select, NULL);
-        elm_object_item_data_set(li, acc);
+        li = elm_list_item_append(ui.user_accounts.list, buf, NULL, ic, _on_user_account_select, acc);
+        elm_object_item_del_cb_set(li, _del_cb);
      }
    elm_list_go(ui.user_accounts.list);
    ecore_thread_main_loop_end();

@@ -75,12 +75,12 @@ const Bks_Model_Product *bks_ui_controller_product_selected_get(void)
 
 //API calls
 
-void bks_ui_products_alpha_clear(void)
+void bks_ui_controller_products_alpha_clear(void)
 {
     _products_grid_clear();
 }
 
-void bks_ui_products_favs_clear(void)
+void bks_ui_controller_products_favs_clear(void)
 {
    _products_list_clear();
 }
