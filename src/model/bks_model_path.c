@@ -50,18 +50,21 @@ char *_bks_model_path_get(void) {
    return path;
    }
 
-void _bks_model_path_set(Eina_Stringshare *path) {
-   char *chpath, *newpath;
+void _bks_model_path_set(char *path) {
+   char *newpath;
    
    if (!mdl.db_path) {
-      eina_stringshare_del(mdl.db_path);
+      free(mdl.db_path);
    }
-   chpath = (char*)path;
-   newpath = calloc(1, 256);
-   strncpy(newpath, chpath, 256);
-   mdl.db_path = newpath;
+   if (path) {
+      newpath = calloc(1, 256);
+      strncpy(newpath, path, 256);
+      mdl.db_path = newpath;
    
-   _bks_model_path_save((char*)path);
+      _bks_model_path_save(newpath);
+   } else {
+      fprintf(stderr, "Path to set and save is (null)\n";
+   }
 }
 
 static char *_bks_model_path_load() {
@@ -95,21 +98,16 @@ static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
    char *path = (char*)data;
    FILE *fp;
 
+   fprintf(stderr, "Path: %s saved to file %s \n", path, fname);
 
-   if ((path)) {
-      fprintf(stderr, "Path: %s saved to file %s \n", path, fname);
-
-      fp = fopen(fname, "w");
-      if (fp) {
-         while (*(path) != '\0') {
-            fputc(*(path++), fp);
-         }
-      fclose(fp);
-      } else {
-         fprintf(stderr, "cannot open path file: %s \n", fname);
+   fp = fopen(fname, "w");
+   if (fp) {
+      while (*(path) != '\0') {
+         fputc(*(path++), fp);
       }
+   fclose(fp);
    } else {
-      fprintf(stderr, "Returned Path is (null)\n");
+      fprintf(stderr, "cannot open path file: %s \n", fname);
    }
 }
 

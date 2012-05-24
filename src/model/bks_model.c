@@ -38,7 +38,7 @@
 // Interface functions
 void bks_model_controller_db_path_set(Eina_Stringshare *path) {
 
-   _bks_model_path_set(path);
+   _bks_model_path_set((char*)path);
 }
 
 void bks_model_init(void) {

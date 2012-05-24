@@ -50,7 +50,7 @@
  */
 struct _Bks_Model {
    Eina_Lock lock;
-   Eina_Stringshare *db_path;
+   char *db_path;
 };
 
 /**

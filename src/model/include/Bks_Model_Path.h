@@ -19,6 +19,6 @@
 //      
 //      
 
-void _bks_model_path_set(Eina_Stringshare *path);
+void _bks_model_path_set(char *path);
 char *_bks_model_path_get(void);
 
