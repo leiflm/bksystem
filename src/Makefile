@@ -18,7 +18,7 @@ MODEL_CFLAGS = -I$(MODEL_HEADERS_DIR)
 
 UI_SRC_DIR = $(TOP_SRC_DIR)/ui
 UI_HEADERS_DIR = $(UI_SRC_DIR)/include
-UI_COMMON_SRC = $(UI_SRC_DIR)/elm_utils.c $(UI_SRC_DIR)/win.c $(UI_SRC_DIR)/bks_ui.c $(UI_SRC_DIR)/controller.c $(UI_SRC_DIR)/fileselector.c
+UI_COMMON_SRC = $(UI_SRC_DIR)/elm_utils.c $(UI_SRC_DIR)/win.c $(UI_SRC_DIR)/bks_ui.c $(UI_SRC_DIR)/controller.c $(UI_SRC_DIR)/fileselector.c $(UI_SRC_DIR)/notification.c
 UI_PRODUCTS_SRC = $(UI_SRC_DIR)/products_grid.c $(UI_SRC_DIR)/products_list.c $(UI_SRC_DIR)/products_page.c
 UI_USER_ACCOUNTS_SRC = $(UI_SRC_DIR)/user_accounts_list.c $(UI_SRC_DIR)/user_accounts_page.c
 UI_SRC = $(UI_COMMON_SRC) $(UI_PRODUCTS_SRC) $(UI_USER_ACCOUNTS_SRC)

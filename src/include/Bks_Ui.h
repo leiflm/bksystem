@@ -39,6 +39,9 @@ struct _Bks_Ui {
         Evas_Object *list;
         Bks_Ui_Lockwindow lock_window;
    } user_accounts;
+   struct {
+      Evas_Object *note, *content;
+   } notification;
 };
 
 /**

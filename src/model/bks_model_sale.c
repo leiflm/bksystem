@@ -31,6 +31,7 @@ Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Pro
    sale_ptr = malloc(sizeof(Bks_Model_Sale));
    sale_ptr->user_accounts = user_accounts;
    sale_ptr->EAN = product->EAN;
+   sale_ptr->productname = product->name;
    sale_ptr->price = product->price;
    sale_ptr->status = BKS_MODEL_SALE_UNFINISHED;
 

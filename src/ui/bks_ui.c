@@ -8,6 +8,7 @@
 #include "Bks_Model.h"
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
+#include "Bks_Notification.h"
 
 
 static void _ui_window_key(void *data, Evas *e, Evas_Object *obj, void *event_info);
@@ -39,6 +40,16 @@ void bks_ui_init(int argc, char* argv[])
    evas_object_show(ui.products.enp.content);
    EXPAND_AND_FILL(ui.products.enp.content);
    ui.products.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Produkte", NULL, NULL, ui.products.enp.content, NULL);
+
+   // create notificaton
+   ui.notification.note = elm_popup_add(ui.win);
+   ui.notification.content = elm_label_add(ui.notification.note);
+   elm_popup_orient_set(ui.notification.note, ELM_POPUP_ORIENT_TOP_RIGHT);
+   elm_popup_allow_events_set(ui.notification.note, EINA_TRUE);
+   elm_popup_timeout_set(ui.notification.note, 3.0);
+   evas_object_smart_callback_add(ui.notification.note, "timeout", _bks_ui_sale_notification_time_out, NULL);
+   //evas_object_smart_callback_add(ui.notification.note, "block,clicked", _bks_ui_sale_notification_clicked, NULL);
+
 
    //create, fill and add user_accounts ui elements
    ui.user_accounts.enp.content = user_accounts_page_add();
