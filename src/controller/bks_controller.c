@@ -221,20 +221,24 @@ _sale(void *data, Ecore_Thread *th)
 void _sale_finished(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
+   Bks_Model_Sale *sale;
 
    EINA_SAFETY_ON_NULL_RETURN(job);
+   sale = (Bks_Model_Sale*)job->data;
 
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OK:
-         bks_ui_controller_sale_finished((Bks_Model_Sale*)job->data);
-         bks_job_free(job);
+         sale->status = BKS_MODEL_SALE_DONE;
          printf("DB access was successful!\n");
          break;
       default:
+         sale->status = BKS_MODEL_SALE_ERROR;
          printf("Some error during sale!\n");
          break;
      }
+   bks_ui_controller_sale_finished(sale);
+   bks_job_free(job);
 
 }
 
