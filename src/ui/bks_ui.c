@@ -46,7 +46,6 @@ void bks_ui_init(int argc, char* argv[])
    elm_popup_orient_set(ui.notification.note, ELM_POPUP_ORIENT_BOTTOM_RIGHT);
    elm_popup_allow_events_set(ui.notification.note, EINA_TRUE);
 
-
    //create, fill and add user_accounts ui elements
    ui.user_accounts.enp.content = user_accounts_page_add();
    evas_object_show(ui.user_accounts.enp.content);
@@ -59,6 +58,7 @@ void bks_ui_init(int argc, char* argv[])
    elm_object_text_set(ui.lock_window.content, "Daten werden aktualisiert.");
    evas_object_size_hint_align_set(ui.lock_window.content, 0.5, 0.5);
    elm_win_inwin_content_set(ui.lock_window.win, ui.lock_window.content);
+   
 
    elm_naviframe_item_promote(ui.products.enp.eoi);
    elm_naviframe_content_preserve_on_pop_set(ui.naviframe, EINA_TRUE);
