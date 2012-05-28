@@ -40,7 +40,7 @@ struct _Bks_Ui {
         Bks_Ui_Lockwindow lock_window;
    } user_accounts;
    struct {
-      Evas_Object *note, *content;
+      Evas_Object *note;
    } notification;
 };
 
