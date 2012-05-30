@@ -80,15 +80,13 @@ void bks_ui_shutdown(void)
    elm_shutdown();
 }
 
-/**
- * @brief Indicates that the entire ui data is being refetched.
- */
-void bks_ui_update_set(const Eina_Bool update)
+void bks_ui_controller_lock_set(Eina_Bool locked, const char *msg)
 {
-   printf("Jetzt sollte die UI %sbenutzbar sein.\n", (update ? "un" : ""));
-   if (update)
+   printf("Jetzt sollte die UI %sbenutzbar sein.\n", (locked ? "un" : ""));
+   if (locked)
      {
         ecore_thread_main_loop_begin();
+        elm_object_text_set(ui.lock_window.content, msg);
         elm_win_inwin_activate(ui.lock_window.win);
         ecore_thread_main_loop_end();
      }
@@ -110,8 +108,7 @@ _ui_window_key(void *data UNUSED, Evas *e UNUSED, Evas_Object *obj UNUSED, void 
 
    if (!strncmp(ev->keyname, "Escape", sizeof("Escape")))
      {
-        fullscreen_state = elm_win_fullscreen_get(ui.win);
-        fullscreen_state ^= 1;
+        fullscreen_state = !elm_win_fullscreen_get(ui.win);
         elm_win_fullscreen_set(ui.win, fullscreen_state);
      }
 }

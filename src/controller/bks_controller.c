@@ -309,7 +309,7 @@ void bks_controller_ui_db_path_retrieved(Eina_Stringshare *path)
    if (!path)
      {
         _db_get_count = MAX_DB_GET_COUNT;
-        bks_ui_controller_notification_set(DB_FILE_SELECT_ABORT_MSG, ELM_POPUP_ORIENT_CENTER, -1.0, EINA_TRUE);
+        bks_ui_controller_lock_set(EINA_TRUE, DB_FILE_SELECT_ABORT_MSG);
      }
    eina_lock_release(&ctrl.db_lock);
 }

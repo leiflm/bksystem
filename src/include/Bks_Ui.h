@@ -137,4 +137,8 @@ void bks_ui_controller_db_path_get(void);
  */
 void bks_ui_controller_notification_set(const char* text, Elm_Popup_Orient orient, double timeout, Eina_Bool block_input);
 
+/**
+ * @brief locks the ui and displays a message
+ */
+void bks_ui_controller_lock_set(Eina_Bool locked, const char *msg);
 #endif
