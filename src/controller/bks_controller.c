@@ -5,6 +5,12 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
+static int _db_get_count;
+#define MAX_DB_GET_COUNT 3
+#define DB_FILE_SELECT_ABORT_MSG "Keine Datenbankdatei Ausgewählt.<br>" \
+                                 "Ohne diese ist das Programm funktionsunfähig.<br>" \
+                                 "Bitte beende die Anwendung und wende Dich an den Bierwart/PC-Wart."
+
 Eina_Bool _event_refresh_data(void *data UNUSED)
 {
    bks_controller_products_alpha_get();
@@ -17,6 +23,7 @@ Eina_Bool _event_refresh_data(void *data UNUSED)
 void bks_controller_init(void)
 {
    eina_lock_new(&ctrl.db_lock);
+   _db_get_count = 0;
 }
 
 void bks_controller_shutdown(void)
@@ -44,8 +51,13 @@ _products_alpha_get(void *data, Ecore_Thread *th)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-        if (eina_lock_take_try(&ctrl.db_lock))
-          bks_ui_controller_db_path_get();
+         if ((_db_get_count < MAX_DB_GET_COUNT) && (eina_lock_take_try(&ctrl.db_lock)))
+          {
+             bks_ui_controller_db_path_get();
+             _db_get_count++;
+          }
+         else
+           break;
       case BKS_MODEL_SQLITE_OPEN_RUNNING:
         ecore_thread_reschedule(th);
         break;
@@ -72,6 +84,7 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
          //bks_ui_controller_products_alpha_clear();
          bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
          bks_job_free(job);
+         _db_get_count = 0;
          printf("DB access was successful!\n");
          break;
       default:
@@ -103,8 +116,13 @@ _products_favs_get(void *data, Ecore_Thread *th)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-        if (eina_lock_take_try(&ctrl.db_lock))
-          bks_ui_controller_db_path_get();
+         if ((_db_get_count < MAX_DB_GET_COUNT) && (eina_lock_take_try(&ctrl.db_lock)))
+           {
+              bks_ui_controller_db_path_get();
+              _db_get_count++;
+           }
+         else
+           break;
       case BKS_MODEL_SQLITE_OPEN_RUNNING:
         job->data = (void*)count;
         ecore_thread_reschedule(th);
@@ -128,6 +146,7 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
          //bks_ui_controller_products_favs_clear();
          bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
          bks_job_free(job);
+         _db_get_count = 0;
          printf("DB access was successful!\n");
          break;
       default:
@@ -157,8 +176,13 @@ _user_accounts_get(void *data, Ecore_Thread *th)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-        if (eina_lock_take_try(&ctrl.db_lock))
-          bks_ui_controller_db_path_get();
+         if ((_db_get_count < MAX_DB_GET_COUNT) && (eina_lock_take_try(&ctrl.db_lock)))
+           {
+              bks_ui_controller_db_path_get();
+              _db_get_count++;
+           }
+         else
+           break;
       case BKS_MODEL_SQLITE_OPEN_RUNNING:
         ecore_thread_reschedule(th);
         break;
@@ -181,6 +205,7 @@ _user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
          //bks_ui_controller_user_accounts_clear();
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
          bks_job_free(job);
+         _db_get_count = 0;
          printf("DB access was successful!\n");
          break;
       default:
@@ -207,8 +232,13 @@ _sale(void *data, Ecore_Thread *th)
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
-        if (eina_lock_take_try(&ctrl.db_lock))
-          bks_ui_controller_db_path_get();
+         if ((_db_get_count < MAX_DB_GET_COUNT) && (eina_lock_take_try(&ctrl.db_lock)))
+           {
+              bks_ui_controller_db_path_get();
+              _db_get_count++;
+           }
+         else
+           break;
       case BKS_MODEL_SQLITE_OPEN_RUNNING:
         ecore_thread_reschedule(th);
         break;
@@ -231,6 +261,7 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
       case BKS_MODEL_SQLITE_OK:
          sale->status = BKS_MODEL_SALE_DONE;
          printf("DB access was successful!\n");
+         _db_get_count = 0;
          break;
       default:
          sale->status = BKS_MODEL_SALE_ERROR;
@@ -239,7 +270,6 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
      }
    bks_ui_controller_sale_finished(sale);
    bks_job_free(job);
-
 }
 
 void bks_controller_ui_sale_finish(void)
@@ -276,5 +306,10 @@ _incomplete_sale:
 void bks_controller_ui_db_path_retrieved(Eina_Stringshare *path)
 {
    bks_model_controller_db_path_set(path);
+   if (!path)
+     {
+        _db_get_count = MAX_DB_GET_COUNT;
+        bks_ui_controller_notification_set(DB_FILE_SELECT_ABORT_MSG, ELM_POPUP_ORIENT_CENTER, -1.0, EINA_TRUE);
+     }
    eina_lock_release(&ctrl.db_lock);
 }

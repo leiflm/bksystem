@@ -4,50 +4,51 @@
 #include "Bks_System.h"
 #include "Bks_Ui.h"
 
+void bks_ui_controller_notification_set(const char* text, Elm_Popup_Orient orient, double timeout, Eina_Bool block_input)
+{
+   ecore_thread_main_loop_begin();
+   elm_object_text_set(ui.notification.note, text);
+   evas_object_show(ui.notification.note);
+   elm_popup_timeout_set(ui.notification.note, timeout);
+   elm_popup_orient_set(ui.notification.note, orient);
+   elm_popup_allow_events_set(ui.notification.note, !block_input);
+   ecore_thread_main_loop_end();
+}
 
 void _bks_ui_sale_notification_set(Bks_Model_Sale *sale) {
-
-   Eina_List *l, *accs;
-   int accs_count;
-   int size, length;
-   char *text;
+   char buf[4096];
    Bks_Model_User_Account *acc;
+   Eina_Bool block_input = EINA_TRUE;
+   double timeout = -1.0;
+   Elm_Popup_Orient orient = ELM_POPUP_ORIENT_CENTER;
+   size_t count = 0;
 
    if (sale->status == BKS_MODEL_SALE_DONE) {
-
-      accs = sale->user_accounts;
-      accs_count = eina_list_count(accs);
-      // size for text + estimated size for user accounts
-      size = 90 + accs_count * 30;
-      text = calloc((size_t)(size + 1),1);
-      length = snprintf(text, (size_t)size, "<align = left>Kauf von %s: %.2f EUR wurde ", sale->productname, sale->price);
+      count += snprintf(buf, 256, "Kauf von %s: %.2f EUR wurde ", sale->productname, sale->price);
       // append every name in list
-      EINA_LIST_FOREACH(accs, l, acc) {
-         if (size > length) {
-            length += snprintf(text + length,(size_t)(size - length), "%s %s, ", acc->firstname, acc->lastname);
-         }
-      }
-      if (size - length > 20) { // space for more than 20 char available
-         length += snprintf(text + length - 2, (size_t)((size -length) - 2), " berechnet.</align>");
-      } else { // not enough space, truncate names
-         snprintf(text + size - 23, 23,"... berechnet.</align>");
-      }
-
-      elm_object_text_set(ui.notification.note, text);
-      evas_object_show(ui.notification.note);
-      elm_popup_timeout_set(ui.notification.note, 2.0 + (double)accs_count);
-      free(text);
+      EINA_LIST_FREE(sale->user_accounts, acc)
+        {
+           if (count < (sizeof(buf) - 32))
+             count += snprintf((buf + count), (sizeof(buf) - count - 1), "%s %s, ", acc->firstname, acc->lastname);
+        }
+      //keep buffer overflows outside
+      count = (count > (sizeof(buf) - 32)) ? (sizeof(buf) - 32) : count;
+      //remove the last ", "
+      buf[count - 2] = '\0';
+      strcat(buf, " berechnet.");
+      timeout = (2.0 + (double)eina_list_count(sale->user_accounts));
+      orient = ELM_POPUP_ORIENT_BOTTOM_RIGHT;
+      block_input = EINA_FALSE;
+      sale->user_accounts = NULL;
    } else  {
-      elm_object_text_set(ui.notification.note, "ERROR: Verkauf konnte nicht durchgeführt werden!");
-      evas_object_show(ui.notification.note);
-      elm_popup_orient_set(ui.notification.note, ELM_POPUP_ORIENT_CENTER);
-      elm_popup_allow_events_set(ui.notification.note, EINA_FALSE);
-      elm_popup_timeout_set(ui.notification.note, -1.0);
+      sprintf(buf, "ERROR: Verkauf konnte nicht durchgeführt werden!");
+      block_input = EINA_TRUE;
    }
-}
-void _bks_ui_sale_notification_clicked(void *data UNUSED, Evas_Object *obj, void *event_info UNUSED) {
 
+   bks_ui_controller_notification_set(buf, orient, timeout, block_input);
+}
+
+void _bks_ui_sale_notification_clicked(void *data UNUSED, Evas_Object *obj, void *event_info UNUSED)
+{
    evas_object_hide(obj);
-   elm_popup_orient_set(ui.notification.note, ELM_POPUP_ORIENT_BOTTOM_RIGHT);
-   elm_popup_allow_events_set(ui.notification.note, EINA_TRUE);
 }

@@ -132,4 +132,9 @@ const Bks_Model_Product *bks_ui_controller_product_selected_get(void);
  */
 void bks_ui_controller_db_path_get(void);
 
+/**
+ * @brief Creates a notification displayed to the user
+ */
+void bks_ui_controller_notification_set(const char* text, Elm_Popup_Orient orient, double timeout, Eina_Bool block_input);
+
 #endif

@@ -43,8 +43,6 @@ void bks_ui_init(int argc, char* argv[])
 
    // create notificaton
    ui.notification.note = elm_popup_add(ui.win);
-   elm_popup_orient_set(ui.notification.note, ELM_POPUP_ORIENT_BOTTOM_RIGHT);
-   elm_popup_allow_events_set(ui.notification.note, EINA_TRUE);
    evas_object_smart_callback_add(ui.notification.note, "block,clicked", _bks_ui_sale_notification_clicked, NULL);
 
    //create, fill and add user_accounts ui elements
