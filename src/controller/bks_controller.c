@@ -39,7 +39,13 @@ _products_alpha_get(void *data, Ecore_Thread *th)
    EINA_SAFETY_ON_NULL_RETURN(job);
 
    job->data = NULL;
-   job->status = bks_model_controller_products_alpha_get((Eina_List**)&job->data);
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      job->status = BKS_MODEL_SQLITE_OPEN_RUNNING;
+
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+      job->status = bks_model_controller_products_alpha_get((Eina_List**)&job->data);
+   }
 
    switch (job->status)
      {
@@ -95,11 +101,15 @@ _products_favs_get(void *data, Ecore_Thread *th)
    unsigned int count;
 
    EINA_SAFETY_ON_NULL_RETURN(job);
-
    count = (unsigned int)job->data;
-   job->data = NULL;
-   job->status = bks_model_controller_products_fav_get((Eina_List**)&job->data, count);
-
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      job->status = BKS_MODEL_SQLITE_OPEN_RUNNING;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+      job->data = NULL;
+      job->status = bks_model_controller_products_fav_get((Eina_List**)&job->data, count);
+   }
+   
    switch (job->status)
      {
       case BKS_MODEL_SQLITE_OPEN_ERROR:
@@ -150,9 +160,14 @@ void
 _user_accounts_get(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
-
-   job->data = NULL;
-   job->status = bks_model_controller_user_accounts_get((Eina_List**)&job->data);
+   
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      job->status = BKS_MODEL_SQLITE_OPEN_RUNNING;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+      job->data = NULL;
+      job->status = bks_model_controller_user_accounts_get((Eina_List**)&job->data);
+   }
 
    switch (job->status)
      {
@@ -201,8 +216,13 @@ void
 _sale(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      job->status = BKS_MODEL_SQLITE_OPEN_RUNNING;
 
-   job->status = bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+      job->status = bks_model_controller_commit_sale((Bks_Model_Sale*)job->data);
+   }
 
    switch (job->status)
      {

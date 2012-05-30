@@ -40,7 +40,8 @@ Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Pro
 
 
 void bks_model_sale_free(Bks_Model_Sale *sale_ptr) {
-    if (!sale_ptr)
-        return;
-    free(sale_ptr);
+   if (!sale_ptr) {
+      eina_list_free(user_accounts);
+   }
+   free(sale_ptr);
 }
