@@ -17,10 +17,6 @@ static void _bks_ui_controller_db_path_get(void *data UNUSED)
 {
    Evas_Object *inwin, *fs;
 
-   printf("Available threads: %d\n", ecore_thread_available_get());
-
-   elm_need_ethumb();
-
    inwin = elm_win_inwin_add(ui.win);
    fs = elm_fileselector_add(inwin);
    elm_fileselector_expandable_set(fs, EINA_FALSE);

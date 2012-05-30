@@ -45,4 +45,7 @@ void products_list_reset(void);
 
 void _product_selected_set(const Elm_Object_Item *product);
 
+void _bks_ui_sale_notification_set(void *data);
+void _bks_ui_sale_notification_clicked(void *data, Evas_Object *obj, void *event_info);
+
 #endif

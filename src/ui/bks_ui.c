@@ -8,8 +8,6 @@
 #include "Bks_Model.h"
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
-#include "Bks_Notification.h"
-
 
 static void _ui_window_key(void *data, Evas *e, Evas_Object *obj, void *event_info);
 
