@@ -47,12 +47,6 @@ user_accounts_page_reset(void)
    elm_object_text_set(ui.user_accounts.enp.next_btn, "Fertig");
    evas_object_smart_callback_add(ui.user_accounts.enp.next_btn, "clicked", _on_user_accounts_finish_btn_click, NULL);
 
-   ui.user_accounts.lock_window.win = elm_win_inwin_add(ui.win);
-   ui.user_accounts.lock_window.content = elm_label_add(ui.user_accounts.lock_window.win);
-   evas_object_size_hint_align_set(ui.user_accounts.lock_window.content, 0.5, 0.5);
-   elm_object_text_set(ui.user_accounts.lock_window.content, "Die Benutzerkontenliste wird aktualisiert");
-   elm_win_inwin_content_set(ui.user_accounts.lock_window.win, ui.user_accounts.lock_window.content);
-
    return ui.user_accounts.list;
 }
 

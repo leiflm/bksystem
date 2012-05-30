@@ -55,12 +55,6 @@ Evas_Object *products_page_add(void)
    evas_object_show(ui.products.alpha);
    elm_object_part_content_set(ui.products.panes, "right", ui.products.alpha);
 
-   ui.products.lock_window.win = elm_win_inwin_add(ui.win);
-   ui.products.lock_window.content = elm_label_add(ui.products.lock_window.win);
-   evas_object_size_hint_align_set(ui.products.lock_window.content, 0.5, 0.5);
-   elm_object_text_set(ui.products.lock_window.content, "Die Produktliste wird aktualisiert");
-   elm_win_inwin_content_set(ui.products.lock_window.win, ui.products.lock_window.content);
-
    return ui.products.panes;
 }
 

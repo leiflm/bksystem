@@ -32,12 +32,10 @@ struct _Bks_Ui {
         Bks_Ui_Naviframe_Page enp;
         Evas_Object *panes, *favs, *alpha, *list, *grid;
         const Elm_Object_Item *selected;
-        Bks_Ui_Lockwindow lock_window;
    } products;
    struct {
         Bks_Ui_Naviframe_Page enp;
         Evas_Object *list;
-        Bks_Ui_Lockwindow lock_window;
    } user_accounts;
    struct {
       Evas_Object *note;
