@@ -43,6 +43,16 @@ CREATE TABLE "user_accounts" (
    "status" INTEGER DEFAULT 0,
    "image" BLOB
 );
+
+CREATE VIEW "date_last_bill" AS
+   SELECT MAX(timestamp) AS "date"
+   FROM bill_dates;
+
+CREATE VIEW "date_second_last_bill" AS
+   SELECT MAX(timestamp) AS "date"
+   FROM bill_dates, date_last_bill
+   WHERE timestamp < date_last_bill.date;
+   
 CREATE VIEW "bill" AS
    SELECT userid, firstname, lastname, round(sum(round(price,2)),2) AS "sum"
    FROM
@@ -71,15 +81,6 @@ SELECT EAN,name, count(userid) AS "No", round(sum(round(price,2)),2) AS "sum"
       GROUP BY EAN
       ORDER BY name;
 
-CREATE VIEW "date_last_bill" AS
-   SELECT MAX(timestamp) AS "date"
-   FROM bill_dates;
-
-CREATE VIEW "date_second_last_bill" AS
-   SELECT MAX(timestamp) AS "date"
-   FROM bill_dates, date_last_bill
-   WHERE timestamp < date_last_bill.date;
-
 CREATE VIEW "fav_products" AS
    SELECT EAN, name, image,num
    FROM products,
@@ -106,15 +107,35 @@ CREATE VIEW "recent_users" AS
 
 CREATE TRIGGER "make_bill"
    BEFORE INSERT ON "bill_dates"
-   BEGIN
+   BEGIN 
       SELECT CASE
-         WHEN NEW.timestamp < (SELECT MAX(timestamp) FROM bill_dates)
+         WHEN NEW.timestamp < (SELECT MAX(timestamp) FROM bill_dates) 
          THEN RAISE(ABORT, "There is a newer bill date in the table. delete it or try a newer date!")
       END;
       DELETE FROM current_bill;
-      INSERT INTO current_bill SELECT userid, firstname, lastname, sum FROM bill;
+      INSERT INTO current_bill
+         SELECT userid, firstname, lastname, round(sum(round(price,2)),2) AS "sum" 
+         FROM 
+               ((SELECT uid,firstname,lastname FROM user_accounts ) 
+            INNER JOIN 
+               (SELECT userid, product, price,timestamp 
+               FROM sales,date_last_bill 
+               WHERE  sales.timestamp > date_last_bill.date AND sales.timestamp <= NEW.timestamp) 
+            ON uid = userid) 
+         GROUP BY uid 
+         ORDER BY lastname,firstname;
       DELETE FROM current_consumption;
-      INSERT INTO current_consumption SELECT EAN, name, no, sum FROM consumption;
+      INSERT INTO current_consumption 
+         SELECT EAN,name, count(userid) AS "No", round(sum(round(price,2)),2) AS "sum" 
+         FROM 
+               ((SELECT EAN,name FROM products ) 
+            INNER JOIN 
+               (SELECT userid, product, price,timestamp 
+               FROM sales,date_last_bill 
+               WHERE sales.timestamp > date_last_bill.date AND sales.timestamp <= NEW.timestamp) 
+            ON EAN = product)
+         GROUP BY EAN 
+         ORDER BY name;
    END;
 
 CREATE TRIGGER "make_bill_reload_fav"
