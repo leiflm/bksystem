@@ -1,0 +1,5 @@
+DELETE FROM sales
+WHERE timestamp IN
+   (SELECT timestamp
+   FROM sales, date_second_last_bill
+   WHERE sales.timestamp < date_second_last_bill.date)

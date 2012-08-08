@@ -1,0 +1,6 @@
+SELECT uid , firstname, lastname, user_accounts.status AS user_status, EAN, products.name AS Produkt, sales.timestamp AS Date
+FROM user_accounts, sales, products, date_last_bill
+WHERE sales.timestamp > date_last_bill.date
+AND user_accounts.uid = sales.userid
+AND products.EAN = sales.product
+AND firstname="Max" AND lastname="Mustermann"

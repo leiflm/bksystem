@@ -1,0 +1,260 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+   <head>
+      <title>Dokumentation bksystem admin</title>
+      <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   </head>
+   <body>
+      <h1>Instructions</h1>
+      <div id="toc_div">
+         <h2>Overview</h2>
+         <ol id="toc">
+            <li><a href="bksystem_admin_eng.html#tools">Tools</a></li>
+            <ul>
+               <li><a href="bksystem_admin_eng.html#database_terms">Database</a></li>
+               <li><a href="bksystem_admin_eng.html#software">Software</a></li>
+            </ul>
+            <li><a href="bksystem_admin_eng.html#user_accounts">User Accounts</a></li>
+            <ul>
+               <li><a href="bksystem_admin_eng.html#add_user">Add Users</a></li>
+               <li><a href="bksystem_admin_eng.html#delete_user">Deleting a user</a></li>
+               <li><a href="bksystem_admin_eng.html#lock_user">(Un)block users </a></li>
+               <li><a href="bksystem_admin_eng.html#user_querry">Balance inquiry</a></li>
+            </ul>
+            <li><a href="bksystem_admin_eng.html#products">Product Lists</a></li>
+            <ul>
+               <li><a href="bksystem_admin_eng.html#add_product">Add Product</a></li>
+               <li><a href="bksystem_admin_eng.html#hide_product">Hide product in UI</a></li>
+               <li><a href="bksystem_admin_eng.html#delete_product">Delete item</a></li>
+            </ul>
+            <li><a href="bksystem_admin_eng.html#sales">Sales</a></li>
+            <ul>
+               <li><a href="bksystem_admin_eng.html#sale_cancel">Sale cancel</a></li>
+               <li><a href="bksystem_admin_eng.html#sale_cleanup">delete old sales data</a></li>
+            </ul>
+            <li><a href="bksystem_admin_eng.html#bill">Bills</a></li>
+            <li><a href="bksystem_admin_eng.html#auto">Automatic billings</a></li>
+            <li><a href="bksystem_admin_eng.html#manual">Manual billings</a></li>
+            <ul>
+               <li><a href="bksystem_admin_eng.html#generate_bill">Create account</a></li>
+               <li><a href="bksystem_admin_eng.html#undo_generate">Create invoice undo</a></li>
+               <li><a href="bksystem_admin_eng.html#export_bill">Export bills</a></li>
+               <li><a href="bksystem_admin_eng.html#import">Import spreadsheet</a></li>
+               <li><a href="bksystem_admin_eng.html#pivot_table">Create pivot table</a></li>
+               <li><a href="bksystem_admin_eng.html#layout">Layout</a></li>
+            </ul>
+            <li><a href="bksystem_admin_eng.html#backup">Backup</a></li>
+            <li><a href="bksystem_admin_eng.html#bill_script"></a></li>
+            <li><a href="database.html" title="To document the database jump">Documentation database</a></li>
+         </ol>
+      </div>
+      <div id="tool_div">
+         <h2 id="tools">Tools</h2>
+            <h3 id="database_terms">Database</h3>
+            <p>
+               All data stored in a database (Type: SQLite) in <b>tables</b> stored. The contents of the tables to display and edit. This case, individual fields or entire rows processed, inserted, or deleted. Using SQL queries, tables are combined. Predefined queries are called <b>Views</b> . These do not contain its own data, but are calculated directly from the tables fibrillation. The concepts in summary:
+            </p>
+            <ul>
+               <li><b>Table</b> contains the records</li>
+               <li><b>View:</b> shows records is calculated from tables (and possibly other views)</li>
+               <li><b>SQL query:</b> describes how tables are combined and will meet Bedingnungen resulting data.</li>
+            </ul>
+            
+            <h3 id="software">Software</h3>
+            <h4 id="managing_database">Database Manager</h4>
+               <p>
+                  The best way with the following tasks with <a title="Homepage" href="https://www.google.de/search?q=sqlitemanager+firefox&btnI=imfeelinglucky">SQLite Manager (Firefox extension)</a> do. This can easily edit and export the tables and insert images (products, see below), make queries and view or views.
+               </p>
+               <p>
+                  After installation, place the SQLiteManager in Firefox menu <i>Tools</i> . After starting <i>Database -&gt; Connect to database</i> and locate the appropriate file (bksystem.sqlite) and open. We are interested in the tables user_accounts, products, bill_dates, sales, and current_bill current_consumption. Select appropriate table and tab / tab <i>Browse</i> to select. Now you can see the data sets, which create, edit and delete.
+               </p>
+               <p>
+                  <b>Warning:</b> Confirmed, changes can not directly make undo (CTRL-Z Undo, Undo), but only add, delete, etc..
+               </p>      
+                  The steps are described for the SQLite Manager, but can also be accomplished with any other program to manipulate sqlite databases. Contents of tables in the tab <i>browsing</i> be viewed and bear pray. SQLiteManager offers (Tab also a box <i>running SQL</i> ) that in the code can be inserted and run. For some tasks finished code is provided, possibly in the eingfügt parameters (eg replace "John Doe" by value) must be, and must then be carried out.
+               <p>
+               </p>
+            <h4 id="tab_calc">Spreadsheet</h4>
+               <p>
+                  The layout of invoices, print, produce, of. PDF is a program needs to spreadsheet. Examples are Microsoft Excel, OpenOffice Calc and LibreOffice Calc. All steps are described for LibreOffice Calc. The procedure with other programs should be very similar.
+               </p>
+      </div>
+      <div id="content_div">
+         <ol>
+            <h2 id="user_accounts"><li>User Accounts</li></h2>
+               <p>
+                  The user accounts are in the table <b>user_accounts</b> saved.
+               </p>
+            <ul>
+               <h3 id="add_user"><li>Add Users</li></h3>
+                  <p>
+                     To create a new user table <i>browsing</i> and <i>Add Record</i> . It must only be given first name and last name, all other fields are automatically assigned to valid values.
+                  </p>
+                  <p>
+                     It may of course also accounts such as choral conductor, barbecue, cash purchase, event, etc. created 24/12/2013.
+                  </p>
+               <h3 id="delete_user"><li>Deleting a user</li></h3>
+                  <p>   
+                     Users may also be deleted. Is it not settled sales by the user is terminated with an error message. Otherwise all of its sales are then deleted from the database (Table sales).
+                  </p>
+               <h3 id="lock_user"><li>User Lock / Unlock</li></h3>       
+                  <p>
+                     User accounts may be blocked. Simply select the appropriate record and edit the status field. The importance of the status field is: 1 = user account is locked, 0 if not locked. Default value is 0.
+                  </p>
+               <h3 id="user_querry"><li>Balance inquiry</li></h3>
+                  <p>
+                     All account balances can be used in view <b>current_account_balance</b> view.
+                  </p>
+                  <p>
+                     Personalized (complete or accumulated) shopping lists can be created only through SQL queries. SQLiteManager offers (Tab also a box <i>running SQL</i> ) that in the code can be inserted and run. Many queries are possible, the following are ready-for copy + paste. The name placeholder must be replaced with the name you want:
+                  </p>
+                  <p>
+                     <a href="SQL_Code/user_querry_complete.txt" title="SQL code in message">Purchase history, </a> <a href="SQL_Code/user_querry_cumulativ.txt" title="View Code">purchase amounts</a>
+                  </p>
+
+                  <p>
+                     An export the results tables this query is possible ( <i>Action -&gt; Save result to CSV file</i> ), then open with a spreadsheet), or view as CSV and can be copied directly. 
+                  </p>
+            </ul>
+         
+            <h2 id="products"><li>Product List</li></h2>
+               <p>
+                  The products are in the table <b>products</b> stored.
+               </p>
+            <ul>
+               <h3 id="add_product"><li>Add Products</li></h3>
+                  <p>
+                     To add a product to EAN, name, price (NOTE: Spot, ie 1.2) are given. Optionally, an image can be added
+                  </p>   
+                  <p> 
+                     EAN is the Eurpoean Article Number, which is found on every product under the random code. It is recommended to use this number. Any other <b>unique</b> number is also OK, so define your own products, such as beer, 0.5 liters, etc..
+                  </p>
+                  <p>
+                     The price is set in euros (or whatever currency). It should be noted that a point is used (eg 1.25). The price may be changed at any time. Products already sold are not covered by the price change. In the settlement, the product will appear twice.
+                  </p>
+                  <p> 
+                     The image of the product is optional. Popular products are specifically indicated in a list with images. Accepted formats: jpg, jpeg, jpg, svg?. The best are jp(e)gs. The files should not exceed 500 KB in size, 100 KB goes well. Google images helps here quick, with names or EANs. In SQLiteManager in the edit/create form is a browse button, that allows easy import of images into the database. 
+                  </p>
+               <h3 id="delete_product"><li>Delete products</li></h3>
+                  <p>
+                     Products can be deleted from the table products. Products are currently not settled, deleting will be canceled. All of the related sales are usually deleted from the database (Table sales). Alternatively, set the product to not display (status = 1).
+                  </p>
+               <h3 id="hide_product"><li>Products in the UI to hide the program</li></h3>
+                  <p>
+                     To avoid having to delete every product sold out it may be hidden. The state indicates whether a product is to be displayed in the program (0) or not (1). The status column in the product process.
+                  </p>
+            </ul>
+
+            <h2 id="sales"><li>Sales</li></h2>
+               <p>
+                  The table <b>sales</b> will be written by the program, and EAN, User ID, ​​and timestamp of the sale price.
+               </p>
+            <ul>      
+               <h3><a name="sale_cancel"><li>Sales Cancel</li></a></h3>
+                  <p>
+                     Sales are undone (if not yet settled) by setting the corresponding cell <b>price</b> to 0.
+                  </p>
+               <h3><a name="sale_cleanup"><li>Sales delete</li></a></h3>
+                  <p>
+                     If the sales data is no longer needed (eg after a cash balance), the corresponding records can be deleted. Manually or <a href="SQL_Code/sales_cleanup.txt" title="View Code">automatically</a> (erases all data billed). Please only delete records when billed and invoiced billings can not be undone!
+                  </p>
+            </ul>
+
+            <h2 id="bill"><li>Statements</li></h2>
+               <p>The table <b>bill_dates</b> contains the billing reference dates.</p>
+               <p>
+                  Give it six views that the consumption of <b>consumption</b> , account balances <b>account_balance</b> and bank statements <b>account_list</b> Show. Here, the prefix refers <b>previous</b> post on already billed (invoice date), <b>current</b> at the current consumption (unbilled items). If a settlement at this time to create, these <b>current</b> views thus contain no data. All that was found there, is now in the <b>previous</b> display.  
+               </p>
+               <p>   
+                  The View <b>previous_account_list</b> contains the entire current account, including userid, full names, product information, and total number of each product. From this list, which can create detailed accounts <a href="bksystem_admin_eng.html#pivot_table">create pivot table</a>
+               </p>
+               <p> 
+                  The View <b>previous_consumption</b> contains the current total consumption of the installation, including EAN, product name and number.
+               </p>
+               <p>The View <b>previous_account_balance</b> the total sum contains all users.</p>
+               <p>
+                  After the creation of new bills to change the contents of the view. Therefore, the tables are stored directly. Older bills through SQL queries
+               </p>
+               <p>
+                  The ongoing item in the views can be <b>current_account_balance</b> (balances), <b>current_account_list</b> (account statements) and <b>current_consumption</b> watch (consumption).
+               </p>
+
+               <p>The following steps lead to the settlement. </p>
+            <h2 id="auto"><li>Automatic billing</li></h2>
+               <p>
+                  In the automatic billing through some steps are <a href="script_doc.html" title="Documentation for the shell scripts">done shell scripts</a> that must otherwise be done manually.
+               </p>
+               <ol>
+                  <li>Settlement date set by inclusion in Table <b>bill_dates</b></li>
+                  <li>Export of Views:</li>
+                  <ul>
+                     <li>previous_account_list -&gt; <b>Konsumliste.csv</b></li>
+                     <li>previous_account_balance -&gt; <b>Kontostand.csv</b></li>
+                     <li>previous_consumption -&gt; <b>Verbrauch.csv</b></li>
+                  </ul>
+                  <li>Export formatted consumer list -&gt; <b>Abrechnung.csv</b></li>
+                  <ul>
+                     <li>spared to create the pivot table from Konsumliste.csv</li>
+                     <li>Generation is prone to error, may not funzt.</li>
+                     <li>2 versions</li>
+                  </ul>
+               </ol>
+                  <p>Are not automatically <a href="bksystem_admin_eng.html#import">imported</a> into the spreadsheet, <a href="bksystem_admin_eng.html#layout">layout</a> , pdf / print, may <a href="bksystem_admin_eng.html#pivot_table">pivot table</a> if Abrechnung.csv can not import.</p>
+               
+            <h2 id="manual"><li>Accounting Manual</li></h2>
+            
+            
+            <ul>
+               <h3 id="generate_bill"><li>Create</li></h3>
+                  <p>
+                     For billing needs only a date in the table <b>bill_dates</b> be inserted. When creating a new entry is set automatically bill_id. It's just the time stamp indicated is to be made ​​at which time a statement. The time stamp must be in the format <b>YYYY-MM-DD HH: MM: SS</b> command (eg 2012-01-16 20:35:59). The specified date must be newer than the last entry, and not be in the future. Bills passed at a time, however, are quite possible.
+                  </p>
+                  <p>
+                     About SQL queries can also be for today and now <a href="SQL_Code/get_date_now.txt" title="SQL code in message">produce a valid format</a> or <a href="SQL_Code/insert_date_now.txt" title="SQL code in message">directly insert</a> .
+                  <a href="SQL_Code/.txt" title="SQL code in message"></a>
+                  </p>
+                  <p>
+                     An entry in this table is sufficient to ensure that all views (current_bill, current_consumption, ...) to create. The billing and consumption are now in the tables <b>current_bill</b> and <b>current_consumption</b> . These tables can now be as. Export CSV (can be opened with Excel). 
+                  </p>
+               <h3 id="undo_generate"><li>Reverse</li></h3>
+                  <p>
+                      Statements can be undone by the last row of Table <b>bill_dates</b> will be deleted. There are also replaced all other tables. <b>WARNING:</b> Users now have been deleted or products, they will no longer appear in the new settlement. It may therefore users or products are only deleted if the account is not changed.
+                  </p>
+               <h3 id="export_bill"><li>Export</li></h3>
+                  <p>
+                     SQLiteManager offers an export function. The desired table / view (eg <b>previous_account_list</b> , <b>previous_consumption</b> ) and select the menu <i>table -&gt; Export table</i> or in the tab <i>structure</i> the button <i>Export</i> to open the wizard. In the Export Wizard select CSV. The default options should be sufficient to ensure that the file created in MS Excel, Open / Libre Office Calc, etc. read. The tables can also be directly labeled with drag'n'drop and copy + paste od be taken.
+                  </p>
+
+               <h3 id="import"><li>Import spreadsheet</li></h3>
+                  <p>
+                     All generated / exported. Csv files can be opened directly in MS Excel, Open / Libre Office Calc. It seems an import dialog with preview. When encoding must <b>use UTF-8</b> are chosen so that umlauts are displayed correctly. The language should be <b>English (United States)</b> are adjusted so that the decimal fractions of the sums and prices are correctly identified. The separator is the comma. 
+                  </p>
+                  <h4 id="pivot_table">Create pivot tables</h4>
+                  <p>
+                     From the list (pervious_account_list (exported) or Konsumliste.csv (generated) must be called pivot tables are created: in office, this facility is in the menu <i>Data&gt; Privot table-&gt; Create</i> (records before Mark) UID. Gradually, first name gehöhren in the row (row), product name, and (column) price in the column, and the count (important) and any sum (see below) in the data field. If one has the sum (sum) is inserted into the data field, one is now finished.
+                  </p>
+                  <div id="image">
+                     <img src="screenshots/create_pivot_table.png" height="521" title="Dialogue to create pivot tables">
+                     Dialogue to create pivot tables
+                  </div>
+                  <h4 id="Layout"></h4>
+                     <p>Now we have to be formatted a little. It is recommend the product names rotate through 90 degrees and then automatically adjust its column width in order to save space. If formatting in the auto-generated mashing pivot table will not be possible: Cut and paste it into a new sheet. Then add more frames and grilles, sheet / sheet rename, add text + date, etc..</p>
+                  <div id="image">
+                     <img src="screenshots/layout_example.png" title="Example, might look like a finished bill Table">
+                     Example, table formatted with frames
+
+                  </div>
+               </ul>
+
+            <h2 id="backup"><li>Backup</li></h2>
+               <p>
+                  There is also a backup script that is executed at every automatic billing, too.
+               </p>
+               <p>
+                  The export function can also be used for backup tables. Select the desired table and the menu <i>table -&gt; Export table</i> or in the tab <i>structure</i> the button <i>Export</i> to open the wizard. On the export Wizard SQL select. The default options used. The content of this text file can <i>execute SQL</i> , Copy + Paste will again be read. This should initially be done with the accounts and before handing over the products.
+               </p>
+               <p>To restore it's also a script, or it must be the files bkystem_scheme.sql, user_accounts.sql, products.sql, sales.sql, billdates.sql in the order in an empty database ( <i>File-&gt; new database</i> running on). To copy the text files in a simple query into the box and run.</p>
+         </ol>
+      </div>
+
+</body></html>
