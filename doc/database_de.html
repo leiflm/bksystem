@@ -1,0 +1,228 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<html>
+   <head>
+      <title>Dokumentation bksystem database</title>
+      <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   </head>
+   <body>
+      <h1>Aufbau der SQLite Datenbank</h1>
+
+      <h2>1. Tabellen</h2>
+      <b>Nur</b> die vier folgenden Tabellen sollten bearbeitet werden. Am besten
+      mit <a href="https://www.google.de/search?q=sqlitemanager+firefox&btnI=Auf+gut+Glück">SQLite Manager (Firefox Extension)</a>. Hiermit lassen sich einfach Tabellen bearbeiten, exportieren und Bilder einfügen (Produkte, s.u.). Jedes andere Programm zur Manipulation von Datenbanken tut es auch.
+      <h3>user_accounts: Benutzterkonten</h3>
+      <table border="1">
+         <caption>
+            <p><i>user_accounts</i></p>
+         </caption>
+         <tr>
+            <th>Feldname</th>
+            <th>Bedeutung</th>
+            <th>Wertebereich</th>
+            <th>Default Wert</th>               
+         </tr>
+         <tr>
+            <th>uid</th>
+            <th>eindeutige Kennung (Key)</th>
+            <th>ganze Zahl (INT)</th>
+            <th>letzte userid + 1</th>
+         </tr>
+         <tr>
+            <th>firstname</th>
+            <th>Vorname</th>
+            <th>Text</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>lastname</th>
+            <th>Nachname</th>
+            <th>Text</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>status</th>
+            <th>User gesperrt = 1 / sonst = 0</th>
+            <th>0..1 (INT)</th>
+            <th>0</th>
+         </tr>
+      </table>
+      <p>
+         Die eindeutige UserID wird automatisch gesetzt, Vor- und Nachname des Benutzers müssen angegeben werden.
+         Die Bedeutung des Statusfelds ist: 1 = Benutzer Account gesperrt, 0 nicht gesperrt.
+      </p>
+      <p>   
+         Benutzer dürfen gelöscht werden. Sind nicht abgerechnete Produkte da, wird abgebrochen. Alle zugehörigen Verkäufe werden dann aus der DB (Tab. sales) gelöscht.
+      </p>
+      <p>
+         Zum Anlegen eines neuen Benutzters müssen also nur Nachname und Vorname angegeben werden.
+      </p>
+
+      <h3>products: Produktliste</h3>
+      <table border="1">
+         <caption>
+            <p><i>products</i></p>
+         </caption>
+         <tr>
+            <th>Feldname</th>
+            <th>Bedeutung</th>
+            <th>Wertebereich</th>
+            <th>Default Wert</th>               
+         </tr>
+         <tr>
+            <th>EAN</th>
+            <th>eindeutige Kennung (Key)</th>
+            <th>ganze Zahl (INT)</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>name</th>
+            <th>Produktname</th>
+            <th>Text</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>price</th>
+            <th>Preis in EUR</th>
+            <th>(FLOAT)</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>image</th>
+            <th>Bild des Produktes</th>
+            <th>jepg, jpg, png, svg (BLOB)</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>status</th>
+            <th>Produkt anzeigen = 0 / sonst = 1</th>
+            <th>0..1 (INT)</th>
+            <th>0</th>
+         </tr>
+      </table>
+      <p> 
+      EAN ist die Eurpoean Article Number, welche auf jedem Produkt unter dem Stichcode zu finden ist. Es wird empfohlen diese Nummer zu verwenden. Jede andere <b>eindeutige</b> Nummer ist auch OK, so können eigene Produkte definiert werden, wie z.B. Bier 0,5l etc..
+      </p>
+      <p>
+         Der Preis ist in Euro anzugeben. Dabei ist zu beachten, dass ein Punkt verwendet wird (z.B. 1.25). Die Preise können jederzeit geändert werden. 
+      </p>
+      <p> 
+         Das Bild des Produktes ist optional. Das Bild wird in der Liste "Beliebte Produkte angezeigt". Akzeptierte Formate: png, jpeg, jpg, svg?. Am besten sind jp(e)gs. Die Dateien sollten aller höchstens 500 KB groß sein, 100 KB reicht auch.
+      </p>
+      <p>
+         Der Status sagt aus, ob ein Produkt im Programm angezeigt werden soll (0) oder nicht (1).
+      </p>
+      <p>
+         Produkte können aus der Tabelle gelöscht werden. Sind aktuell nicht abgerechnete Produkte da, wird abgebrochen. Alle zugehörigen Verkäufe werden dann aus der DB (Tab. sales) gelöscht. Alternativ auf nicht anzeigen setzen (Status = 1).
+      </p>
+      <p>
+         Zum Erstellen eines neuen Produktes müssen also nur EAN, Name und Preis angegeben werden (optional ein Bild).
+      </p>
+
+      <h3>bill_dates: Abrechnungszeitpunkte</h3>
+      <table border="1">
+         <caption>
+            <p><i>bill_dates</i></p>
+         </caption>
+         <tr>
+            <th>Feldname</th>
+            <th>Bedeutung</th>
+            <th>Wertebereich</th>
+            <th>Default Wert</th>               
+         </tr>
+         <tr>
+            <th>bill_id</th>
+            <th>Eindeutige Kennung (Key)</th>
+            <th>ganze Zahl (INT)</th>
+            <th>letzte bill_id + 1</th>
+         </tr>
+         <tr>
+            <th>timestamp</th>
+            <th>Zeitstempel</th>
+            <th>JJJJ-MM-TT SS:MM:SS</th>
+            <th></th>
+         </tr>
+      </table>
+      <p>
+         Bei der Erstellung eines neuen Eintrages wird bill_id automatisch gesetzt. Es ist nur der Zeitstempel anzugeben, zu welchem Zeitpunkt eine Abrechnung angefertigt werden soll. Der Zeitstempel muss im Format <b>JJJJ-MM-TT SS:MM:SS</b> angegeben werden. Der angegebene Zeitpunkt muss neuer als der letzte Eintrag sein, sowie darf nicht in der Zukunft liegen. Abrechnungen zu einem vergangen Zeitpunkt sind durchaus möglich.
+      </p>
+      <p>
+         Ein Eintrag in diese Tabelle reicht aus, um sämtliche anderen Tabellen (bill, favorie products, consumption, ...) zu erstellen. Die Abrechnung bzw. Verbrauch befinden sich nun in den Tabellen <b>current_bill</b> und <b>current_consumption</b>. Diese Tabellen können nun als .csv exportiert werden (lassen sich mit Excel öffnen). 
+      </p>
+      <p>
+          Abrechnungen lassen sich rückgängig machen, indem die letzte Zeile dieser Tabelle gelöscht wird. Es werden auch hier alle anderen Tabellen erneuert. <b>WARNUNG:</b> Wurden inzwischen Benutzter oder Produkte gelöscht, werden sie in erneuter Abrechung nicht mehr auftauchen. Es dürfen also Benutzter oder Produkte nur gelöscht werden, wenn die Abrechnung nicht mehr verändert wird.
+      </p>
+      <h3>sales: Liste der Verkäufe</h3>
+      <table border="1">
+         <caption>
+            <p><i>sales</i></p>
+         </caption>
+         <tr>
+            <th>Feldname</th>
+            <th>Bedeutung</th>
+            <th>Wertebereich</th>             
+         </tr>
+         <tr>
+            <th>userid</th>
+            <th>Foreign key aus user_accounts.userid</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>product</th>
+            <th>Foreign key aus products.EAN</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>price</th>
+            <th>Preis zum Kaufzeitpunkt</th>
+            <th>EUR (FLOAT)</th>
+         </tr>
+         <tr>
+            <th>timestamp</th>
+            <th>Zeitstempel des Kaufs</th>
+            <th>JJJJ-MM-TT SS:MM:SS</th>
+         </tr>
+      </table>
+      <p>
+         Diese Tabelle wird durch das Programm geschrieben und enthält EAN, UserID, Preis und Zeitstempel des Verkaufs. Hier können Verkäufe rückgängig gemacht werden (falls noch nicht abgerechnet), indem die entsprechenden Zeilen gelöscht werden.
+      </p>
+
+      <h2>2. Automatisch erstellte Tabellen: Favoriten</h2>
+         Folgende Tabellen werden automatisch erstellt und sollten nicht bearbeitet werden. Um die Ergebnisse weiter zu verarbeiten können diese Tabellen als .csv exportiert werden (lässt sich mit Excel öffnen). Dies lässt sich auch mit Datenbank Programmen erledigen (z.B. SQLite Manager s.o.).
+      <h3>fav_user</h3>
+         enthält die Benutzer mit größtem Umsatz auf der letzten Rechnung.
+      <h3>fav_products</h3> 
+         enthält die beliebtesten Produkte.
+
+      <h2>4. Views</h2>
+         Views sind Tabellen, die bei Abfrage aus den vorhanden Tabellen berechnet werden. <b>previous</b> bezieht sich auf Listen, die abgerechnete Posten enthalten, also die aktuellen Rechnungen. <b>current</b> sind die laufenden Aufstellungen/Rechnungen. Wird "jetzt" als Abrechnungsdatum in die DB eingefügt, sind diese Listen also leer. 
+      <h3>current/previous_account_balance</h3>
+         laufende/letzte Benutzer Kontostände.
+      <h3>current/previous_consumption</h3>
+         laufende/letzte Verbrauchsaufstellung.
+      <h3>current/previous_account_list</h3>
+         laufend/letzte Liste aller verkauften Produkte und zugehörig Käufer. <b>previous_account_list</b> ist die Datenbasis für alle Abrechnungen. Entweder direkt exportiert oder nachbearbeitet.
+      <h3>current/previous_fav_products/users</h3>
+         laufend/letzte beliebteste Produkte/umsatzstärkste User.
+
+      <h3>last_bill und second_last_bill</h3>
+         enthalten je das Datum der letzten und vorletzten Abrechnung. Diese beiden Tabellen enthalten je einen Eintrag mit einer Spalte <i>date</i>. Diese werden für die Berechung anderer Views benötigt. 
+
+      <h2>5. Triggers</h2>
+         Trigger definieren Aktionen, die ausgeführt werden, falls bestimmte änderungen an den Tabellen vorgenommen werden. 
+      <h3>make_bill</h3>
+         <p>
+         Der Trigger wird ausgeführt, bevor in die Tabelle bill_dates ein neues Datum eingefügt wird. überprüft zuerst die Gültigkeit des Datums, das nicht früher als letze Abrechnungsein darf (sonst Abbruch mit Fehlermeldung). Dann werden die alten Tabellen current_bill und current_consumption gelöscht und durch die aktuellen ersetzt.
+         </p>
+      <h3>rewind_make_bill</h3>
+         Stellt die alten Tabellen wieder her, wenn ein Datum aus bill_dates gelöscht wird. Die Tabellen (Abrechung, favorisierte Produkte, ...) werden neu berechet. Sind Daten (z.B. Benutzer) gelöscht worden, so fehlen diese Daten in den Tabellen.
+      <h3>make_bill_reload_fav</h3>
+         Der Trigger wird ausgeführt, nachdem in die Tabelle bill_dates ein neues Datum eingefügt wird. Bewirkt das neu Erstellen der Favoriten Tabellen.
+      <h3>check_delete_products und check_delete_user</h3>
+         Benutzter und Produkte können nur gelöscht werden, wenn sie alle abgerechnet wurden. Sonst wird eine Fehlermeldung erzeugt.
+      <h3>rewind_seq_*</h3>
+         Nach dem Löschen von Benutzern, Produkten oder Abrechungszeitpunkten werden interne Zähler zurückgesetzt.
+      <h3>rewind_seq_*</h3>
+         Nach dem Löschen von Benutzern, Produkten oder Abrechungszeitpunkten werden interne Zähler zurückgesetzt.
+   </body>
+   </html>
