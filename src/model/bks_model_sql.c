@@ -89,7 +89,7 @@ _close_db:
 
 Bks_Status _bks_model_sql_favorite_products_get(Eina_List **list, const unsigned int limit) {
    Bks_Model_Product *ptr_current_product = NULL;
-   char *select_query ="SELECT products.EAN,name,price,placement,image,status FROM products, favorite_products WHERE products.EAN=favorite_products.EAN ORDER BY placement";
+   char *select_query ="SELECT products.EAN,name,price,placement,image,status FROM products, fav_products WHERE products.EAN=fav_products.EAN ORDER BY placement";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -205,7 +205,7 @@ _close_db:
 Bks_Status _bks_model_sql_recent_user_accounts_get(Eina_List **list, const unsigned int limit) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
-   char *select_query = "SELECT user_accounts.uid,firstname,lastname,status,placement,image FROM user_accounts, recent_user_accounts WHERE user_accounts.uid=recent_user_accounts.uid ORDER BY placement";
+   char *select_query = "SELECT user_accounts.uid,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.uid=fav_users.uid ORDER BY placement";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -269,7 +269,7 @@ _close_db:
 // buying
 Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
 
-   char *insert_query ="INSERT INTO sales (userid, product,price,timestamp) VALUES (?1,?2,?3,datetime('now'))"; //userid product price timestamp
+   char *insert_query ="INSERT INTO sales (userid, product,price,timestamp) VALUES (?1,?2,?3,datetime('now','localtime'))"; //userid product price timestamp
    sqlite3 *pDb;
    sqlite3_stmt *insert_stmt;
    int retval;
