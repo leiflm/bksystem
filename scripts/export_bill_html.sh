@@ -14,7 +14,7 @@
 # query table and add 2 first and last lines as html
 # export table as .html
 # add tag to certain fields (e.g. sum, uid, etc.
-# cleanup af tmp files 
+# cleanup af tmp files
 
    echo ""
    echo "Executing script file:"
@@ -29,7 +29,7 @@
    LRF1=""; RLF2="Verbrauch Anzahl"
 
    # layout to use (will be embedded)
-   LAYOUT="${BKS_SCR_DIR}/layout.css" 
+   LAYOUT="${BKS_SCR_DIR}/layout.css"
 
    # subscript all html after </table> except both </body> and </html>, if too long replace with file
    SUB_TEXT="<p>Karlsruhe, den $(date +%0d.%0m.%0Y), Bierwart</p>"
@@ -45,7 +45,8 @@
       DATE=$BKS_DATE
    fi
    DATEFILE="${DATE}"
-   DATEPRINT="${DATE:8:2}.${DATE:5:2}.${DATE:0:4} ${DATE:11:8}"
+   #reformat date (with substing extraction) to "day.month.year time"
+   DATEPRINT="$(expr substr $DATE 9 2).$(expr substr $DATE 6 2).$(expr substr $DATE 1 4) $(expr substr $DATE 12 8)"
 
    # table caption
    TBL_CAP="Abrechnung vom ${DATEPRINT}"
@@ -78,25 +79,25 @@
       CSV_USER="${BKS_TMP_SUB_DIR}/user.csv"
       # For UPDATE user
       CSV_BILL="${BKS_TMP_SUB_DIR}/bill.csv"
-      # completed sql batch querry to generate and fill table 
+      # completed sql batch querry to generate and fill table
       SQL_Q="${BKS_TMP_SUB_DIR}/create_querry_html.sql"
       # for header lines
       CSV_PROD_NAME="${BKS_TMP_SUB_DIR}/product_names.csv"
       CSV_PROD_PRICE="${BKS_TMP_SUB_DIR}/product_prices.csv"
       CSV_PROD_NAME_ID="${BKS_TMP_SUB_DIR}/product_name_prices.csv"
-      # for tail line 
+      # for tail line
       SUM_ROW="${BKS_TMP_SUB_DIR}/sum_row.csv"
 
    # ensure tmp files be empty
    rm $CSV_PROD_ID $PROD_LIST $CSV_USER $CSV_BILL $SQL_Q $CSV_PROD_NAME $CSV_PROD_PRICE $CSV_PROD_NAME_ID $SUM_ROW >/dev/null 2>&1
-   
+
 # generate SQL batch file
    echo " Generating batch file:"
    echo "   ${SQL_Q}"
-   
+
    # get product list, user list and user/product accumulated list, these tables are
 
-   # get product list  
+   # get product list
    sqlite3 -csv "${DB}" "SELECT EAN, price FROM previous_consumption;" > $CSV_PROD_ID
    # test for data existence
 
@@ -104,10 +105,10 @@
       echo "WARNING: Seems to be nothing sold. Aborting generation" 1>&2
       exit 0;
    fi
-   
+
    # Product List: Quote all ID numbers and append type definiton, then remove linebreaks
     sed 's/\([0-9][0-9]*,[0-9]*.[0-9]*\)/\"\1EUR\" INTEGER  DEFAULT 0,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST
-   #sed 's/\([0-9][0-9]*\)/\"\1\" INTEGER,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST   
+   #sed 's/\([0-9][0-9]*\)/\"\1\" INTEGER,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST
 
    # create file with all sql commands
    # creat temporary table uid, names, productlist, sum
@@ -149,11 +150,11 @@
    #echo "<link rel=\"stylesheet\" type=\"text/css\" media=\"print\" href=\"../styles-print.css\">">>$HTMLF
    echo "</head><body>" >>$HTMLF
    # may replaced by template file
-   
+
    # insert head line
    echo "<h3>${TBL_CAP}</h3>" >>$HTMLF
    echo "<table id=\"bill\">" >>$HTMLF
-   
+
 # create 2 header lines/ 1.replace EANs with name 2. with price
    echo " creating table header..."
    # get all sold product with name and price, order by ID
@@ -165,9 +166,9 @@
       echo "<TD class=\"prod_name\"><svg width=\"16\" height=\"116\"><text id=\"prod_name_rot\" transform=\"rotate(270, 12, 0) translate(-100,0)\">$(echo ${CUR_PROD_NAME} | sed 's/\"//g' )</text></svg></TD>"  >> $CSV_PROD_NAME
       echo "<TD class=\"prod_price\">${CUR_PROD_PRICE}</TD>"  >> $CSV_PROD_PRICE
    done < $CSV_PROD_NAME_ID
-   #cat $CSV_PROD_NAME 
+   #cat $CSV_PROD_NAME
    #cat $CSV_PROD_PRICE
-   #echo "<COLGROUP #class=\"sum_col\"></COLGROUP>" >>$HTMLF 
+   #echo "<COLGROUP #class=\"sum_col\"></COLGROUP>" >>$HTMLF
 
    echo "<thead>" >>$HTMLF
    # first header line (remove linebreaks) leer,"Produkt",list product names, leer
@@ -176,7 +177,7 @@
    echo "<TD>${R1F2}</TD>" >>$HTMLF
    echo "$(cat ${CSV_PROD_NAME})" >>$HTMLF
    echo "<TD>${R1FL}</TD></TR>" >>$HTMLF
-   
+
    # second header line (remove linebreaks) "UID","Name/Preis",list product price
    echo "<TR id=\"prod_price_row\">" >>$HTMLF
    echo "<TD>${R2F1}</TD>" >>$HTMLF
@@ -189,12 +190,12 @@
    echo "</tbody>" >>$HTMLF
    #cat $CSVF
 
-   
+
 # create table with batch file and fetch it
    echo " executing batch file..."
    # get as html: recreate column IDs from csv: "EAN,priceEUR", then remove linebreaks, => insert it to the SELECT statement
-   # then search for (.Number) append zero (e.g. 0.9 => 0.90, 0.95 => 0.95)  
-   sqlite3 -html  -init $SQL_Q "${DB}" "SELECT UID, name, $(sed 's/\([0-9][0-9]*,[0-9]*.[0-9]*\)/\"\1EUR\",/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g') sum FROM \"bill_comp\" ORDER BY name;" | sed 's/\([.][0-9]\)\([^0-9]\)/\10\2/g' >>$HTMLF                   
+   # then search for (.Number) append zero (e.g. 0.9 => 0.90, 0.95 => 0.95)
+   sqlite3 -html  -init $SQL_Q "${DB}" "SELECT UID, name, $(sed 's/\([0-9][0-9]*,[0-9]*.[0-9]*\)/\"\1EUR\",/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g') sum FROM \"bill_comp\" ORDER BY name;" | sed 's/\([.][0-9]\)\([^0-9]\)/\10\2/g' >>$HTMLF
    #sqlite3 -csv -init $SQL_Q "${DB}" "SELECT * FROM \"bill_comp\" ORDER BY name;">>$HTMLF
 
    # TODO check will fail cause $? is exitcode of sed, not sqlite3
@@ -208,7 +209,7 @@
 
    echo "</tbody>" >>$HTMLF
    echo "<tfoot>" >>$HTMLF
-   
+
 # add sum up row
    echo " creating sum row..."
    # first entries are empty

@@ -1,6 +1,6 @@
 #!/bin/sh
 # This script is intended to export a bill from bksystem.sqlite database to csv. It will generate a user(rows) X products(colums) pivot table, with count as data.
-# same as export_bill_complete.sh but seperate first and lastname 
+# same as export_bill_complete.sh but seperate first and lastname
 #
 # Steps:
 #
@@ -12,7 +12,7 @@
 #   UPDATE user rows with consumption (each user and product)
 # query table and add first and last line
 # export table
-# cleanup af tmp files 
+# cleanup af tmp files
 
    echo ""
    echo "Executing script file:"
@@ -29,7 +29,6 @@
       DATE=$BKS_DATE
    fi
    DATEFILE="${DATE}"
-   DATEPRINT="${DATE:8:2}.${DATE:5:2}.${DATE:0:4} ${DATE:11:8}"
 
 #filenames + paths for the exported files, should be defined, if not:
    # exported will be written here
@@ -60,13 +59,13 @@
       CSV_USER="${BKS_TMP_SUB_DIR}/user_sep.csv"
       # For UPDATE user
       CSV_BILL="${BKS_TMP_SUB_DIR}/bill_sep.csv"
-      # completed sql batch querry to generate and fill table 
+      # completed sql batch querry to generate and fill table
       SQL_Q="${BKS_TMP_SUB_DIR}/create_querry_sep.sql"
       # for header lines
       CSV_PROD_NAME="${BKS_TMP_SUB_DIR}/product_names_sep.csv"
       CSV_PROD_PRICE="${BKS_TMP_SUB_DIR}/product_prices_sep.csv"
       CSV_PROD_NAME_ID="${BKS_TMP_SUB_DIR}/product_name_prices_sep.csv"
-      # for tail line 
+      # for tail line
       SUM_ROW="${BKS_TMP_SUB_DIR}/sum_row_sep.csv"
 
    # ensure tmp files be empty
@@ -74,10 +73,10 @@
 # generate SQL batch file
    echo " Generating batch file:"
    echo "   ${SQL_Q}"
-   
+
    # get product list, user list and user/product accumulated list, these tables are
 
-   # get product list  
+   # get product list
    sqlite3 -csv "${DB}" "SELECT EAN, price FROM previous_consumption;" > $CSV_PROD_ID
    # test for data existance
    if ! [ -s $CSV_PROD_ID ]; then
@@ -86,7 +85,7 @@
    fi
    # Product List: Quote all ID numbers and append type definiton, then remove linebreaks
     sed 's/\([0-9][0-9]*,[0-9]*.[0-9]*\)/\"\1EUR\" INTEGER  DEFAULT 0,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST
-   #sed 's/\([0-9][0-9]*\)/\"\1\" INTEGER,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST   
+   #sed 's/\([0-9][0-9]*\)/\"\1\" INTEGER,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST
 
    # create file with all sql commands
    # creat temporary table uid, names, productlist, sum
@@ -121,7 +120,7 @@
    # get all sold product with name and price, order by ID
    sqlite3 -csv -separator '#' $DB "SELECT products.name, previous_consumption.price FROM previous_consumption, products WHERE products.EAN=previous_consumption.EAN ORDER by products.EAN" > $CSV_PROD_NAME_ID
    # parse list, remove quotes around name, new quotes around combined name+price, append to new list
-   
+
    while IFS='#' read -r CUR_PROD_NAME CUR_PROD_PRICE ; do
       echo "\"$(echo ${CUR_PROD_NAME} | sed 's/\"//g' )\","  >> $CSV_PROD_NAME
       echo "${CUR_PROD_PRICE},"  >> $CSV_PROD_PRICE
@@ -130,7 +129,7 @@
    echo "\"\",\"\",\"Produkt\",$(sed ':a;N;$!ba;s/\n//g' ${CSV_PROD_NAME})\"\"" > $CSVF
    # second header line (remove linebreaks) "UID","Name/Preis",list product price
    echo "\"UID\",\"Nachname\",\"Vorname/Preis EUR\",$(sed ':a;N;$!ba;s/\n//g' ${CSV_PROD_PRICE})\"Summe EUR\"" >> $CSVF
-   
+
 # create table with batch file and fetch it
    echo " executing batch file..."
    sqlite3 -csv -separator ',' -init $SQL_Q "${DB}" "SELECT UID, lastname,firstname, $(sed 's/\([0-9][0-9]*,[0-9]*.[0-9]*\)/\"\1EUR\",/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g') sum FROM \"bill_comp\" ORDER BY lastname, firstname;">> $CSVF
@@ -143,12 +142,12 @@
       cp $SQL_Q $BKS_LOG_DIR
       echo "   check ${SQL_Q}" 1>&2
    fi
-      
+
 
 # add sum up row
    echo " creating sum row..."
    # first entries are empty
-   echo ",,Verbrauch Anzahl" > $SUM_ROW 
+   echo ",,\"Verbrauch Anzahl\"" > $SUM_ROW
 
    sqlite3 -csv "${DB}" "SELECT count FROM previous_consumption;" >> $SUM_ROW
    sqlite3 -csv "${DB}" "SELECT round(sum(\"sum\"),2) AS summe FROM previous_account_balance;" >> $SUM_ROW
@@ -159,6 +158,6 @@
 
 # cleanup
    echo " removing tmp files..."
-   rm -r $BKS_TMP_SUB_DIR 
+   rm -r $BKS_TMP_SUB_DIR
    #rm -f $CSV_PROD $PROD_LIST $CSV_USER $CSV_BILL $SUM_ROW #$SQL_Q
 # dont clean up .sql: will be kept on error :

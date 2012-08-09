@@ -16,8 +16,8 @@
    else
       DATE=$BKS_DATE
    fi
-   DATESQL="${DATE:0:10} ${DATE:11:8}"
-
+   # reformat date, replace underscore with space
+   DATESQL="$(expr substr $DATE 1 10) $(expr substr $DATE 12 8)"
    echo "  Started inserting ${DATESQL} to DB"
 
    if ! [ -e $DB ]; then
@@ -27,7 +27,7 @@
 
 # insert current date to DB to trigger bill table generation
    STMT="INSERT INTO bill_dates (timestamp) VALUES ('${DATESQL}');"
-   #for testing: STMT="INSERT INTO bill_dates (timestamp) VALUES ('2013-01-01 12:12:12');" 
+   #for testing: STMT="INSERT INTO bill_dates (timestamp) VALUES ('2013-01-01 12:12:12');"
    # echo sqlite3 -column $DB $STMT
    sqlite3 -column "${DB}" "$STMT"
    REPLY=$?
