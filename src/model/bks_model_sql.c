@@ -33,7 +33,7 @@
 #include "Bks_Model_Sale.h"
 #include "Bks_Status.h" 
 
-
+#define SQLITE_OPEN_URI 0x00000040
 // data retrieval
 
 Bks_Status _bks_model_sql_products_get(Eina_List **list) {
