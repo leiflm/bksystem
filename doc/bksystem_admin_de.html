@@ -73,6 +73,12 @@
                </p>      
                   Die Schritte werden für den SQLite Manager beschrieben, können aber auch mit jedem anderen Programm zur Manipulation von sqlite-Datenbanken bewerkstelligt werden. Inhalte von Tabellen können im Tab <i>Durchsuchen</i> angesehen und bearbetet werden. Der SQLiteManager bietet auch hier ein Feld (Tab <i>SQL ausführen</i>) an, in den der Code eingefügt und ausgeführt werden kann. Für einige Aufgabenstellungen wird fertiger Code bereitgestellt, bei dem evtl. Parameter eingfügt (z.B. "Max Mustermann" durch Werte ersetzen) werden müssen, und der dann nur ausgeführt werden muss.
                <p>
+               <div id="image3">
+                  <table class="image">
+                  <tr><td><img src="screenshots/sqliteManager.png"  height="521" title="SQLiteManager Screenshot"></td></tr>
+                  <td><tr><caption class><i>SQLiteManager Screenshot</i></caption></td></tr>
+                  </table>
+               </div>
                </p>
             <h4 id="tab_calc">Tabellenkalkulation</h4>
                <p>
@@ -199,8 +205,13 @@
                      <li>2 Versionen</li>
                   </ul>
                </ol>
-                  <p>Nicht automatisiert sind <a href=#import>Import</a> in die Tabellenkalkulation,<a href=#layout>Layout</a>, pdf/Druck,  evtl. <a href=#pivot_table>Pivot Tabelle</a>, falls Abrechnung.csv sich nicht importieren lässt.</p>
-               
+                  <p>Nicht automatisiert sind dafür <a href=#import>Import</a> in die Tabellenkalkulation,<a href=#layout>Layout</a>, pdf/Druck,  evtl. <a href=#pivot_table>Pivot Tabelle</a>, falls Abrechnung.csv sich nicht importieren lässt.</p>
+                  <li>Export der formatierten Konsumliste -> <b>Abrechnung_datum.html</b></li>
+                  <ul>
+                     <li>erspart das Erstellen der Pivot Tabelle aus Konsumliste.csv</li>
+                     <li>Generierung ist aber fehleranfällig, funzt u.U. nicht.</li>
+                     <li>Diese Version enthält auch schon layout infos. Möchte man die .html Datei drucken, muss darauf geachtet werden, dass die Tabelle (zumindest in der Breite) auf eine Seite passt (Querformat der Seite). Evtl. die Skalierung anpassen, z.B. mit Firefox in der Druckvorschau möglich</li>
+                  </ul>
             <h2 id="manual"><li>Manuelle Abrechnung</li></h2>
             
             </ul>
@@ -234,16 +245,19 @@
                      Aus der Liste (pervious_account_list (exportiert) bzw. Konsumliste.csv (generiert) müssen sog. Pivot-Tabellen erstellt werden: in Office findet sich diese Funktion im Menü <i>Data->Privot-Table->Create</i> (Datensätze vorher markieren). UID, Nach und Vorname gehöhren in die Zeilen(row), Productname, und Preis in die Spalten(column), sowie der count (wichtig) und evtl. sum (s.u.) in das Datenfeld.     
                      Hat man die Summe (sum) ins Datenfeld eingefügt, ist man nun fertig.
                   </p>
-                  <div id="image">
-                     <img src="screenshots/create_pivot_table.png"  height="521" title="Dialog zur Erstellung von Pivot Tabellen">
-                     <caption>Dialog zur Erstellung von Pivot Tabellen</caption>
+                  <div id="image1">
+                     <table class="image">
+                     <tr><td><img src="screenshots/create_pivot_table.png"  height="521" title="Dialog zur Erstellung von Pivot Tabellen"></td></tr>
+                     <td><tr><caption class><i>Dialog zur Erstellung von Pivot Tabellen</i></caption></td></tr>
+                     </table>
                   </div>
                   <h4 id=Layout></h4>
                      <p>Jetzt muss noch ein wenig formatiert werden. Es empfielt sich die Produktnamen um 90 grad zu drehen und dann zugehörige Spalten automatisch in der Breite anzupassen um Platz zu sparen. Sollten Formatierungen in der automaisch generierten Pivot Tabelle nicht möglich sein: Ausschneiden und in ein neues Blatt einfügen. Dann noch Rahmen und Gitter einfügen, sheet/Blatt umbennenen, Datum + Text einfügen, etc..</p>
-                  <div id="image">
-                     <img src="screenshots/layout_example.png" title="Beispiel, wie eine fertige Rechnungstabelle aussehen könnte">
-                     <caption>Beispiel tabelle nach Formatierung mit Rahmen</caption>
-
+                  <div id="image2">
+                     <table class="image">
+                     <tr><td><img src="screenshots/layout_example.png" title="Beispiel, wie eine fertige Rechnungstabelle aussehen könnte"></td></tr>
+                     <tr><td><caption class="caption"><i>Beispiel tabelle nach Formatierung mit Rahmen</i></caption></td></tr>
+                  </table>
                   </div>
                </ul>
 
