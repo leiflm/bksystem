@@ -1,0 +1,130 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+   <head>
+      <title>Dokumentation bksystem scripte</title>
+      <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+      <style type="text/css">table { border: 1px solid black; border-collapse: collapse; text-align: left; font-size:small;  margin-left: 2em; }</style>
+      <script src="toc.js" type="text/javascript"></script>
+      <style type="text/css">div#toc ul { list-style-type: none;} </style>
+      <style type="text/css">  p { margin-right: 1em; margin-left: 2em; } </style>
+      <style type="text/css">  h1 { margin-right: 1em; margin-left: 1em; } h2 h3 h4 { margin-right: 1em; margin-left: 2em; } </style>
+
+   </head>
+   <body onload="generateTOC(document.getElementById('toc'));">
+      <h2>Dokumentation bksystem script</h2>
+
+      <div id="toc"><b>Übersicht</b></div>
+
+            <h3 id="general">Kurz</h3>
+
+               <h4>Intro</h4>
+               <p>Es ist gedacht, dass alle Skripte regelmäßig automatisch mit Hilfe von <a href=#crontab title="zu Crontab springen">crontab</a> ausgeführt werden. Dazu in crontab das Script <i>bksystem.sh</i> mit der Option -a (alle konfigurierten jobs) starten. Folgende jobs stehen zur Verfügung: Abrechnungszeitpunkt festlegen, Export verschiedener Rechnungsformate (simple: Verbrauch, Konsum, Liste; Pivottabelle als .csv, und als .html mit layout), Backup der Daten (products, user, sales,...), restore der Daten, Tabelle sales bereinigen (TODO). Damit sollten schon alle regelmäßigen Aufgaben erledigt sein. Bei der Installation müssen nur im Script die <a href=#config_paths title="Pfade konfigurieren">Pfade</a> und geschwünschten <a href=#config_jobs title="Jobs (de)aktivieren">jobs</a> eingestellt werden</p>
+
+               <h4 id="software">Software: sqlite3</h4>
+               <p>Alle Skripte benötigen das commandline tool sqlite3, um die Datenabfragen zu stellen. Es wird immer die Shell sh. bash, csh etc. ist nicht nötig. Wietere tolls die benutzt werden: sed, getopts </p>
+               <p><a href="http://www.google.de/search?q=man+sqlite3&btnI=aufgutglück" title="Manual sqlite3 anzeigen">Manual sqlite3</a></p>
+
+            <h3 id="all_jobs">master script: bksystem.sh</h3>
+
+               <h4 id="function_master">Funktion</h4>
+               <p>In bksystem.sh sind alle Konfigurationen gespeichert. Das sind zum einen Defaultwerte für die Pfad und Dateiname. Zum anderen sind das die Funktionen, die automatisch, bzw. regelmäßig ausgeführt werden sollen. Des weiteren akzeptiert das script eine Reihe von Kommandozeilen Optionen.</p>
+
+               <h4 id="config">Konfiguration</h4>
+               <p>Alle Konfigurationen lassen sich in direkt in die Datei bksystem.sh schreiben. Am Anfang steht der Hilfetext. Direkt danach und kenntlich gemacht mit weiteren Kommentaren sind folgende Optionen</p>
+               <h4 id="config_paths">Pfade konfigurieren</h4>
+               <p>Eigentlich sollte es reichen, nur das <b>DEF_ROOT_DIR</b> zu setzen e.g. /home/bierwart/bksystem. Alle anderen Pfade werden relativ dazu gesetzt</p>
+               <table border=1>
+                  <caption><i>Default Werte: Konfiguration</i></caption>
+                  <tr><th>VARNAME</th> <th>Bedeutung</th> <th>initial Wert</th></tr>
+                  <tr><th>DEF_ROOT_DIR</th> <th>Hauptverzeichnis</th><th>nicht gesetzt</th></tr>
+                  <tr><th>DEF_DATE</th> <th>Abrechnungsdatum</th> <th>Setze auf "Jetzt", <b>nicht ändern!</b></th></tr>
+                  <tr><th>DEF_SCR_DIR</th> <th>Verzeichnis der Skripte</th> <th>ROOT_DIR/scripts</th></tr>
+                  <tr><th>DEF_DB_DIR</th> <th>Pfad zur Datenbank</th> <th>ROOT_DIR/database</th></tr>
+                  <tr><th>DEF_DB_NAME</th> <th>Datenbankname</th> <th>bksystem.sqlite</th></tr>
+                  <tr><th>DEF_BILL_DIR</th> <th>Pfad zum Verzeichnis für Abrechnungen</th> <th>ROOT_DIR/bills</th></tr>
+                  <tr><th>DEF_TMP_DIR</th> <th>Pfad zum temporären Verzeichnis</th> <th>ROOT_DIR/tmp</th></tr>
+                  <tr><th>DEF_BKP_DIR</th> <th>Pfad zum Verzeichnis zum Backups schreiben oder lesen</th> <th>ROOT_DIR/bkp</th></tr>
+                  <tr><th>DEF_LOG_DIR</th> <th>Pfad zum Verzeichnis für log Datei</th> <th>ROOT_DIR/log</th></tr>
+                  <tr><th>DEF_LOG_FILE</th> <th>Log-Dateiname</th> <th>bill_script.log</th></tr>
+               </table>
+               <h4 id="config_jobs">Konfiguration: einzelne scripte de/aktivieren</h4>
+               <p>Die zugehörigen Variablen auf 0 setzten zum deaktivieren, 1 zum aktivieren. Die Option restore DB kann (und wäre auch sinnlos) nicht zusammen mit den anderen ausgeführt werden, also standartmäßig deaktiviert.</p>
+               <h4 id="cli_args">Kommandozeilen Argumente</h4>
+               <p>Mit -h oder -help lassen sich alle Optionen anzeigen. Script aufrufen und die Optionen anhängen. Bsp:<code>./bksystem.sh -ab -f dbfile.sqlite</code>: alle jobs und backup von datei ...</p>
+               <table border=1 id="cli-switch">
+                  <caption><i>Command line switches</i></caption>
+                  <tr><th>Option</th> <th>Bedeutung</th> <th>Bemerkung</th></tr>
+                  <tr><th>-a</th><th>führe alle konfigurierten jobs aus</th><th>nicht mit -r</th></tr>
+                  <tr><th>-c</th> <th>zeige alle konfigurierten jobs an</th> <th></th></tr>
+                  <tr><th>-i</th> <th>zusätzlich Abrechnung erstellen (Datum einfügen)</th> <th>nicht mit -r</th></tr>
+                  <tr><th>-e</th> <th>zusätzlich alle Export durchführen</th> <th>nicht mit -r</th></tr>
+                  <tr><th>-b</th> <th>zusätzlich Backup durchführen</th> <th>nicht mit -r</th></tr>
+                  <tr><th>-f</th> <th>Datenbankname direkt angeben</th> <th>e.g. -f bksystem.sqlite</th></tr>
+                  <tr><th>-l</th> <th>Logdatei nicht überschreiben</th> <th>implizit durch alle info: -c, -d, -h, </th></tr>
+                  <tr><th>-r</th> <th>Datenbank neu erstellen und backup einspielen</th> <th>falls DB existiert, passiert nichts (nicht überschreibend).</th></tr>
+                  <tr><th>-d</th> <th>Default Pfade und Namen ansehen</th> <th></th></tr>
+                  <tr><th>-s</th> <th>Aktuell gesetzte Pfade und Namen ansehen (default und export values)</th> <th></th></tr>
+               </table>
+               <p>Pfade manuel temporär verändern:</p>
+               <table border=1 id="pathlist">
+                  <caption><i>Command line variable parameter</i></caption>
+                  <tr><th>BKS_DATE:</th> <th> Abrechnungsdatum</th></tr>
+                  <tr><th>BKS_SCR_DIR:</th> <th> Verzeichnis der Skripte</th></tr>
+                  <tr><th>BKS_DB_DIR:</th> <th>Pfad und Datenbankname</th></tr>
+                  <tr><th>BKS_DB_NAME: </th> <th>Datenbankname</th></tr>
+                  <tr><th>BKS_BILL_DIR: </th> <th>Pfad zum Verzeichnis für Abrechnungen</th></tr>
+                  <tr><th>BKS_TMP_DIR:</th> <th> Pfad zum temporären Verzeichnis</th></tr>
+                  <tr><th>BKS_BKP_DIR:</th> <th>Pfad zum Verzeichnis zum Backups schreiben oder lesen</th></tr>
+                  <tr><th>BKS_LOG_DIR:</th> <th>Pfad zum Verzeichnis für log Datei</th></tr>
+                  <tr><th>BKS_LOG_FILE</th> <th>:Log-Dateiname</th></tr>
+               </table>
+               <h4 id="structure">Aufbau</h4>
+
+            <h3 id="subscripte">Sub-scripte</h3>
+            <p>Diese Scripte werden alle vom masterscript bksystem.sh aufgerufen. Diese Vorgehensweise ist besser, da die Environment automatisch gesetzt wird (Config, s.o.). Einzelne Scripte mit den Commanline switches (de)aktiveren</p>
+            <p>Es lassen sich aber auch alle in einer shell direkt ausführen. Dabei muss die Datenbank (mit Pfad) als export angegeben werden über die Variable <code>DB</code> (Pfad + Name der Datenbank e.g. <code>export DB="/pad/zu/datenbank/name.sqlite"</code>), oder default ist hier immer <code>./bksystem.sqlite</code>. Alle Dateien werden dann ins/vom Arbeitsverzeichnis geschrieben/gelesen. Alternativ können folgende <a href=#pathlist title="zu der Liste springen">Pfadvariable</a> gesetzt werden mit <a href="http://www.google.de/search?q=man+export&btnI=auf+gut+glück" title="Manual export">export</a>, e.g. <code>export BKS_DB_DIR="~/bksystem/database_dir"</code>. Benutzte Variablen und Dateien stehen bei den Skriptbeschreibungen.
+            <h3 id="insert">Jetzt abrechnen: insert_bill_reference_date_into_db.sh</h3>
+
+            <p>Einfügen des Abrechnungsdatums in die Tabelle <b>bill_dates</b>.</p>
+            <p>Variablen: DB </p>
+            <h3 id="export">Export: export_bill_basic.sh</h3>
+            <p>Export der Views:
+               <ul>
+                     <li>previous_account_list &rarr; <b>Konsumliste.csv</b></li>
+                     <li>previous_account_balance &rarr; <b>Kontostand.csv</b></li>
+                     <li>previous_consumption &rarr; <b>Verbrauch.csv</b></li>
+               </ul>
+            </p>
+            <p>Variablen: BKS_BILL_DIR, BKS_TMP_DIR, DB </p>
+
+            <h3 id="pivot_table">pivot Tabelle generieren + export: export_bill_complete(_sep).sh</h3>
+            <p>Export der formatierten Konsumliste &rarr; <b>Abrechnung.csv</b></p>
+            <p>Variablen: </p>
+            <h3 id="pivot_table_html">pivot Tabelle generieren + export als html mit layout: export_bill_html.sh</h3>
+            <p>Export der formatierten Konsumliste &rarr; <b>Abrechnung.html</b> </p>
+            <p>Variablen: </p>
+            <h3 id="cleanup">cleanup: clean_old_sales.sh</h3>
+            <p>TODO: Löscht Verkäufe älter als die jetztige Abrechnung</p>
+            <p>Variablen: </p>
+            <h3 id="backup">Backup: backup.sh und restore.sh</h3>
+            <p>Exportiert das Datenbank schema, user_accounts, products, sales und bill_dates in .csv-Dateien. bzw liest die Dateien wieder ein.</p>
+            <p>Variablen: </p>
+            <h3 id="crontab">Crontab</h3>
+            <p>
+               Die Crontab mit <code>crontab -e</code> bearbeiten (i &rarr; einfügen, ESC :x ENTER &rarr; Save+Quit). Eine der folgenden Zeilen einfügen. Mehr zu <a href="http://wiki.ubuntuusers.de/Cron#Cronjobs-manuell-einrichten" title="Cronjobs Hilfe">Cronjobs</a> und den Zeitangaben.
+            </p>
+            <ul>
+            <li><code>0 4 1 */1 *  /home/username/pfad/zum/script/bksystem.sh -a >/dev/null 2>&1 </code> (Jeder 1. im Monat um 4:00 Uhr)</li>
+            <li><code>0 4 * * 7  /home/username/pfad/zum/script/bksystem.sh -a >/dev/null 2>&1 </code> (Jeden Sonntag 4:00 Uhr)</li>
+            <li><code>0 0 */14 * *  /home/username/pfad/zum/script/bksystem.sh -a >/dev/null 2>&1 </code> (Alle 14 Tage um 0:00 Uhr)</li>
+            </ul>
+            <p>Folgende Pfadvariable müssen angegeben sein, falls sie nicht schon gesetzt sind (einfach am Anfang der Datei einfügen):
+            <ul>
+            <li><code> PATH=/usr/local/bin:/usr/local/sbin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/bin/X11</code></li>
+            <li><code> SHELL=/bin/sh</code> oder <code> SHELL=/bin/bash</code> </li>
+            </ul>
+            </p>
+            <p><b>WICHTIG:</b> Leerzeile am Ende der Datei einfügen, sonst gehts nicht!</p>
+
+
+   </body>
