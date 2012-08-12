@@ -1,0 +1,47 @@
+
+body, div, p, dl {
+   font-family: Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+   font-size: 13px;
+}
+
+p {
+   margin-right: 1em;
+   margin-left: 2em;
+}
+
+div#toc ul {
+   list-style-type: none;
+}
+
+a {
+   color: #153788;
+   font-weight: normal;
+   text-decoration: none;
+}
+
+a:hover {
+   text-decoration: underline;
+}
+
+table {
+   font-family: Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+   font-size: 11px;
+   border:none;
+   border-bottom: 2px solid rgb(204,204,204);
+   border-spacing: 2px;
+   border-collapse: separate;
+   text-align: left;
+   margin-left :2em;
+   background-color: #FBFBFB;
+}
+
+th {
+   font-weight: normal;
+   border-top: 2px solid rgb(204,204,204);
+}
+
+hr {
+   height: 0px;
+   border: none;
+   border-top: 1px solid #666;
+}
