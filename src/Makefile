@@ -41,7 +41,14 @@ HEADERS = $(MAIN_HEADERS) $(MODEL_HEADERS) $(UI_HEADERS)
 
 MAIN_OBJ = $(BUILD_DIR)/bksystem
 
+DOXY_DIR = $(TOP_DIR)/doc/doxygen
+DOXY_CONF = $(DOXY_DIR)/doxyconf
+DOXY_TEMPL = $(DOXY_DIR)/headerFile $(DOXY_DIR)/footerFile
+
 all: $(MAIN_OBJ)
+
+doc: $(SRC) $(HEADERS) $(DOXY_CONF) $(DOXY_TEMPL)
+	doxygen $(DOXY_CONF)
 
 $(MAIN_OBJ): $(SRC) $(HEADERS)
 	$(CC) $(CFLAGS) $(DEBUG_CFLAGS) $(SYSTEM_CFLAGS) $(SYSTEM_LDFLAGS) $(SRC) -o $(MAIN_OBJ)
