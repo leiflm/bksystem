@@ -44,18 +44,18 @@ CREATE VIEW "date_second_last_bill" AS
    WHERE timestamp < date_last_bill.date;
 
 CREATE VIEW "previous_account_list" AS
-SELECT userid, lastname, firstname, EAN, name, price, count(product) AS count, round(sum(round(price,2)),2) AS "sum" 
+SELECT userid, lastname, firstname, EAN, name, price, count(product) AS count, round(sum(round(price,2)),2) AS "sum"
    FROM
-      (SELECT uid, lastname, firstname 
+      (SELECT uid, lastname, firstname
       FROM user_accounts)
    INNER JOIN
       (
-         (SELECT EAN,name FROM products) 
-      INNER JOIN 
-        (SELECT userid, product, price,timestamp 
-         FROM sales,date_last_bill, date_second_last_bill 
-         WHERE sales.timestamp > date_second_last_bill.date 
-         AND sales.timestamp <= date_last_bill.date) 
+         (SELECT EAN,name FROM products)
+      INNER JOIN
+        (SELECT userid, product, price,timestamp
+         FROM sales,date_last_bill, date_second_last_bill
+         WHERE sales.timestamp > date_second_last_bill.date
+         AND sales.timestamp <= date_last_bill.date)
       ON EAN = product
       )
    ON userid = uid
@@ -71,7 +71,7 @@ CREATE VIEW "previous_account_balance" AS
       INNER JOIN
          (SELECT userid, product, price,timestamp
          FROM sales,date_last_bill,date_second_last_bill
-         WHERE sales.timestamp > date_second_last_bill.date 
+         WHERE sales.timestamp > date_second_last_bill.date
          AND sales.timestamp <= date_last_bill.date)
       ON uid =userid)
       GROUP BY uid
@@ -86,24 +86,24 @@ SELECT EAN,name,price, count(userid) AS "count", round(sum(round(price,2)),2) AS
       INNER JOIN
          (SELECT userid, product, price,timestamp
          FROM sales, date_last_bill,date_second_last_bill
-         WHERE sales.timestamp > date_second_last_bill.date 
+         WHERE sales.timestamp > date_second_last_bill.date
          AND sales.timestamp <= date_last_bill.date)
       ON EAN = product)
       GROUP BY EAN, price
       ORDER BY name;
 
 CREATE VIEW "current_account_list" AS
-SELECT userid, lastname, firstname, EAN, name, price, count(product) AS count, round(sum(round(price,2)),2) AS "sum" 
+SELECT userid, lastname, firstname, EAN, name, price, count(product) AS count, round(sum(round(price,2)),2) AS "sum"
    FROM
-      (SELECT uid, lastname, firstname 
+      (SELECT uid, lastname, firstname
       FROM user_accounts)
    INNER JOIN
       (
-         (SELECT EAN,name FROM products) 
-      INNER JOIN 
-        (SELECT userid, product, price,timestamp 
-         FROM sales,date_last_bill, date_second_last_bill 
-         WHERE sales.timestamp >= date_last_bill.date) 
+         (SELECT EAN,name FROM products)
+      INNER JOIN
+        (SELECT userid, product, price,timestamp
+         FROM sales,date_last_bill, date_second_last_bill
+         WHERE sales.timestamp >= date_last_bill.date)
       ON EAN = product
       )
    ON userid = uid
@@ -164,9 +164,9 @@ CREATE VIEW "current_fav_users" AS
 
 CREATE TRIGGER "make_bill"
    BEFORE INSERT ON "bill_dates"
-   BEGIN 
+   BEGIN
       SELECT CASE
-         WHEN NEW.timestamp < (SELECT MAX(timestamp) FROM bill_dates) 
+         WHEN NEW.timestamp < (SELECT MAX(timestamp) FROM bill_dates)
          THEN RAISE(ABORT, "There is a newer bill date in the table.Try a newer date!")
          WHEN NEW.timestamp > (SELECT datetime('now','localtime'))
           THEN RAISE(ABORT, "Date is in the future, Try an older date!")
@@ -212,12 +212,14 @@ CREATE TRIGGER "check_delete_product"
    FOR EACH ROW
    BEGIN
       SELECT CASE
-         WHEN OLD.EAN = (SELECT EAN FROM current_consumption)
-         THEN RAISE(ABORT, "Some unpaid products left in current_comsumption. Please make a new bill first.")
+         WHEN OLD.EAN IN (SELECT EAN FROM current_consumption)
+         THEN RAISE(ABORT, "Some unpaid products left in current_consumption. Please make a new bill first.")
+         WHEN OLD.EAN IN (SELECT EAN FROM previous_consumption)
+         THEN RAISE(ABORT, "Some products left in previous_consumption. Even if you exported the bill already, deletion will be not possile until next bill.")
       END;
       DELETE FROM sales WHERE OLD.EAN = sales.product;
-      DELETE FROM previous_fav_products;
-      INSERT INTO previous_fav_products (EAN) SELECT EAN FROM current_fav_products;
+      DELETE FROM fav_products;
+      INSERT INTO fav_products (EAN) SELECT EAN FROM previous_fav_products;
    END;
 
 CREATE TRIGGER "check_delete_user"
@@ -225,10 +227,24 @@ CREATE TRIGGER "check_delete_user"
    FOR EACH ROW
    BEGIN
       SELECT CASE
-         WHEN OLD.uid = (SELECT userid FROM current_account_list)
+         WHEN OLD.uid IN (SELECT userid FROM current_account_balance)
          THEN RAISE(ABORT, "Some unpaid products left in current_account_balance. Please make a new bill first.")
+         WHEN OLD.uid IN (SELECT userid FROM previous_account_balance)
+        THEN RAISE(ABORT, "Some products left in previous_account_balance. Even if you exported the bill already, deletion will be not possile until next bill.")
       END;
       DELETE FROM sales WHERE OLD.uid = sales.userid;
-      DELETE FROM previous_fav_users;
-      INSERT INTO previous_fav_users (uid) SELECT uid FROM current_fav_users;
+      DELETE FROM fav_users;
+      INSERT INTO fav_users (uid) SELECT uid FROM previous_fav_users;
+   END;
+
+CREATE TRIGGER "check_delete_sales"
+   BEFORE DELETE ON "sales"
+   FOR EACH ROW
+   BEGIN
+      SELECT CASE
+         WHEN OLD.timestamp > (SELECT date FROM date_last_bill)
+         THEN RAISE(ABORT, "Cant delete sale, please make a new bill first. If you want to cancel the sale, set the price of sale to 0.00")
+         WHEN OLD.timestamp > (SELECT date FROM date_second_last_bill)
+         THEN RAISE(ABORT, "Cant delete sale. Deletion will be not possile until next bill. If you exported the bill already and want to cancel the sale, set price of sale to 0.00 and export again.")
+      END;
    END;
