@@ -1,0 +1,137 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+   <head>
+      <title>Documentation bksystem scripte</title>
+      <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+      <script src="toc.js" type="text/javascript"></script>
+      <link href="textstyle.css" rel="stylesheet" type="text/css">
+
+   </head>
+   <body onload="generateTOC(document.getElementById('toc'));">
+      <h2>Dokumentation bksystem script</h2>
+
+      <div id="toc"><b>Contents</b></div>
+         <hr>
+            <h3 id="general">general</h3>
+
+               <h4>Summary</h4>
+               <p>All the scripts meant to be executed regularly with <a href=#crontab title="jump to paragraph crontab">crontab</a> or similar programms. Therefor execute <i>bksystem.sh</i> -a (commandline switch for all configured jobs). The following tasks are available: define a reference date for a bill, export diffrent formats of the bill (simple: consumption, account balances and a complete list as .csv; pivottables as .csv and .html which includes as layout), backup of data (products, users, sales, ...), restore data, cleanup sales table (unused old data, TODO). This should be enough to get all regularly tasks done. To install the script you have to configure <a href=#config_paths title="configure paths">paths</a> and  <a href=#config_jobs title="jobs (de)activate">jobs</a>.</p>
+
+               <h4 id="software">Software: sqlite3</h4>
+               <p>You need to have the commandline tool sqlite3 installed, to querry the database. Scripts use sh. bash is not necessary. Additional tools: sed, getopts (should be available on)</p>
+               <p><a href="http://www.google.de/search?q=man+sqlite3&btnI=aufgutglück" title="Show manual page sqlite3 ">Manual sqlite3</a></p>
+               <h4 id="install">Installation</h4>
+               <p>To install the scripts you have to <a href=#config>configure</a> and <a href=#crontab>crontab</a></p>
+            <h3 id="all_jobs">master script: bksystem.sh</h3>
+         <hr>
+               <h4 id="function_master">functions</h4>
+               <p>In the script bksystem.sh all configurations are saved. First these are default values for all paths and filenames. On the other hand a list of functions that should be executed regularly. Additionally you can use some command line options for bksystem.sh.</p>
+
+               <h4 id="config">configuration</h4>
+               <p>Write all configurations into the file bksystem.sh, just open with a text editor. At the start there is a short help text, that will also be shown to CLI. Directly below and pointed to with comments are the following options.</p>
+               <h4 id="config_paths">configure paths</h4>
+               <p>It should be sufficent to set <b>DEF_ROOT_DIR</b>, e.g. /home/someuser/bksystem. All other Paths will be relative. Perhaps you want to set another path for all exported files (bills). Make sure you have write permission for these paths.</p>
+               <table border="0">
+                  <caption class="caption_img"><i>Default values: Configuration</i></caption>
+                  <tr><th>varname</th> <th>Meaning</th> <th>initial value</th></tr>
+                  <tr><th>DEF_ROOT_DIR</th> <th>Main/root directory</th><th>not set</th></tr>
+                  <tr><th>DEF_DATE</th> <th>reference date for bills</th> <th>"now", <b>don't change!</b></th></tr>
+                  <tr><th>DEF_SCR_DIR</th> <th>directory of scripts</th> <th>ROOT_DIR/scripts</th></tr>
+                  <tr><th>DEF_DB_DIR</th> <th>path to database</th> <th>ROOT_DIR/database</th></tr>
+                  <tr><th>DEF_DB_NAME</th> <th>database name</th> <th>bksystem.sqlite</th></tr>
+                  <tr><th>DEF_BILL_DIR</th> <th>path for bills</th> <th>ROOT_DIR/bills</th></tr>
+                  <tr><th>DEF_TMP_DIR</th> <th>temporary dir</th> <th>ROOT_DIR/tmp</th></tr>
+                  <tr><th>DEF_BKP_DIR</th> <th>path for backups or restore</th> <th>ROOT_DIR/bkp</th></tr>
+                  <tr><th>DEF_LOG_DIR</th> <th>path to log file</th> <th>ROOT_DIR/log</th></tr>
+                  <tr><th>DEF_LOG_FILE</th> <th>Log-file name</th> <th>bill_script.log</th></tr>
+               </table>
+               <h4 id="config_jobs">configuration: de/activate scripts/tasks</h4>
+               <p>Set the corresponding variable to 0 to deactivate, 1 to activate. Restore DB can't (would be useless) be executed with other tasks, deactivate as default.</p>
+               <h4 id="cli_args">Command line arguments</h4>
+               <p>Use -h or -help to show all options. To use these options append to script, e.g.:<code>./bksystem.sh -ab -f dbfile.sqlite</code>: will do all configured jobs and backup, also use file dbfile-sqlite...</p>
+               <table border="0" id="cli-switch">
+                  <caption class="caption_img"><i>Command line switches</i></caption>
+                  <tr><th>Option</th> <th>Meaning</th> <th>Comment</th></tr>
+                  <tr><th>-a</th><th>exec all configuered jobs</th><th>not with -r</th></tr>
+                  <tr><th>-c</th> <th>show all configured jobs</th> <th></th></tr>
+                  <tr><th>-i</th> <th>additionally fix reference date (insert bill date)</th> <th>not with -r</th></tr>
+                  <tr><th>-e</th> <th>additionally export all possible formats</th> <th>not with -r</th></tr>
+                  <tr><th>-b</th> <th>additionally do backup</th> <th>not with -r</th></tr>
+                  <tr><th>-f</th> <th>use following arg as database file (with path)</th> <th>e.g. -f database/bksystem.sqlite</th></tr>
+                  <tr><th>-l</th> <th>don't overwrite log file</th> <th>implicit for all info: -c, -d, -h, </th></tr>
+                  <tr><th>-r</th> <th>recreate the (empty) database an restore data</th> <th>If file exists, nothing happens (will not overwrite)</th></tr>
+                  <tr><th>-d</th> <th>Show default paths and filenames</th> <th></th></tr>
+                  <tr><th>-s</th> <th>Show set paths and filenames (default and export values)</th> <th></th></tr>
+               </table>
+               <p>set variables temporarily with export before executing script:</p>
+               <table border="0" id="pathlist">
+                  <caption class="caption_img"><i>Command line variable parameter</i></caption>
+                  <tr><th>varname</th> <tr>Comment</tr></tr>
+                  <tr><th>BKS_DATE</th> <th>reference date</th></tr>
+                  <tr><th>BKS_SCR_DIR</th> <th>path to scripts and html-templates</th></tr>
+                  <tr><th>BKS_DB_DIR</th> <th>path to database</th></tr>
+                  <tr><th>BKS_DB_NAME</th> <th>database name</th></tr>
+                  <tr><th>BKS_BILL_DIR</th> <th>path where to write bill</th></tr>
+                  <tr><th>BKS_TMP_DIR</th> <th>temporary directory</th></tr>
+                  <tr><th>BKS_BKP_DIR</th> <th>path where to backup or restore from</th></tr>
+                  <tr><th>BKS_LOG_DIR</th> <th>path to log file</th></tr>
+                  <tr><th>BKS_LOG_FILE</th> <th>log file name</th></tr>
+               </table>
+               <h4 id="additional">additional infos: bksystem.sh</h4>
+               <p>All invokations of bksystem.sh except info commands will write to a log file ( -l disables it). Should something go wrong while executing automatically you can have a look in the log-file.</p>
+               <p>All exportes files and the subdirectory will contain the reference date, not the export/creation date. Should you export a while after inserting the reference date to the database, the date for the filenames will be fetched from the table <b>bill_dates</b>.</p>
+               <p>If the views previous_* contain no data (no sales happend) the exportes files are either empty or will not be generated. The log file will contain a warning.</p>
+
+            <h3 id="crontab">Crontab</h3>
+            <p>Crontab is a software to execute regularly some programms.</p>
+            <p>
+               Edit the crontab form command line with <code>crontab -e</code> bearbeiten (vim commands: i &rarr; insert, ESC :x ENTER &rarr; Save+Quit). Insert one of the following lines. Additional infos to <a href="https://help.ubuntu.com/community/CronHowto" title="Cronjobs help">cronjobs</a> and the time format.
+            </p>
+            <ul>
+               <li><code>0 4 1 */1 *  /home/username/path/to/script/bksystem.sh -a >/dev/null 2>&1 </code> (1. every month at 4:00 a.m.)</li>
+               <li><code>0 4 * * 7  /home/username/path/to/script/bksystem.sh -a >/dev/null 2>&1 </code> (every sunnday 4:00 a.m.)</li>
+               <li><code>0 0 */14 * *  /home/username/path/to/script/bksystem.sh -a >/dev/null 2>&1 </code> (every 14 days at 0:00)</li>
+            </ul>
+            <p>Followin Path variables must be set, if not already done. (Just insert at the start of the file):</p>
+               <ul>
+                  <li><code> PATH=/usr/local/bin:/usr/local/sbin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/bin/X11</code></li>
+                  <li><code> SHELL=/bin/sh</code> oder <code> SHELL=/bin/bash</code> </li>
+               </ul>
+            </p>
+            <p><b>IMPORTANT:</b> Corntab needs an empty line at the end of file, otherwise it will not work!</p>
+         <hr>
+            <h3 id="subscripte">Sub-scripts</h3>
+            <p>These scripts are all called from the masterscript.sh. This procedure is preferrable, since the environment will be set from bksystem.sh. Execute single sub scripts with the commandline switches of bksystem.sh</p>
+            <p>Every sub script can be executed directly. The database must be set with export (with path and name) for variable <code>DB</code> e.g.<code>export DB="/path/to/database/database.sqlite"</code> or default is: <code>bksystem.sqlite</code> has to reside in the working directory. All other files will be read/written from/to the working directory. Alternatively you can set <a href=#pathlist title="jump to list">these variables/a> with <a href="http://www.google.de/search?q=man+export&btnI=feeling+lucky" title="Manual export">export</a>, e.g. <code>export BKS_BILL_DIR_DIR="~/bksystem/bill_dir"</code> (except for database ones, use DB). Used Variables are mentioned in the script descriptions.</p>
+
+            <h4 id="insert">make bill now: insert_bill_reference_date_into_db.sh</h4>
+
+            <p>Function: insert the timestamp of current time to table <b>bill_dates</b>.</p>
+            <p>variables: DB </p>
+            <h4 id="export">Export: export_bill_basic.sh</h4>
+            <p>Export of Views:
+               <ul>
+                     <li>previous_account_list &rarr; <b>Konsumliste.csv</b></li>
+                     <li>previous_account_balance &rarr; <b>Kontostand.csv</b></li>
+                     <li>previous_consumption &rarr; <b>Verbrauch.csv</b></li>
+               </ul>
+            </p>
+            <p>variables: BKS_BILL_DIR, BKS_TMP_DIR, DB bzw. BKS_DB_DIR und BKS_DB_NAME</p>
+
+            <h4 id="pivot_table">generate pivot table + export: export_bill_complete(_sep).sh</h4>
+            <p>Export of formated previous_account_list &rarr; <b>Abrechnung.csv</b></p>
+            <p>variables: BKS_BILL_DIR, BKS_TMP_DIR, DB bzw. BKS_DB_DIR und BKS_DB_NAME, BKS_DATE</p>
+
+            <h4 id="pivot_table_html">generate pivot table + export as html with layout: export_bill_html.sh</h4>
+            <p>Export of formated previous_account_list &rarr; <b>Abrechnung.html (with layout)</b> </p>
+            <p>variables: BKS_SCR_DIR (templates), BKS_BILL_DIR, BKS_TMP_DIR, DB bzw. BKS_DB_DIR und BKS_DB_NAME, BKS_DATE</p>
+
+            <h4 id="cleanup">cleanup: clean_old_sales.sh</h4>
+            <p>TODO: deletes old sales older than last bill</p>
+            <p>variables: DB bzw. BKS_DB_DIR und BKS_DB_NAME</p>
+
+            <h4 id="backup">backup: backup.sh and restore.sh</h4>
+            <p>export database scheme, user_accounts, products, sales and bill_dates in .sql files respectively restore them to new file (restore prevents overwriting).</p>
+            <p>variables: BKS_BKP_DIR, DB bzw. BKS_DB_DIR und BKS_DB_NAME</p>
+         <hr>
+   </body>

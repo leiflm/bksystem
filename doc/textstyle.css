@@ -19,6 +19,11 @@ a {
    text-decoration: none;
 }
 
+caption.caption_img {
+   font-style: italic;
+   text-align: center;
+}
+
 a:hover {
    text-decoration: underline;
 }
@@ -33,6 +38,10 @@ table {
    text-align: left;
    margin-left :2em;
    background-color: #FBFBFB;
+}
+
+tr:first-child > th {
+   font-weight: bold;
 }
 
 th {

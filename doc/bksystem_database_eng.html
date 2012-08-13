@@ -1,0 +1,203 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<html>
+   <head>
+      <title>Documentation bksystem database</title>
+      <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+      <link href="textstyle.css" rel="stylesheet" type="text/css">
+      <script src="toc.js" type="text/javascript"></script>
+   </head>
+   <body onload="generateTOC(document.getElementById('toc'));">
+
+      <h1>Structure of SQLite database</h1>
+
+      <div id="toc">Content</div>
+      <hr>
+      <h2>tables</h2>
+      <p><b>Only</b> the following four tables should be edited. A nice GUI tool to do this is <a href="https://www.google.com/search?q=sqlitemanager+firefox&btnI=feeling+lucky">SQLite Manager (Firefox Extension)</a>.
+      You can easily edit tables, export them or insert images (products, see below).
+      Every other programm to manipulate sqlite databases will do.</p>
+      <h3>user_accounts</h3>
+      <table border="0">
+         <caption class="caption_img">
+            <p><i>user_accounts</i></p>
+         </caption>
+         <tr>
+            <th>field name</th>
+            <th>meaning</th>
+            <th>range</th>
+            <th>default value</th>
+         </tr>
+         <tr>
+            <th>uid</th>
+            <th>ID (Key)</th>
+            <th>integer</th>
+            <th>last userid + 1</th>
+         </tr>
+         <tr>
+            <th>firstname</th>
+            <th>firstname</th>
+            <th>text</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>lastname</th>
+            <th>lastname</th>
+            <th>text</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>status</th>
+            <th>User account locked = 1 / else = 0</th>
+            <th>0..1 (INT)</th>
+            <th>0</th>
+         </tr>
+      </table>
+      <p>The userid is set automatically, you only need to specify first- and lastname when creating a new account.</p>
+      <p>User may be deleted. If there are any sales that have not been accounted for, it will abort with a warning. Is the deletion successful, all old sales of this user will also be deleted automatically.</p>
+
+      <h3>products</h3>
+      <table border="0">
+         <caption class="caption_img">
+            <p><i>products</i></p>
+         </caption>
+         <tr>
+            <th>field name</th>
+            <th>meaning</th>
+            <th>range</th>
+            <th>default value</th>
+         </tr>
+         <tr>
+            <th>EAN</th>
+            <th>ID (Key)</th>
+            <th>integer</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>name</th>
+            <th>productname</th>
+            <th>text</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>price</th>
+            <th>price</th>
+            <th>FLOAT</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>image</th>
+            <th>image of product</th>
+            <th>jepg, jpg, png, svg (BLOB)</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>status</th>
+            <th>show in UI = 0 / hide = 1</th>
+            <th>0..1 (INT)</th>
+            <th>0</th>
+         </tr>
+      </table>
+      <p>
+      EAN is the Eurpoean Article Number, that you can find on every product beneath the bar code. It is recommend to use this number. Every <b>unique</b> Number is also OK, you can define own product(-groups) e.g. Beer 0.5l, etc..
+      </p>
+      <p>The price should be given as a fraction with a point (e.g. 1.25). You can change the price any time, already sold ones will not be affected.</p>
+      <p>The image is optional. The picture will be shown in the UI, if the product was sold a lot. accepted formats are: png, jpeg, jpg, svg?. Recommend are jpgs. The file should not exceed 500kb, 100kb are sufficent.</p>
+      <p>The status determines, if a product will be show in the UI (=0), or hidden (=1).</p>
+      <p>You can also delete products. If there are products that have not been accounted for, it will abort. Otherwise all old sales of this product will be deleted, too.</p>
+      <p>To add a new product, you have to set the EAN, Name and price (image optional).</p>
+
+      <h3>bill_dates: reference dates for bills</h3>
+      <table border="0">
+         <caption class="caption_img">
+            <p><i>bill_dates</i></p>
+         </caption>
+         <tr>
+            <th>field name</th>
+            <th>meaning</th>
+            <th>range</th>
+            <th>default value</th>
+         </tr>
+         <tr>
+            <th>bill_id</th>
+            <th>ID (Key)</th>
+            <th>integer</th>
+            <th>last bill_id + 1</th>
+         </tr>
+         <tr>
+            <th>timestamp</th>
+            <th>reference date</th>
+            <th>YYYY-MM-DD hh:mm:ss</th>
+            <th></th>
+         </tr>
+      </table>
+      <p><b>bill_id</b> will be set automatically. You only need to specify a timestamp, the reference date. It has to have the format "YYYY-MM-DD hh:mm:ss". The date has to be newer than the last entry in <b>bill_dates</b> and can not be in the future.</p>
+      <p>The entry is sufficent, to renew the fav lists and to show the new bills in the <b>previous_*</b> views (consumption, account_balance, account_list). You can export them (and open with Excel or Open/Libre Office Calc).</p>
+      <p>You can undo the creation of the bill by deleting a date in bill_dates. <b>WARNING:</b> if you deleted old sales or products or user_accounts they may not appear in the bill again. </p>
+      <h3>sales: list of sales</h3>
+      <table border="0">
+         <caption class="caption_img">
+            <p><i>sales</i></p>
+         </caption>
+         <tr>
+            <th>field name</th>
+            <th>meaning</th>
+            <th>range</th>
+         </tr>
+         <tr>
+            <th>userid</th>
+            <th>Foreign key of user_accounts.userid</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>product</th>
+            <th>Foreign key of products.EAN</th>
+            <th></th>
+         </tr>
+         <tr>
+            <th>price</th>
+            <th>price when bought</th>
+            <th>EUR (FLOAT)</th>
+         </tr>
+         <tr>
+            <th>timestamp</th>
+            <th>timestamp of sale</th>
+            <th>YYYY-MM-DD hh:mm:ss</th>
+         </tr>
+      </table>
+      <p>This table gets written by the program and contains EAN, userid, price and timestamp. Sales can be cancel by setting the price to 0.00</p>
+      <hr>
+      <h2>automatic generated tables: favorites</h2>
+         <p>Following table are generated automaticly and should not be changed.</p>
+      <h3>fav_user</h3>
+         <p>contains the user accounts order by previous account balance.</p>
+      <h3>fav_products</h3>
+         <p>contains products ordered by sold units (previous).</p>
+      <hr>
+      <h2>Views</h2>
+         <p>Views are like tables but contain no data themselfs. They are calculated according to a SQL Statement form other tables or views. <b>previous</b> views containing about the previous bill (between last and second last bill date). These are the tables you have to export. <b>current</b> contain all data about the running bill (newer than last bill date). If you chose <a href="SQL_Code/insert_date_now.txt" title="show SQL Stament">'now'</a> to insert into bill_dates, all current_* views contain no data.</p>
+      <h3>current/previous_account_balance</h3>
+         <p>final sum of every user account.</p>
+      <h3>current/previous_consumption</h3>
+         <p>Units sold per product</p>
+      <h3>current/previous_account_list</h3>
+         <p>List of all sold products and buying users. <b>previous_account_list</b> is data basis for all bill tables. This view can be exported directly and used as input for Excel etc.</p>
+      <h3>current/previous_fav_products/users</h3>
+      <h3>date_last_bill und date_second_last_bill</h3>
+         <p>These contain the two last dates in bill_dates. Convenient for some Views Statemtes shorter and more readable.</p>
+      <hr>
+      <h2>Triggers</h2>
+         <p>Trigger define actions, that will be done automatically when inserts, updates or deletes are performed on tables. Used to check database integity or to prevent or redirect actions.</p>
+      <h3>make_bill</h3>
+         <p>If a new date is inserted into <b>bill_dates</b> this trigger checks if date is valid (newer than last date and not in the future).</p>
+      <h3>rewind_make_bill</h3>
+         <p>reloads the favorite tables</p>
+      <h3>make_bill_reload_fav</h3>
+      <p>If a date in bill_date is inserted, this will generate the favorite tables</p>
+      <h3>check_delete_products and check_delete_user and check_delete_sales</h3>
+         <p>products and user_accounts can only be deleted, if no data if them are in the current and previous views. It means the product/user was not billed, or the bill may not have been exported. Sales cant be deleted if they correspond to afore mentioned circumstances.</p>
+      <h3>rewind_seq_*</h3>
+         <p>internal counters will be reset, possible (product ids, fav placemnet ids etc..</p>
+
+   </body>
+   </html>

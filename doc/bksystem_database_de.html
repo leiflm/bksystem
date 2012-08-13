@@ -18,7 +18,7 @@
       mit <a href="https://www.google.de/search?q=sqlitemanager+firefox&btnI=Auf+gut+Glück">SQLite Manager (Firefox Extension)</a>. Hiermit lassen sich einfach Tabellen bearbeiten, exportieren und Bilder einfügen (Produkte, s.u.). Jedes andere Programm zur Manipulation von Datenbanken tut es auch.</p>
       <h3>user_accounts: Benutzterkonten</h3>
       <table border="0">
-         <caption>
+         <caption class="caption_img">
             <p><i>user_accounts</i></p>
          </caption>
          <tr>
@@ -65,7 +65,7 @@
 
       <h3>products: Produktliste</h3>
       <table border="0">
-         <caption>
+         <caption class="caption_img">
             <p><i>products</i></p>
          </caption>
          <tr>
@@ -126,7 +126,7 @@
 
       <h3>bill_dates: Abrechnungszeitpunkte</h3>
       <table border="0">
-         <caption>
+         <caption class="caption_img">
             <p><i>bill_dates</i></p>
          </caption>
          <tr>
@@ -159,7 +159,7 @@
       </p>
       <h3>sales: Liste der Verkäufe</h3>
       <table border="0">
-         <caption>
+         <caption class="caption_img">
             <p><i>sales</i></p>
          </caption>
          <tr>
@@ -189,11 +189,11 @@
          </tr>
       </table>
       <p>
-         Diese Tabelle wird durch das Programm geschrieben und enthält EAN, UserID, Preis und Zeitstempel des Verkaufs. Hier können Verkäufe rückgängig gemacht werden (falls noch nicht abgerechnet), indem die entsprechenden Zeilen gelöscht werden.
+         Diese Tabelle wird durch das Programm geschrieben und enthält EAN, UserID, Preis und Zeitstempel des Verkaufs. Hier können Verkäufe rückgängig gemacht werden (falls noch nicht abgerechnet), indem der entsprechnede Praeis auf 0.00 gesetzt wird. Damit tauchen stornierte Verkäufe auch auf der Abrechnung auf.
       </p>
       <hr>
       <h2>2. Automatisch erstellte Tabellen: Favoriten</h2>
-         <p>Folgende Tabellen werden automatisch erstellt und sollten nicht bearbeitet werden. Um die Ergebnisse weiter zu verarbeiten können diese Tabellen als .csv exportiert werden (lässt sich mit Excel öffnen). Dies lässt sich auch mit Datenbank Programmen erledigen (z.B. SQLite Manager s.o.).</p>
+         <p>Folgende Tabellen werden automatisch erstellt und sollten nicht bearbeitet werden.</p>
       <h3>fav_user</h3>
          <p>enthält die Benutzer mit größtem Umsatz auf der letzten Rechnung.</p>
       <h3>fav_products</h3>
