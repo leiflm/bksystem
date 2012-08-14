@@ -28,10 +28,18 @@
             <h3 id="software">Software</h3>
             <h4 id="managing_database">Datenbank Manager</h4>
                <p>
-                  Am besten lassen mit die nachfolgenden Aufgaben mit <a title="Homepage" href="https://www.google.de/search?q=sqlitemanager+firefox&btnI=AufGutGlück">SQLite Manager (Firefox Extension)</a> erledigen. Hiermit lassen sich einfach die Tabellen bearbeiten, exportieren und Bilder einfügen (Produkte, s.u.), sowie Abfragen stellen und Views ansehen.
+                  Am besten lassen mit die nachfolgenden Aufgaben mit
+                  <a title="Homepage" href="https://www.google.de/search?q=sqlitemanager+firefox&btnI=AufGutGlück">SQLite Manager (Firefox Extension)</a> erledigen.
+                  Hiermit lassen sich einfach die Tabellen bearbeiten, exportieren und Bilder einfügen (Produkte, s.u.), sowie Abfragen stellen und Views ansehen.
                </p>
                <p>
-                  Nach der Installation findet sich der SQLiteManager in Firefox im Menü <i>Extras</i>. Nach dem Start <i>Datenbank &rarr; Mit Datenbank verbinden</i> und die entsprechende Datei suchen (bksystem.sqlite) und öffnen. Uns interessieren die Tabellen user_accounts, products, bill_dates, sales, current_bill und current_consumption. Entsprechende Tabelle auswählen und Reiter/Tab <i>Durchsuchen</i> auswählen. Jetzt sieht man die Datensätze, die sich anlegen, bearbeiten und löschen lassen.
+                  Nach der Installation findet sich der SQLiteManager in Firefox im Menü <i>Extras</i>.
+                  Nach dem Start <i>Datenbank &rarr; Mit Datenbank verbinden</i> und die entsprechende Datei suchen (bksystem.sqlite)
+                  und öffnen. <b>user_accounts</b>, <b>products</b>, <b>bill_dates</b>, <b>sales</b>,
+                  und hauptsächlich die  views <b>previous_account_list</b> (komplette Rechnungsdaten), <b>previous_consumption</b>
+                  (Verkaufte Produkte) und <b>previous_account_balances</b> (Summe for jeden Benutzer). Entsprechende
+                  Tabelle auswählen und Reiter/Tab <i>Durchsuchen</i> auswählen. Jetzt sieht man die Datensätze, die
+                  sich anlegen, bearbeiten und löschen lassen.
                </p>
                <p>
                   <b>Warnung:</b> Bestätigte Änderungen lassen sich nicht direkt rückgängig machen (STRG-Z, UNDO, Rückgängig), sondern nur durch neu hinzufügen, löschen etc..
@@ -188,7 +196,7 @@
                   <a href="SQL_Code/.txt" title="SQL-Code anzeigen"></a>
                   </p>
                   <p>
-                     Ein Eintrag in diese Tabelle reicht aus, damit sämtliche Views jetzt die neuen Rechnungen anzeigen. Die gesamte Abrechnung, Kontostände bzw. Verbrauch befinden sich nun in den Tabellen <b>previous_account_list</b>, <b>previvous_account_balance</b> und <b>current_consumption</b>. Diese Tabellen können nun als .csv exportiert werden (lassen sich mit Excel öffnen).
+                     Ein Eintrag in diese Tabelle reicht aus, damit sämtliche Views <b>previous_</b> jetzt die neuen Rechnungen anzeigen. Die gesamte Abrechnung, Kontostände bzw. Verbrauch befinden sich nun in den Tabellen <b>previous_account_list</b>, <b>previvous_account_balance</b> und <b>previous_consumption</b>. Diese Tabellen können nun als .csv exportiert werden (lassen sich mit Excel öffnen).
                   </p>
                <h3 id="undo_generate">Rückgängig machen</h3>
                   <p>
