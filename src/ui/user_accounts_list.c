@@ -73,8 +73,8 @@ user_accounts_list_set(Eina_List *user_accounts)
              ic = elm_icon_add(ui.user_accounts.list);
              //snprintf(buf, (sizeof(buf) - 1), "%s/images/accounts/%s.png", elm_app_data_dir_get(), img_name);
              snprintf(buf, (sizeof(buf) - 1), "images/accounts/%s.png", img_name);
-             elm_icon_file_set(ic, buf, NULL);
-             elm_icon_resizable_set(ic, 0.0, 0.0);
+             elm_icon_standard_set(ic, buf);
+             elm_image_resizable_set(ic, 0.0, 0.0);
 
              printf("Trying to open %s as icon\n", buf);
           }
