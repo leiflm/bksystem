@@ -5,6 +5,18 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
+/*
+ * General description of event sequence:
+ * 1.) UI or Model trigger event
+ * 2.) The controller creates a thread and attaches a Bks_Job that contains:
+ *      - The Type
+ *      - Its status (e.g. error)
+ *      - A pointer to optional data
+ * 3.) When the thread finished, a callback is called that checks the Bks_Job's
+ *     status and triggers e.g. an UI update or the commit of a sale.
+ * 4.) Free the Bks_Job
+ */
+
 Eina_Bool _event_refresh_data(void *data UNUSED)
 {
    bks_controller_products_alpha_get();
