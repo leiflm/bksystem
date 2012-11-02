@@ -19,3 +19,4 @@ ADD_DEFINITIONS(-DPACKAGE_BIN_DIR="${CMAKE_INSTALL_PREFIX}/bin"
     -DPACKAGE_DATA_DIR="${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROEJECT_NAME}")
 
 add_subdirectory(src)
+add_subdirectory(data)
