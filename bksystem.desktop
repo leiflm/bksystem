@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Bierkeller System
+Comment=A kiosk-style point of sale application.
+TryExec=bksystem
+Exec=bksystem
+Icon=bksystem
+Category=Finance
