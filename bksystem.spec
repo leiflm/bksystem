@@ -7,7 +7,7 @@ Packager:  Leif Middelschulte
 Group:     Productivity/Office/Finance
 Source:   %{name}-%version.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build
-BuildRequires: cmake libeina libevas libecore libelementary libsqlite3
+BuildRequires: cmake eina-devel evas-devel ecore-devel elementary-devel sqlite3-devel
 
 %description
 BKSystem is a simple and lightweight kiosk-style point of sale application
