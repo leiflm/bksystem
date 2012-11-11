@@ -20,8 +20,3 @@ ADD_DEFINITIONS(-DPACKAGE_BIN_DIR="${CMAKE_INSTALL_PREFIX}/bin"
 
 add_subdirectory(src)
 add_subdirectory(data)
-
-
-find_program(XDG-DESKTOP-MENU_EXECUTABLE xdg-desktop-menu)
-execute_process(COMMAND ${XDG-DESKTOP-MENU_EXECUTABLE} install
---novendor bksystem.desktop)

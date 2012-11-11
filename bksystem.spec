@@ -17,9 +17,10 @@ based on the Enlightenment Foundation Libraries (http://www.enlightenment.org)
 %prep
 echo Building %{name}-%{version}-%{release}
 
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}
 
 %build
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr .
 make %{?_smp_mflags}
 
 %install
