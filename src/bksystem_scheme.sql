@@ -3,7 +3,7 @@ CREATE TABLE "bill_dates" (
    "timestamp" DATETIME NOT NULL
 );
 INSERT INTO bill_dates (timestamp) VALUES ("0000-01-01 00:00:00");
-CREATE TABLE "previous_fav_products" (
+CREATE TABLE "fav_products" (
    "placement" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL UNIQUE,
    "EAN" INTEGER
 );
@@ -14,7 +14,7 @@ CREATE TABLE "products" (
    "image" BLOB,
    "status" DEFAULT 0
 );
-CREATE TABLE "previous_fav_users" (
+CREATE TABLE "fav_users" (
    "placement" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE,
    "uid" INTEGER
 );
@@ -28,8 +28,8 @@ CREATE TABLE "sales" (
 );
 CREATE TABLE "user_accounts" (
    "uid" INTEGER PRIMARY KEY  NOT NULL  UNIQUE  check(typeof("uid") = 'integer'),
-   "firstname" VARCHAR NOT NULL ,
-   "lastname" VARCHAR NOT NULL ,
+   "firstname" VARCHAR,
+   "lastname" VARCHAR NOT NULL,
    "status" INTEGER DEFAULT 0,
    "image" BLOB
 );
@@ -91,6 +91,32 @@ SELECT EAN,name,price, count(userid) AS "count", round(sum(round(price,2)),2) AS
       ON EAN = product)
       GROUP BY EAN, price
       ORDER BY name;
+
+CREATE VIEW "previous_fav_products" AS
+   SELECT EAN, name, image,num
+   FROM products,
+      (SELECT product, count(product) AS num
+      FROM
+         (SELECT product, timestamp
+         FROM sales,date_last_bill, date_second_last_bill
+         WHERE  sales.timestamp > date_second_last_bill.date 
+         AND sales.timestamp <= date_last_bill.date)
+      GROUP BY product
+      ORDER BY num desc)
+   WHERE EAN = product;
+
+CREATE VIEW "previous_fav_users" AS
+   SELECT uid,firstname,lastname,status,image,sum
+   FROM user_accounts,
+      (SELECT userid, round(sum(round(price,2)),2) AS sum
+      FROM
+         (SELECT userid, product, price,timestamp
+         FROM sales,date_last_bill, date_second_last_bill
+         WHERE  sales.timestamp > date_second_last_bill.date 
+         AND sales.timestamp <= date_last_bill.date)
+      GROUP BY userid
+      ORDER BY sum desc)
+   WHERE uid=userid;
 
 CREATE VIEW "current_account_list" AS
 SELECT userid, lastname, firstname, EAN, name, price, count(product) AS count, round(sum(round(price,2)),2) AS "sum"
@@ -176,19 +202,19 @@ CREATE TRIGGER "make_bill"
 CREATE TRIGGER "reload_fav"
    AFTER INSERT ON "bill_dates"
    BEGIN
-      DELETE FROM previous_fav_products;
-      INSERT INTO previous_fav_products (EAN) SELECT EAN FROM current_fav_products;
-      DELETE FROM previous_fav_users;
-      INSERT INTO previous_fav_users (uid) SELECT uid FROM current_fav_users;
+      DELETE FROM fav_products;
+      INSERT INTO fav_products (EAN) SELECT EAN FROM previous_fav_products;
+      DELETE FROM fav_users;
+      INSERT INTO fav_users (uid) SELECT uid FROM previous_fav_users;
    END;
 
 CREATE TRIGGER "rewind_reload_fav"
    AFTER DELETE ON "bill_dates"
    BEGIN
-      DELETE FROM previous_fav_products;
-      INSERT INTO previous_fav_products (EAN) SELECT EAN FROM current_fav_products;
-      DELETE FROM previous_fav_users;
-      INSERT INTO previous_fav_users (uid) SELECT uid FROM current_fav_users;
+      DELETE FROM fav_products;
+      INSERT INTO fav_products (EAN) SELECT EAN FROM previous_fav_products;
+      DELETE FROM fav_users;
+      INSERT INTO fav_users (uid) SELECT uid FROM previous_fav_users;
    END;
 
 CREATE TRIGGER "rewind_seq_bill_dates" AFTER DELETE ON "bill_dates"
@@ -197,14 +223,14 @@ CREATE TRIGGER "rewind_seq_bill_dates" AFTER DELETE ON "bill_dates"
    END;
 
 CREATE TRIGGER "rewind_seq_products"
-   AFTER DELETE ON "previous_fav_products"
+   AFTER DELETE ON "fav_products"
    BEGIN
-      UPDATE sqlite_sequence SET seq=(SELECT MAX(placement) FROM previous_fav_products) WHERE name = "previous_fav_products";
+      UPDATE sqlite_sequence SET seq=(SELECT MAX(placement) FROM fav_products) WHERE name = "fav_products";
    END;
 
-CREATE TRIGGER "rewind_seq_user" AFTER DELETE ON "previous_fav_users"
+CREATE TRIGGER "rewind_seq_user" AFTER DELETE ON "fav_users"
    BEGIN
-      UPDATE sqlite_sequence SET seq=(SELECT MAX(placement) FROM previous_fav_users) WHERE name = "previous_fav_users";
+      UPDATE sqlite_sequence SET seq=(SELECT MAX(placement) FROM fav_users) WHERE name = "fav_users";
    END;
 
 CREATE TRIGGER "check_delete_product"
