@@ -12,7 +12,7 @@ CREATE TABLE "products" (
    "name" VARCHAR NOT NULL ,
    "price" FLOAT NOT NULL  DEFAULT 0.00,
    "image" BLOB,
-   "status" DEFAULT 0
+   "status" INTEGER DEFAULT 0
 );
 CREATE TABLE "fav_users" (
    "placement" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE,
