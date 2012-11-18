@@ -1,2 +1,6 @@
 build
 doc/html
+Makefile
+*/Makefile
+CMake*
+*.cmake
