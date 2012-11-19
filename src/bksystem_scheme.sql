@@ -328,7 +328,7 @@ CREATE TRIGGER 'check_delete_product'
          WHEN OLD.id IN (SELECT product_id FROM previous_consumptions)
          THEN RAISE(ABORT, 'Some products left in previous_consumption. Even if you exported the bill already, deletion will be not possile until next bill.')
       END;
-      DELETE FROM sales WHERE OLD.id = sales.product;
+      DELETE FROM sales WHERE OLD.id = sales.product_id;
       DELETE FROM fav_products;
       INSERT INTO fav_products (product_id) SELECT product_id FROM previous_fav_products;
    END;
@@ -343,7 +343,7 @@ CREATE TRIGGER 'check_delete_user'
          WHEN OLD.id IN (SELECT user_account_id FROM previous_account_balances)
         THEN RAISE(ABORT, 'Some products left in previous_account_balance. Even if you exported the bill already, deletion will be not possile until next bill.')
       END;
-      DELETE FROM sales WHERE OLD.id = sales.userid;
+      DELETE FROM sales WHERE OLD.id = sales.user_account_id;
       DELETE FROM fav_users;
       INSERT INTO fav_users (user_account_id) SELECT user_account_id FROM previous_fav_users;
    END;
