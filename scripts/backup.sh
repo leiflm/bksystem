@@ -19,7 +19,7 @@ PROD="${BKS_BKP_DIR}/products.sql"
 SALE="${BKS_BKP_DIR}/sales.sql"
 BDATES="${BKS_BKP_DIR}/bill_dates.sql"
 
-sqlite3 -batch $DB ".dump products" > $SCHEM
+sqlite3 -batch $DB ".dump" > $SCHEM
 if [ $? -eq 0 ]; then
    echo "   ${SCHEM} written"
 fi
@@ -35,7 +35,7 @@ sqlite3 -batch $DB ".dump sales" > $SALE
 if [ $? -eq 0 ]; then
    echo "   ${SALE} written"
 fi
-sqlite3 -batch $DB ".dump bill_dates" > $BDATES
+sqlite3 -batch $DB ".dump bills" > $BDATES
 #sqlite3 -batch $DB "SELECT * FROM bill_dates WHERE bill_id != 0;" > $BDATES
 if [ $? -eq 0 ]; then
    echo "   ${BDATES} written"

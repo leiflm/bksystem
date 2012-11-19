@@ -58,7 +58,7 @@
 
       # adjust if necessary (for crontab) or permanent links
       # for temorary links overwrite with export (all BKS_* will be set to $DEF_* unless already set) 
-      DEF_ROOT_DIR="${HOME}/Projekte/bksystem/build"
+      DEF_ROOT_DIR="${HOME}/Projekte/bksystem"
       # Database
       DEF_DB_DIR="${DEF_ROOT_DIR}/build"
       DEF_DB_NAME="bksystem.sqlite"
@@ -161,6 +161,9 @@
       #fi
       if ! [ -d $BKS_LOG_DIR ]; then
          mkdir $BKS_LOG_DIR
+			if [ $? -eq 1 ]; then
+				echo "Unable to create logfile, aborting..."; exit 1			
+			fi
       fi
 
       echo "LOG on scripted bill generation for bksystem:" > $BKS_TMP_LOG 2>&1 
@@ -236,6 +239,7 @@
             echo "ERROR: Database ${DB} not found. Please adjust settings in ${SCR_DIR}/${0}. Aborting!"  2>&1 | tee -a $BKS_LOG
             exit 1
          else
+            echo "${DB}" 2>&1 | tee -a $BKS_LOG
             echo "DB not existent: restoring..." 2>&1 | tee -a $BKS_LOG
          fi
       fi
@@ -252,7 +256,7 @@
          else
             # get last date, if we dont insert current date (make a bill now)
             # replace space with _ and remove "
-            BKS_DATE=$(sqlite3 -csv database/bksystem.sqlite "SELECT max(timestamp) FROM bill_dates;" | sed 's/\ /_/g' | sed 's/\"//g')
+            BKS_DATE=$(sqlite3 -csv database/bksystem.sqlite "SELECT max(created_at) FROM bills;" | sed 's/\ /_/g' | sed 's/\"//g')
          fi
       else
          BKS_DATE=$DEF_DATE

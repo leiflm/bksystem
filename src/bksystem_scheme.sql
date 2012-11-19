@@ -1,276 +1,361 @@
-CREATE TABLE "bill_dates" (
-   "bill_id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL,
-   "timestamp" DATETIME NOT NULL
+CREATE TABLE 'bills' (
+   'id' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL,
+   'created_at' DATETIME DEFAULT (datetime('now','localtime')),
+   'updated_at' DATETIME DEFAULT (datetime('now','localtime'))
 );
-INSERT INTO bill_dates (timestamp) VALUES ("0000-01-01 00:00:00");
-CREATE TABLE "fav_products" (
-   "placement" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL UNIQUE,
-   "EAN" INTEGER
-);
-CREATE TABLE "products" (
-   "EAN" INTEGER PRIMARY KEY NOT NULL  UNIQUE  check(typeof("EAN") = 'integer'),
-   "name" VARCHAR NOT NULL ,
-   "price" FLOAT NOT NULL  DEFAULT 0.00,
-   "image" BLOB,
-   "status" INTEGER DEFAULT 0
-);
-CREATE TABLE "fav_users" (
-   "placement" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE,
-   "uid" INTEGER
-);
-CREATE TABLE "sales" (
-   "userid" INTEGER NOT NULL  check(typeof("userid") = 'integer'),
-   "product" INTEGER NOT NULL  check(typeof("product") = 'integer'),
-   "price" FLOAT,
-   "timestamp" DATETIME NOT NULL,
-   FOREIGN KEY(userid) REFERENCES user_accounts(uid),
-   FOREIGN KEY(product) REFERENCES products(EAN)
-);
-CREATE TABLE "user_accounts" (
-   "uid" INTEGER PRIMARY KEY  NOT NULL  UNIQUE  check(typeof("uid") = 'integer'),
-   "firstname" VARCHAR,
-   "lastname" VARCHAR NOT NULL,
-   "status" INTEGER DEFAULT 0,
-   "image" BLOB
+INSERT INTO bills (created_at,updated_at) VALUES ('0000-01-01 00:00:00', '0000-01-01 00:00:00');
+
+CREATE TABLE 'products' (
+   'id' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL check(typeof(id) = 'integer'),
+   'ean' INTEGER,
+   'name' VARCHAR NOT NULL ,
+   'price' FLOAT DEFAULT 0.00,
+   'image' BLOB,
+   'status' INTEGER DEFAULT 0,
+   'created_at' DATETIME DEFAULT (datetime('now','localtime')),
+   'updated_at' DATETIME DEFAULT (datetime('now','localtime'))
 );
 
-CREATE VIEW "date_last_bill" AS
-   SELECT MAX(timestamp) AS "date"
-   FROM bill_dates;
+CREATE TABLE 'fav_products' (
+   'placement' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL,
+   'product_id' INTEGER
+);
 
-CREATE VIEW "date_second_last_bill" AS
-   SELECT MAX(timestamp) AS "date"
-   FROM bill_dates, date_last_bill
-   WHERE timestamp < date_last_bill.date;
+CREATE TABLE 'sales' (
+   'id' INTEGER PRIMARY KEY  AUTOINCREMENT,
+   'user_account_id' INTEGER NOT NULL  check(typeof(user_account_id) = 'integer'),
+   'product_id' INTEGER NOT NULL  check(typeof(product_id) = 'integer'),
+   'price' FLOAT,
+   'created_at' DATETIME DEFAULT (datetime('now','localtime')),
+   'updated_at' DATETIME DEFAULT (datetime('now','localtime')),
+   FOREIGN KEY(user_account_id) REFERENCES user_accounts(id),
+   FOREIGN KEY(product_id) REFERENCES products(id)
+);
 
-CREATE VIEW "previous_account_list" AS
-SELECT userid, lastname, firstname, EAN, name, price, count(product) AS count, round(sum(round(price,2)),2) AS "sum"
+CREATE TABLE 'user_accounts' (
+   'id' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL check(typeof(id) = 'integer'),
+   'firstname' VARCHAR,
+   'lastname' VARCHAR NOT NULL ,
+   'status' INTEGER DEFAULT 0,
+   'image' BLOB DEFAULT NULL,
+   'created_at' DATETIME DEFAULT (datetime('now','localtime')),
+   'updated_at' DATETIME DEFAULT (datetime('now','localtime'))
+);
+
+CREATE TABLE 'fav_users' (
+   'placement' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL,
+   'user_account_id' INTEGER
+);
+
+CREATE TABLE 'select_bills' ('id' INTEGER PRIMARY KEY  NOT NULL , 'bill_id' INTEGER NOT NULL);
+INSERT INTO 'select_bills' (bill_id) VALUES ('1');
+
+CREATE VIEW 'date_last_bills' AS
+   SELECT bills.id, MAX(created_at) AS 'created_at', MAX(created_at) AS 'updated_at'
+   FROM bills;
+
+CREATE VIEW 'date_second_last_bills' AS
+   SELECT bills.id, MAX(bills.created_at) AS 'created_at', MAX(bills.created_at) AS 'updated_at'
+   FROM bills, date_last_bills
+   WHERE bills.created_at < date_last_bills.created_at;
+
+CREATE VIEW 'dates_selected_bills' AS
+	SELECT '1' AS 'id', start_date, end_date FROM 
+		(SELECT max(bills.id) as 'id', bills.created_at AS 'start_date' 
+			FROM bills, select_bills 
+			WHERE bill_id > bills.id AND select_bills.id = '1')
+	JOIN
+		(SELECT bills.created_at AS 'end_date' 
+			FROM bills, select_bills 
+			WHERE bill_id = bills.id AND select_bills.id = '1');
+
+CREATE VIEW 'selected_account_purchases' AS
+		SELECT sale_id AS 'id', user_account_id, lastname, firstname, product_id, ean, name, price, count(product_id) AS count, round(sum(round(price,2)),2) AS 'sum', created_at,updated_at
+			FROM
+				(SELECT id AS 'user_id', lastname, firstname
+				FROM user_accounts)
+			INNER JOIN
+				(
+				   (SELECT id AS 'pro_id', ean, name FROM products)
+				INNER JOIN
+				  (SELECT sales.id AS 'sale_id',user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at', dates_selected_bills.end_date AS 'updated_at'
+				   FROM sales,dates_selected_bills
+				   WHERE sales.created_at > dates_selected_bills.start_date
+				   AND sales.created_at <= dates_selected_bills.end_date)
+				ON pro_id = product_id
+				)
+			ON user_account_id = user_id
+			GROUP BY user_account_id, product_id, price
+			ORDER BY lastname, firstname, product_id;
+
+CREATE VIEW 'selected_account_balances' AS
+   SELECT user_account_id AS 'id', user_account_id, firstname, lastname, round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
-      (SELECT uid, lastname, firstname
-      FROM user_accounts)
-   INNER JOIN
       (
-         (SELECT EAN,name FROM products)
-      INNER JOIN
-        (SELECT userid, product, price,timestamp
-         FROM sales,date_last_bill, date_second_last_bill
-         WHERE sales.timestamp > date_second_last_bill.date
-         AND sales.timestamp <= date_last_bill.date)
-      ON EAN = product
-      )
-   ON userid = uid
-   GROUP BY userid, EAN, price
-   ORDER BY lastname, firstname, EAN;
-
-CREATE VIEW "previous_account_balance" AS
-   SELECT userid, firstname, lastname, round(sum(round(price,2)),2) AS "sum"
-   FROM
-      (
-         (SELECT uid,firstname,lastname
+         (SELECT id AS 'user_id',firstname,lastname
          FROM user_accounts)
       INNER JOIN
-         (SELECT userid, product, price,timestamp
-         FROM sales,date_last_bill,date_second_last_bill
-         WHERE sales.timestamp > date_second_last_bill.date
-         AND sales.timestamp <= date_last_bill.date)
-      ON uid =userid)
-      GROUP BY uid
+         (SELECT user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at',dates_selected_bills.end_date AS 'updated_at'
+         FROM sales, dates_selected_bills
+         WHERE sales.created_at > dates_selected_bills.start_date
+         AND sales.created_at <= dates_selected_bills.end_date)
+      ON user_id =user_account_id)
+      GROUP BY user_account_id
       ORDER BY lastname,firstname;
 
-CREATE VIEW "previous_consumption" AS
-SELECT EAN,name,price, count(userid) AS "count", round(sum(round(price,2)),2) AS "sum"
+CREATE VIEW 'selected_consumptions' AS
+SELECT product_id AS 'id', product_id, ean , name,price, count(user_account_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
       (
-         (SELECT EAN,name
+         (SELECT id AS 'prod_id', ean,name
          FROM products)
       INNER JOIN
-         (SELECT userid, product, price,timestamp
-         FROM sales, date_last_bill,date_second_last_bill
-         WHERE sales.timestamp > date_second_last_bill.date
-         AND sales.timestamp <= date_last_bill.date)
-      ON EAN = product)
-      GROUP BY EAN, price
+         (SELECT user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at',dates_selected_bills.end_date AS 'updated_at'
+         FROM sales, dates_selected_bills
+         WHERE sales.created_at > dates_selected_bills.start_date
+         AND sales.created_at <= dates_selected_bills.end_date)
+      ON prod_id = product_id)
+      GROUP BY product_id, price
       ORDER BY name;
 
-CREATE VIEW "previous_fav_products" AS
-   SELECT EAN, name, image,num
-   FROM products,
-      (SELECT product, count(product) AS num
-      FROM
-         (SELECT product, timestamp
-         FROM sales,date_last_bill, date_second_last_bill
-         WHERE  sales.timestamp > date_second_last_bill.date 
-         AND sales.timestamp <= date_last_bill.date)
-      GROUP BY product
-      ORDER BY num desc)
-   WHERE EAN = product;
-
-CREATE VIEW "previous_fav_users" AS
-   SELECT uid,firstname,lastname,status,image,sum
-   FROM user_accounts,
-      (SELECT userid, round(sum(round(price,2)),2) AS sum
-      FROM
-         (SELECT userid, product, price,timestamp
-         FROM sales,date_last_bill, date_second_last_bill
-         WHERE  sales.timestamp > date_second_last_bill.date 
-         AND sales.timestamp <= date_last_bill.date)
-      GROUP BY userid
-      ORDER BY sum desc)
-   WHERE uid=userid;
-
-CREATE VIEW "current_account_list" AS
-SELECT userid, lastname, firstname, EAN, name, price, count(product) AS count, round(sum(round(price,2)),2) AS "sum"
+CREATE VIEW 'previous_account_purchases' AS
+SELECT sale_id AS 'id', user_account_id, lastname, firstname, product_id, ean, name, price, count(product_id) AS count, round(sum(round(price,2)),2) AS 'sum', created_at,updated_at
    FROM
-      (SELECT uid, lastname, firstname
+      (SELECT id AS 'user_id', lastname, firstname
       FROM user_accounts)
    INNER JOIN
       (
-         (SELECT EAN,name FROM products)
+         (SELECT id AS 'pro_id', ean, name FROM products)
       INNER JOIN
-        (SELECT userid, product, price,timestamp
-         FROM sales,date_last_bill, date_second_last_bill
-         WHERE sales.timestamp >= date_last_bill.date)
-      ON EAN = product
+        (SELECT sales.id AS 'sale_id',user_account_id, product_id, price,date_last_bills.created_at, date_last_bills.updated_at
+         FROM sales,date_last_bills, date_second_last_bills
+         WHERE sales.created_at > date_second_last_bills.created_at
+         AND sales.created_at <= date_last_bills.created_at)
+      ON pro_id = product_id
       )
-   ON userid = uid
-   GROUP BY userid, EAN, price
-   ORDER BY lastname,firstname,name;
+   ON user_account_id = user_id
+   GROUP BY user_account_id,product_id, price
+   ORDER BY lastname, firstname, product_id;
 
-CREATE VIEW "current_account_balance" AS
-   SELECT userid, firstname, lastname, round(sum(round(price,2)),2) AS "sum"
+CREATE VIEW 'previous_account_balances' AS
+   SELECT user_account_id AS 'id', user_account_id, firstname, lastname, round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
       (
-         (SELECT uid,lastname,firstname
+         (SELECT id AS 'user_id',firstname,lastname
          FROM user_accounts)
       INNER JOIN
-         (SELECT userid, product, price,timestamp
-         FROM sales,date_last_bill
-         WHERE  timestamp > date)
-      ON uid =userid)
-      GROUP BY uid
+         (SELECT user_account_id, product_id, price,date_last_bills.created_at,date_last_bills.updated_at
+         FROM sales, date_last_bills, date_second_last_bills
+         WHERE sales.created_at > date_second_last_bills.created_at
+         AND sales.created_at <= date_last_bills.created_at)
+      ON user_id =user_account_id)
+      GROUP BY user_account_id
       ORDER BY lastname,firstname;
 
-CREATE VIEW "current_consumption" AS
-SELECT EAN,name,price, count(EAN) AS "count", round(sum(round(price,2)),2) AS "sum"
+CREATE VIEW 'previous_consumptions' AS
+SELECT product_id AS 'id', product_id, ean , name,price, count(product_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
       (
-         (SELECT EAN,name
-         FROM products )
+         (SELECT id AS 'prod_id', ean,name
+         FROM products)
       INNER JOIN
-         (SELECT userid, product, price,timestamp
-         FROM sales, date_last_bill
-         WHERE  timestamp > date)
-      ON EAN = product)
-      GROUP BY EAN,price
+         (SELECT user_account_id, product_id, price, date_last_bills.created_at,date_last_bills.updated_at
+         FROM sales, date_last_bills,date_second_last_bills
+         WHERE sales.created_at > date_second_last_bills.created_at
+         AND sales.created_at <= date_last_bills.created_at)
+      ON prod_id = product_id)
+      GROUP BY product_id, price
       ORDER BY name;
 
-CREATE VIEW "current_fav_products" AS
-   SELECT EAN, name, image,num
-   FROM products,
-      (SELECT product, count(product) AS num
-      FROM
-         (SELECT product, timestamp
-         FROM sales,date_last_bill
-         WHERE timestamp > date_last_bill.date)
-      GROUP BY product
-      ORDER BY num desc)
-   WHERE EAN = product;
+CREATE VIEW 'previous_fav_products' AS
+   SELECT product_id, ean, name, num
+   FROM ( SELECT id AS 'prod_id', ean, name FROM products) 
+      INNER JOIN
+         (SELECT product_id, count(product_id) AS num
+         FROM
+            (SELECT product_id
+            FROM sales,date_last_bills, date_second_last_bills
+            WHERE  sales.created_at > date_second_last_bills.created_at 
+            AND sales.created_at <= date_last_bills.created_at
+               AND sales.price > 0)
+         GROUP BY product_id
+         ORDER BY num desc)
+      ON prod_id = product_id;
 
-CREATE VIEW "current_fav_users" AS
-   SELECT uid,firstname,lastname,status,image,sum
-   FROM user_accounts,
-      (SELECT userid, round(sum(round(price,2)),2) AS sum
-      FROM
-         (SELECT userid, product, price,timestamp
-         FROM sales,date_last_bill
-         WHERE  timestamp>date_last_bill.date)
-      GROUP BY userid
-      ORDER BY sum desc)
-   WHERE uid=userid;
+CREATE VIEW 'previous_fav_users' AS
+   SELECT user_account_id,firstname,lastname, sum
+   FROM (SELECT id AS 'user_id', firstname, lastname FROM user_accounts)
+      INNER JOIN
+         (SELECT user_account_id, round(sum(round(price,2)),2) AS sum
+         FROM
+            (SELECT user_account_id, product_id, price
+            FROM sales,date_last_bills, date_second_last_bills
+            WHERE  sales.created_at > date_second_last_bills.created_at 
+            AND sales.created_at <= date_last_bills.created_at
+            AND sales.price > 0)
+         GROUP BY user_account_id
+         ORDER BY sum desc)
+      ON user_id=user_account_id;
 
-CREATE TRIGGER "make_bill"
-   BEFORE INSERT ON "bill_dates"
+CREATE VIEW 'current_account_purchases' AS
+SELECT sale_id AS 'id', user_account_id, lastname, firstname, product_id, ean, name, price, count(product_id) AS count, round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
+   FROM
+      (SELECT id AS 'user_id', lastname, firstname
+      FROM user_accounts)
+   INNER JOIN
+      (
+         (SELECT id AS 'prod_id', ean,name FROM products)
+      INNER JOIN
+        (SELECT sales.id AS 'sale_id',user_account_id, product_id, price,date_last_bills.created_at, date_last_bills.updated_at
+         FROM sales,date_last_bills
+         WHERE sales.created_at >= date_last_bills.created_at)
+      ON prod_id = product_id
+      )
+   ON user_account_id = user_id
+   GROUP BY user_account_id, product_id, price
+   ORDER BY lastname,firstname,name;
+
+CREATE VIEW 'current_account_balances' AS
+   SELECT user_account_id AS 'id', user_account_id, firstname, lastname, round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
+   FROM
+      (
+         (SELECT id AS 'user_id',lastname,firstname
+         FROM user_accounts)
+      INNER JOIN
+         (SELECT user_account_id, product_id, price, date_last_bills.created_at, date_last_bills.updated_at
+         FROM sales,date_last_bills
+         WHERE sales.created_at > date_last_bills.created_at)
+      ON user_id = user_account_id)
+      GROUP BY user_account_id
+      ORDER BY lastname,firstname;
+
+CREATE VIEW 'current_consumptions' AS
+SELECT product_id AS 'id',product_id, ean, name,price, count(product_id) AS 'count', round(sum(round(price,2)),2) AS 'sum',created_at,updated_at
+   FROM
+      (
+         (SELECT id AS 'prod_id', ean,name
+         FROM products )
+      INNER JOIN
+         (SELECT user_account_id, product_id, price,date_last_bills.created_at,date_last_bills.updated_at
+         FROM sales, date_last_bills
+         WHERE  sales.created_at > date_last_bills.created_at)
+      ON prod_id = product_id)
+      GROUP BY product_id,price
+      ORDER BY name;
+
+CREATE VIEW 'current_fav_products' AS
+   SELECT product_id, ean, name, num
+   FROM ( SELECT id AS 'prod_id', ean, name FROM products) 
+      INNER JOIN
+         (SELECT product_id, count(product_id) AS num
+         FROM
+            (SELECT product_id
+            FROM sales,date_last_bills
+            WHERE sales.created_at > date_last_bills.created_at
+            AND sales.price > 0)
+         GROUP BY product_id
+         ORDER BY num desc)
+      ON prod_id = product_id;
+
+CREATE VIEW 'current_fav_users' AS
+   SELECT user_account_id,firstname,lastname,status,sum
+   FROM ( SELECT id AS 'user_id', firstname, lastname,status FROM user_accounts) 
+      INNER JOIN
+         (SELECT user_account_id, round(sum(round(price,2)),2) AS sum
+         FROM
+            (SELECT user_account_id, product_id, price
+            FROM sales,date_last_bills
+            WHERE sales.created_at>date_last_bills.created_at
+            AND sales.price > 0)
+         GROUP BY user_account_id
+         ORDER BY sum desc)
+      ON user_id=user_account_id;
+
+
+
+CREATE TRIGGER 'make_bill'
+   BEFORE INSERT ON 'bills'
    BEGIN
       SELECT CASE
-         WHEN NEW.timestamp < (SELECT MAX(timestamp) FROM bill_dates)
-         THEN RAISE(ABORT, "There is a newer bill date in the table.Try a newer date!")
-         WHEN NEW.timestamp > (SELECT datetime('now','localtime'))
-          THEN RAISE(ABORT, "Date is in the future, Try an older date!")
+         WHEN NEW.created_at < (SELECT MAX(created_at) FROM bills)
+         THEN RAISE(ABORT, 'There is a newer bill date in the table.Try a newer date!')
+         WHEN NEW.created_at > (SELECT datetime('now','localtime'))
+          THEN RAISE(ABORT, 'Date is in the future, Try an older date!')
       END;
    END;
 
-CREATE TRIGGER "reload_fav"
-   AFTER INSERT ON "bill_dates"
+CREATE TRIGGER 'reload_fav'
+   AFTER INSERT ON 'bills'
    BEGIN
       DELETE FROM fav_products;
-      INSERT INTO fav_products (EAN) SELECT EAN FROM previous_fav_products;
+      INSERT INTO fav_products (product_id) SELECT product_id FROM previous_fav_products;
       DELETE FROM fav_users;
-      INSERT INTO fav_users (uid) SELECT uid FROM previous_fav_users;
+      INSERT INTO fav_users (user_account_id) SELECT user_account_id FROM previous_fav_users;
    END;
 
-CREATE TRIGGER "rewind_reload_fav"
-   AFTER DELETE ON "bill_dates"
+CREATE TRIGGER 'rewind_reload_fav'
+   AFTER DELETE ON 'bills'
    BEGIN
       DELETE FROM fav_products;
-      INSERT INTO fav_products (EAN) SELECT EAN FROM previous_fav_products;
+      INSERT INTO fav_products (product_id) SELECT product_id FROM previous_fav_products;
       DELETE FROM fav_users;
-      INSERT INTO fav_users (uid) SELECT uid FROM previous_fav_users;
+      INSERT INTO fav_users (user_account_id) SELECT user_account_id FROM previous_fav_users;
    END;
 
-CREATE TRIGGER "rewind_seq_bill_dates" AFTER DELETE ON "bill_dates"
+CREATE TRIGGER 'rewind_seq_bills' AFTER DELETE ON 'bills'
    BEGIN
-      UPDATE sqlite_sequence SET seq=(SELECT MAX(bill_id) FROM bill_dates) WHERE name = "bill_dates";
+      UPDATE sqlite_sequence SET seq=(SELECT MAX(id) FROM bills) WHERE name = 'bills';
    END;
 
-CREATE TRIGGER "rewind_seq_products"
-   AFTER DELETE ON "fav_products"
+CREATE TRIGGER 'rewind_seq_products'
+   AFTER DELETE ON 'fav_products'
    BEGIN
-      UPDATE sqlite_sequence SET seq=(SELECT MAX(placement) FROM fav_products) WHERE name = "fav_products";
+      UPDATE sqlite_sequence SET seq=0 WHERE name = 'fav_products';
    END;
 
-CREATE TRIGGER "rewind_seq_user" AFTER DELETE ON "fav_users"
+CREATE TRIGGER 'rewind_seq_user' AFTER DELETE ON 'fav_users'
    BEGIN
-      UPDATE sqlite_sequence SET seq=(SELECT MAX(placement) FROM fav_users) WHERE name = "fav_users";
+      UPDATE sqlite_sequence SET seq=0 WHERE name = 'fav_users';
    END;
 
-CREATE TRIGGER "check_delete_product"
-   BEFORE DELETE ON "products"
+CREATE TRIGGER 'check_delete_product'
+   BEFORE DELETE ON 'products'
    FOR EACH ROW
    BEGIN
       SELECT CASE
-         WHEN OLD.EAN IN (SELECT EAN FROM current_consumption)
-         THEN RAISE(ABORT, "Some unpaid products left in current_consumption. Please make a new bill first.")
-         WHEN OLD.EAN IN (SELECT EAN FROM previous_consumption)
-         THEN RAISE(ABORT, "Some products left in previous_consumption. Even if you exported the bill already, deletion will be not possile until next bill.")
+         WHEN OLD.id IN (SELECT product_id FROM current_consumptions)
+         THEN RAISE(ABORT, 'Some unpaid products left in current_consumption. Please make a new bill first.')
+         WHEN OLD.id IN (SELECT product_id FROM previous_consumptions)
+         THEN RAISE(ABORT, 'Some products left in previous_consumption. Even if you exported the bill already, deletion will be not possile until next bill.')
       END;
-      DELETE FROM sales WHERE OLD.EAN = sales.product;
+      DELETE FROM sales WHERE OLD.id = sales.product;
       DELETE FROM fav_products;
-      INSERT INTO fav_products (EAN) SELECT EAN FROM previous_fav_products;
+      INSERT INTO fav_products (product_id) SELECT product_id FROM previous_fav_products;
    END;
 
-CREATE TRIGGER "check_delete_user"
-   BEFORE DELETE ON "user_accounts"
+CREATE TRIGGER 'check_delete_user'
+   BEFORE DELETE ON 'user_accounts'
    FOR EACH ROW
    BEGIN
       SELECT CASE
-         WHEN OLD.uid IN (SELECT userid FROM current_account_balance)
-         THEN RAISE(ABORT, "Some unpaid products left in current_account_balance. Please make a new bill first.")
-         WHEN OLD.uid IN (SELECT userid FROM previous_account_balance)
-        THEN RAISE(ABORT, "Some products left in previous_account_balance. Even if you exported the bill already, deletion will be not possile until next bill.")
+         WHEN OLD.id IN (SELECT user_account_id FROM current_account_balances)
+         THEN RAISE(ABORT, 'Some unpaid products left in current_account_balance. Please make a new bill first.')
+         WHEN OLD.id IN (SELECT user_account_id FROM previous_account_balances)
+        THEN RAISE(ABORT, 'Some products left in previous_account_balance. Even if you exported the bill already, deletion will be not possile until next bill.')
       END;
-      DELETE FROM sales WHERE OLD.uid = sales.userid;
+      DELETE FROM sales WHERE OLD.id = sales.userid;
       DELETE FROM fav_users;
-      INSERT INTO fav_users (uid) SELECT uid FROM previous_fav_users;
+      INSERT INTO fav_users (user_account_id) SELECT user_account_id FROM previous_fav_users;
    END;
 
-CREATE TRIGGER "check_delete_sales"
-   BEFORE DELETE ON "sales"
+CREATE TRIGGER 'check_delete_sales'
+   BEFORE DELETE ON 'sales'
    FOR EACH ROW
    BEGIN
       SELECT CASE
-         WHEN OLD.timestamp > (SELECT date FROM date_last_bill)
-         THEN RAISE(ABORT, "Cant delete sale, please make a new bill first. If you want to cancel the sale, set the price of sale to 0.00")
-         WHEN OLD.timestamp > (SELECT date FROM date_second_last_bill)
-         THEN RAISE(ABORT, "Cant delete sale. Deletion will be not possile until next bill. If you exported the bill already and want to cancel the sale, set price of sale to 0.00 and export again.")
+         WHEN OLD.created_at > (SELECT created_at FROM date_last_bills)
+         THEN RAISE(ABORT, 'Cant delete sale, please make a new bill first. If you want to cancel the sale, set the price of sale to 0.00')
+         WHEN OLD.created_at > (SELECT created_at FROM date_second_last_bills)
+         THEN RAISE(ABORT, 'Cant delete sale. Deletion will be not possile until next bill. If you exported the bill already and want to cancel the sale, set price of sale to 0.00 and export again.')
       END;
    END;
