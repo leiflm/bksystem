@@ -16,8 +16,9 @@ static void _db_path_selected(void *data, Evas_Object *obj UNUSED, void *event_i
 static void _bks_ui_controller_db_path_get(void *data UNUSED)
 {
    Evas_Object *inwin, *fs;
-
+#ifdef DEBUG
    printf("Available threads: %d\n", ecore_thread_available_get());
+#endif
 
    elm_need_ethumb();
 
@@ -33,8 +34,9 @@ static void _bks_ui_controller_db_path_get(void *data UNUSED)
 
    elm_win_inwin_content_set(inwin, fs);
    elm_win_inwin_activate(inwin);
-
+#ifdef DEBUG
    printf("Created and displaying \"file open\" dialog.\n");
+#endif
 }
 
 void bks_ui_controller_db_path_get(void)

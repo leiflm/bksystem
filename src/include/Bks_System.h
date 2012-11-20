@@ -5,6 +5,7 @@
 #include "Bks_Types.h"
 
 #define UNUSED __attribute__((unused))
+//#define DEBUG
 
 Bks_Model mdl;
 Bks_Ui ui;

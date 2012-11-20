@@ -102,7 +102,9 @@ Eina_List *bks_ui_controller_user_accounts_selected_get(void)
         if (elm_list_item_selected_get(eoi))
           {
              acc = (Bks_Model_User_Account*)elm_object_item_data_get(eoi);
+#ifdef DEBUG
              printf("Selected User Account: %s, %s\n", acc->lastname, acc->firstname);
+#endif
              list = eina_list_append(list, acc);
           }
      }

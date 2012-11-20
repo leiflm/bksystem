@@ -90,7 +90,9 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
          //bks_ui_controller_products_alpha_clear();
          bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
          bks_job_free(job);
+#ifdef DEBUG
          printf("DB access was successful!\n");
+#endif
          break;
       default:
          printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
@@ -150,7 +152,9 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
          //bks_ui_controller_products_favs_clear();
          bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
          bks_job_free(job);
+#ifdef DEBUG
          printf("DB access was successful!\n");
+#endif
          break;
       default:
          printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
@@ -208,7 +212,9 @@ _user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
          //bks_ui_controller_user_accounts_clear();
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
          bks_job_free(job);
+#ifdef DEBUG
          printf("DB access was successful!\n");
+#endif
          break;
       default:
          printf("%s error during alpha products fetch!\n", BKS_STATUS_STRINGS[job->status]);
@@ -262,7 +268,9 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
      {
       case BKS_MODEL_SQLITE_OK:
          sale->status = BKS_MODEL_SALE_DONE;
+#ifdef DEBUG
          printf("DB access was successful!\n");
+#endif
          break;
       default:
          sale->status = BKS_MODEL_SALE_ERROR;

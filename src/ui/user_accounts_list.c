@@ -12,9 +12,9 @@ _on_user_account_select(void *data, Evas_Object *obj UNUSED, void *event_info UN
 
    acc = (const Bks_Model_User_Account*)data;
    EINA_SAFETY_ON_NULL_RETURN(acc);
-
+#ifdef DEBUG
    printf("Account %s, %s was selected\n", acc->lastname, acc->firstname);
-
+#endif
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_FALSE);
 }
 
@@ -75,8 +75,9 @@ user_accounts_list_set(Eina_List *user_accounts)
              snprintf(buf, (sizeof(buf) - 1), "images/accounts/%s.png", img_name);
              elm_icon_standard_set(ic, buf);
              elm_image_resizable_set(ic, 0.0, 0.0);
-
+#ifdef DEBUG
              printf("Trying to open %s as icon\n", buf);
+#endif
           }
         snprintf(buf, (sizeof(buf) - 1), "%s, %s", acc->lastname, acc->firstname);
         li = elm_list_item_append(ui.user_accounts.list, buf, NULL, ic, _on_user_account_select, acc);

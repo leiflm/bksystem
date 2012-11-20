@@ -89,7 +89,9 @@ void bks_ui_shutdown(void)
  */
 void bks_ui_update_set(const Eina_Bool update)
 {
+#ifdef DEBUG
    printf("Jetzt sollte die UI %sbenutzbar sein.\n", (update ? "un" : ""));
+#endif
    if (update)
      {
         ecore_thread_main_loop_begin();

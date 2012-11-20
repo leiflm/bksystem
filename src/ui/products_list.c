@@ -31,9 +31,11 @@ _on_product_select(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
    const Elm_Object_Item *selected_product = (const Elm_Object_Item*)event_info;
 
    _product_selected_set(selected_product);
-
+#ifdef DEBUG
    printf("Produkt %p ausgewaehlt.\n", selected_product);
+#endif
 }
+
 
 void
 products_list_set(Eina_List *products)
