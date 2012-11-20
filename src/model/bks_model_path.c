@@ -104,7 +104,9 @@ static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
    char *path = (char*)data;
    FILE *fp;
 
+#ifdef DEBUG
    fprintf(stderr, "Path: %s saved to file %s \n", path, fname);
+#endif
 
    fp = fopen(fname, "w");
    if (fp) {

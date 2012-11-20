@@ -47,7 +47,9 @@ void bks_model_init(void) {
    efreet_init();
    eina_lock_new(&mdl.lock);
    mdl.db_path = _bks_model_path_get();
+#ifdef DEBUG
    fprintf(stderr, "Path: %s\n", mdl.db_path);
+#endif
 }
 
 void bks_model_shutdown(void) {
