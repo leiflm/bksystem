@@ -3,7 +3,6 @@ CREATE TABLE 'bills' (
    'created_at' DATETIME DEFAULT (datetime('now','localtime')),
    'updated_at' DATETIME DEFAULT (datetime('now','localtime'))
 );
-INSERT INTO bills (created_at,updated_at) VALUES ('0000-01-01 00:00:00', '0000-01-01 00:00:00');
 
 CREATE TABLE 'products' (
    'id' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL check(typeof(id) = 'integer'),
@@ -51,19 +50,36 @@ CREATE TABLE 'select_bills' ('id' INTEGER PRIMARY KEY  NOT NULL , 'bill_id' INTE
 INSERT INTO 'select_bills' (bill_id) VALUES ('1');
 
 CREATE VIEW 'date_last_bills' AS
-   SELECT bills.id, MAX(created_at) AS 'created_at', MAX(created_at) AS 'updated_at'
-   FROM bills;
+SELECT  id, MAX(created_at) AS 'created_at', MAX(created_at) AS 'updated_at' FROM   
+   (
+      SELECT bills.id AS 'id', bills.created_at, bills.created_at AS 'updated_at'
+      FROM bills
+   UNION ALL
+      SELECT 0 AS 'id', '2000-01-01 00:00:00'  AS 'created_at','2000-01-01 00:00:00' AS 'updated_at'
+   );
 
 CREATE VIEW 'date_second_last_bills' AS
-   SELECT bills.id, MAX(bills.created_at) AS 'created_at', MAX(bills.created_at) AS 'updated_at'
-   FROM bills, date_last_bills
-   WHERE bills.created_at < date_last_bills.created_at;
+SELECT  id, MAX(created_at) AS 'created_at', MAX(created_at) AS 'updated_at' FROM   
+   (
+      SELECT bills.id AS 'id', bills.created_at, bills.created_at AS 'updated_at'
+      FROM bills, date_last_bills
+      WHERE bills.created_at < date_last_bills.created_at
+
+   UNION ALL
+      SELECT 0 AS 'id', '2000-01-01 00:00:00'  AS 'created_at','2000-01-01 00:00:00' AS 'updated_at'
+   );
 
 CREATE VIEW 'dates_selected_bills' AS
 	SELECT '1' AS 'id', start_date, end_date FROM 
-		(SELECT max(bills.id) as 'id', bills.created_at AS 'start_date' 
-			FROM bills, select_bills 
-			WHERE bill_id > bills.id AND select_bills.id = '1')
+		(SELECT max(id) as 'id', created_at AS 'start_date' 
+       FROM (
+                  SELECT 0 AS 'id',  '2000-01-01 00:00:00'  AS 'created_at'
+             UNION ALL
+                  SELECT max(bills.id) as 'id', bills.created_at AS 'created_at' 
+			         FROM bills, select_bills 
+			         WHERE bill_id > bills.id AND select_bills.id = '1'
+            )
+      )
 	JOIN
 		(SELECT bills.created_at AS 'end_date' 
 			FROM bills, select_bills 
