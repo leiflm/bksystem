@@ -78,7 +78,7 @@ Bks_Status _bks_model_sql_products_get(Eina_List **list) {
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
+      fprintf(stderr, "Couldnt finalize statement, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
    } else {
       error = BKS_MODEL_SQLITE_OK;
    }
@@ -144,7 +144,7 @@ Bks_Status _bks_model_sql_favorite_products_get(Eina_List **list, const unsigned
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr,"Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
+      fprintf(stderr,"Couldnt finalize statement, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
    } else {
       error = BKS_MODEL_SQLITE_OK;
    }
@@ -193,7 +193,7 @@ Bks_Status _bks_model_sql_user_accounts_get(Eina_List **list) {
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr, "Couldnt finalize statment, Error: %s\n", sqlite3_errmsg(pDb));
+      fprintf(stderr, "Couldnt finalize statement, Error: %s\n", sqlite3_errmsg(pDb));
    } else {
       error = BKS_MODEL_SQLITE_OK;
    }
@@ -257,7 +257,7 @@ Bks_Status _bks_model_sql_recent_user_accounts_get(Eina_List **list, const unsig
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      fprintf(stderr,"Couldnt finalize statment, Error: %s\n", sqlite3_errmsg(pDb));
+      fprintf(stderr,"Couldnt finalize statement, Error: %s\n", sqlite3_errmsg(pDb));
    } else {
       error = BKS_MODEL_SQLITE_OK;
    }
@@ -399,7 +399,7 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
    //// Cleanup
 //_finalize:
    //if (sqlite3_finalize(stmt) != SQLITE_OK) {
-      //fprintf(stderr, "Couldnt finalize statment, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
+      //fprintf(stderr, "Couldnt finalize statement, Error: %s\nErrno: %d\n", sqlite3_errmsg(pDb), retval);
    //} else {
       //error = BKS_MODEL_SQLITE_OK;
    //}
