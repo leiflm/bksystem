@@ -3,8 +3,10 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/src/model/include"
     "${CMAKE_SOURCE_DIR}/src/ui/include"
     ${EINA_INCLUDE_DIRS}
+    ${EFREET_INCLUDE_DIRS}
     ${EVAS_INCLUDE_DIRS}
     ${ECORE_INCLUDE_DIRS}
+    ${ECORE_FILE_INCLUDE_DIRS}
     ${ELEMENTARY_INCLUDE_DIRS}
     ${SQLITE3_INCLUDE_DIRS}
     )
@@ -37,8 +39,10 @@ LIST(APPEND BKSYSTEM_CC_SOURCES
 add_executable(bksystem ${BKSYSTEM_CC_SOURCES})
 target_link_libraries(bksystem 
     ${EINA_LIBRARIES}
+    ${EFREET_LIBRARIES}
     ${EVAS_LIBRARIES}
     ${ECORE_LIBRARIES}
+    ${ECORE_FILE_LIBRARIES}
     ${ELEMENTARY_LIBRARIES}
     ${SQLITE3_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}

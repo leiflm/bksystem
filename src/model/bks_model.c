@@ -23,6 +23,7 @@
 
 #include <Eina.h>
 #include <Ecore.h>
+#include <Ecore_File.h>
 
 #include "Bks_Types.h"
 #include "Bks_System.h"
@@ -42,6 +43,8 @@ void bks_model_controller_db_path_set(Eina_Stringshare *path) {
 }
 
 void bks_model_init(void) {
+   ecore_file_init();
+   efreet_init();
    eina_lock_new(&mdl.lock);
    mdl.db_path = _bks_model_path_get();
    fprintf(stderr, "Path: %s\n", mdl.db_path);
@@ -50,6 +53,8 @@ void bks_model_init(void) {
 void bks_model_shutdown(void) {
 
    eina_lock_free(&mdl.lock);
+   efreet_shutdown();
+   ecore_file_shutdown();
 }
 
 Bks_Status bks_model_controller_user_accounts_get(Eina_List **user_accounts) {

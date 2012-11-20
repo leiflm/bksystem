@@ -21,17 +21,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <Ecore.h>
+#include <Ecore_File.h>
 #include <Eina.h>
 #include "Bks_Model.h"
 #include "Bks_System.h"
 
+#define MAX_PATH 256
 
 
 static Ecore_Thread *_bks_model_path_save(char *path);
 static char* _bks_model_path_load();
 static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED);
 
-static const char *fname = BKS_DB_PATH_FILE;
+static char *fname = NULL;
 
 // Path to database
 char *_bks_model_path_get(void) {
@@ -57,8 +59,8 @@ void _bks_model_path_set(char *path) {
       free(mdl.db_path);
    }
    if (path) {
-      newpath = calloc(1, 256);
-      strncpy(newpath, path, 256);
+      newpath = calloc(1, MAX_PATH);
+      strncpy(newpath, path, MAX_PATH);
       mdl.db_path = newpath;
    
       _bks_model_path_save(newpath);
@@ -72,12 +74,16 @@ static char *_bks_model_path_load() {
    char *path = NULL;   
    FILE *fp;
    int c,i;
-   path = calloc(256,1);
+   path = calloc(MAX_PATH,1);
+   fname = calloc(MAX_PATH,1);
+   snprintf(fname, (MAX_PATH - 1), "%s/bksystem/" BKS_DB_PATH_FILE, efreet_config_home_get());
+   if (!ecore_file_exists(fname))
+      ecore_file_mkpath(ecore_file_dir_get(fname));
    fp = fopen(fname, "r");
    i = 0;
    if (fp) {
       c = fgetc(fp);
-      while (c != EOF && i < 255) {
+      while (c != EOF && i < (MAX_PATH - 1)) {
          *(path + i) = c;
          i++;
          c = fgetc(fp);   
