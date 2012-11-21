@@ -35,8 +35,9 @@ rm -rf ${RPM_BUILD_ROOT}
 # the binary files
 %{_bindir}/%{name}
 
-# the examplary database file
+# the examplary database files
 %_datadir/%{name}/example.sqlite
+%_datadir/%{name}/empty.sqlite
 
 # a script to create bills
 %_datadir/%{name}/bksystem.sh
