@@ -98,7 +98,7 @@
    # get product list, user list and user/product accumulated list, these tables are
 
    # get product list
-   sqlite3 -csv "${DB}" "SELECT EAN, price FROM previous_consumption;" > $CSV_PROD_ID
+   sqlite3 -csv "${DB}" "SELECT product_id, price FROM previous_consumptions;" > $CSV_PROD_ID
    # test for data existence
 
    if ! [ -s $CSV_PROD_ID ]; then
@@ -119,7 +119,7 @@
    # loop on user-list
       echo "   insert INSERT users..."
       # get user list
-      sqlite3 -csv "${DB}" "SELECT userid, lastname, firstname, sum FROM previous_account_balance;" > $CSV_USER
+      sqlite3 -csv "${DB}" "SELECT user_account_id, lastname, firstname, sum FROM previous_account_balances;" > $CSV_USER
       # remove quotes
       sed 's/\"//g' $CSV_USER |
       # parse user info, generate INSERT statement for each user
@@ -131,7 +131,7 @@
    # loop on complete_bill-list to write update statement for each product, only fields that are not = 0 are in this list
       echo "   insert UPDATE users.."
       # get user/product accumulated list
-      sqlite3 -csv "${DB}" "SELECT userid, EAN, price, count FROM previous_account_list;" > $CSV_BILL
+      sqlite3 -csv "${DB}" "SELECT user_account_id, product_id, price, count FROM previous_account_purchases;" > $CSV_BILL
       while IFS=, read -r CUR_UID CUR_PROD_ID CUR_PRICE CUR_PROD_VAL ; do
          echo "UPDATE \"bill_comp\" SET \"${CUR_PROD_ID},${CUR_PRICE}EUR\"=${CUR_PROD_VAL} WHERE UID = ${CUR_UID};"  >> $SQL_Q
       done < $CSV_BILL
@@ -158,7 +158,7 @@
 # create 2 header lines/ 1.replace EANs with name 2. with price
    echo " creating table header..."
    # get all sold product with name and price, order by ID
-   sqlite3 -csv -separator '#' $DB "SELECT products.name, previous_consumption.price FROM previous_consumption, products WHERE products.EAN=previous_consumption.EAN ORDER by products.EAN;" > $CSV_PROD_NAME_ID
+   sqlite3 -csv -separator '#' $DB "SELECT products.name, previous_consumptions.price FROM previous_consumptions, products WHERE products.id=previous_consumptions.product_id ORDER by product_id;" > $CSV_PROD_NAME_ID
    # parse list, remove quotes around name, new quotes around combined name+price, append to new list
 
    while IFS='#' read -r CUR_PROD_NAME CUR_PROD_PRICE ; do
@@ -217,12 +217,12 @@
    echo "<TD>${LRF1}</TD>" >>$HTMLF
    echo "<TD>${RLF2}</TD>" >>$HTMLF
 
-   sqlite3 -html "${DB}" "SELECT count FROM previous_consumption;" >$SUM_ROW
+   sqlite3 -html "${DB}" "SELECT count FROM previous_consumptions;" >$SUM_ROW
 
    #cat $SUM_ROW
    # kick TR tags, ,
    sed 's/<TR>//g' $SUM_ROW | sed 's/<\/TR>//g' | sed 's/<TD>/<TD class=\"sum_row_fields\">/g' >>$HTMLF
-   sqlite3 -html "${DB}" "SELECT round(sum(\"sum\"),2) AS summe FROM previous_account_balance;"  \
+   sqlite3 -html "${DB}" "SELECT round(sum(\"sum\"),2) AS summe FROM previous_account_balances;"  \
    | sed 's/<TR>//g' | sed 's/<\/TR>//g' | sed 's/<TD>/<TD id=\"sum_col_row\">/g' >>$HTMLF
 
 

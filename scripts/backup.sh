@@ -19,7 +19,7 @@ PROD="${BKS_BKP_DIR}/products.sql"
 SALE="${BKS_BKP_DIR}/sales.sql"
 BDATES="${BKS_BKP_DIR}/bill_dates.sql"
 
-sqlite3 -batch $DB ".dump" > $SCHEM
+sqlite3 -batch $DB ".schema" > $SCHEM
 if [ $? -eq 0 ]; then
    echo "   ${SCHEM} written"
 fi

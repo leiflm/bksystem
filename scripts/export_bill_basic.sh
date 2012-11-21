@@ -43,21 +43,21 @@
    #CSVFL="${BKS_BILL_DIR}/${FILENAMEL}.csv"
 
 # export bill and consumption table as csv
-   sqlite3 -csv -header $DB "SELECT * FROM previous_account_balance;" > $CSVFA
+   sqlite3 -csv -header $DB "SELECT user_account_id AS 'id', lastname, firstname, sum FROM previous_account_balances;" > $CSVFA
    if [ $? -eq 0 ]; then
       echo "   ${CSVFA} written."
    else
       echo "   ${CSVFA} writing failed"
    fi
 
-   sqlite3 -csv -header $DB "SELECT * FROM previous_consumption;" > $CSVFC
+   sqlite3 -csv -header $DB "SELECT product_id AS 'id', name, price, count, sum FROM previous_consumptions;" > $CSVFC
    if [ $? -eq 0 ]; then
       echo "   ${CSVFC} written."
    else
       echo "   ${CSVFC} writing failed"
    fi
 
-   sqlite3 -csv -header $DB "SELECT * FROM previous_account_list;" > $CSVFL
+   sqlite3 -csv -header $DB "SELECT id,user_account_id,lastname,firstname,product_id,ean,name,price,count,sum FROM previous_account_purchases;" > $CSVFL
    if [ $? -eq 0 ]; then
       echo "   ${CSVFL} written."
    else

@@ -26,7 +26,7 @@
    fi
 
 # insert current date to DB to trigger bill table generation
-   STMT="INSERT INTO bills (timestamp) VALUES ('${DATESQL}');"
+   STMT="INSERT INTO bills (created_at,updated_at) VALUES ('${DATESQL}','${DATESQL}');"
    #for testing: STMT="INSERT INTO bill_dates (timestamp) VALUES ('2013-01-01 12:12:12');"
    # echo sqlite3 -column $DB $STMT
    sqlite3 -column "${DB}" "$STMT"
