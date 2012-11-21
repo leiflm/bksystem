@@ -38,6 +38,9 @@ rm -rf ${RPM_BUILD_ROOT}
 # the examplary database file
 %_datadir/%{name}/example.sqlite
 
+# a script to create bills
+%_datadir/%{name}/bksystem.sh
+
 # desktop file
 %_datadir/applications/bksystem.desktop
 
