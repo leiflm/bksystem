@@ -42,7 +42,10 @@ Evas_Object *products_page_add(void)
    EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
 
    ui.products.panes = elm_panes_add(ui.win);
-   elm_panes_horizontal_set(ui.products.panes, EINA_TRUE);
+   // uncomment to horizontaly instead of vertically split the products page
+   //elm_panes_horizontal_set(ui.products.panes, EINA_TRUE);
+   // give lots of room for the favorized products
+   elm_panes_content_left_size_set(ui.products.panes, 0.7);
    EXPAND_AND_FILL(ui.products.panes);
 
    ui.products.favs = _products_favs_add();
