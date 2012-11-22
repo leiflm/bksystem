@@ -77,7 +77,7 @@ user_accounts_list_set(Eina_List *user_accounts)
      {
         switch (acc->status)
           {
-           case 1:
+           case BKS_MODEL_USER_ACCOUNT_LOCKED:
               img_name = "locked";
               break;
            default:
