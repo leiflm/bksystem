@@ -129,8 +129,6 @@ _adjust_index_size(void *data UNUSED, Evas *evas UNUSED, Evas_Object *obj, void 
     evas_object_move(ui.user_accounts.index, (w - INDEX_LETTER_WIDTH), 55);
     evas_object_show(ui.user_accounts.index);
 #undef INDEX_LETTER_WIDTH
-
-    printf("New size: %dx%d\n", w, h);
 }
 
 Evas_Object *user_accounts_page_list_add(void)
