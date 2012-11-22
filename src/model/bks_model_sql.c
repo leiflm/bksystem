@@ -36,7 +36,7 @@
 #define SQLITE_OPEN_URI 0x00000040
 // data retrieval
 
-Bks_Status _bks_model_sql_products_get(Eina_List **list) {
+Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list) {
 
    Bks_Model_Product *ptr_current_product = NULL;
    char *select_query = "SELECT id,name,price FROM products ORDER BY lower(name)";
@@ -87,7 +87,7 @@ _close_db:
    return error;
 }
 
-Bks_Status _bks_model_sql_favorite_products_get(Eina_List **list, const unsigned int limit) {
+Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int limit) {
    Bks_Model_Product *ptr_current_product = NULL;
    char *select_query ="SELECT products.id,name,price,placement,image,status FROM products, fav_products WHERE products.id=fav_products.product_id ORDER BY placement";
    char *name;
@@ -202,7 +202,7 @@ _close_db:
    return error;
 }
 
-Bks_Status _bks_model_sql_recent_user_accounts_alpha_get(Eina_List **list, const unsigned int limit) {
+Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned int limit) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
    char *select_query = "SELECT user_accounts.id,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.id=fav_users.user_account_id ORDER BY placement";

@@ -66,17 +66,17 @@ Bks_Status bks_model_controller_user_accounts_alpha_get(Eina_List **user_account
 
 Bks_Status bks_model_controller_user_accounts_fav_get(Eina_List **products, unsigned int limit) {
 
-   return _bks_model_sql_recent_user_accounts_get(products, limit);
+   return _bks_model_sql_user_accounts_fav_get(products, limit);
 }
 
 Bks_Status bks_model_controller_products_alpha_get(Eina_List **products) {
 
-   return _bks_model_sql_products_get(products);
+   return _bks_model_sql_products_alpha_get(products);
 }
 
 Bks_Status bks_model_controller_products_fav_get(Eina_List **products, unsigned int limit) {
 
-   return _bks_model_sql_favorite_products_get(products, limit);
+   return _bks_model_sql_products_fav_get(products, limit);
 }
 
 Bks_Status bks_model_controller_commit_sale(const Bks_Model_Sale *sales) {

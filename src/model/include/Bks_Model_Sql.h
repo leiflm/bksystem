@@ -17,7 +17,7 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales);
  * @param limit # of user accounts returned
  * @return Bks_Status indicator
  */
-Bks_Status _bks_model_sql_recent_user_accounts_alpha_get(Eina_List **list, const unsigned int limit); 
+Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned int limit); 
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function
@@ -33,7 +33,7 @@ Bks_Status _bks_model_sql_user_accounts_alpha_get(Eina_List **list);
  * @param Eina_List* list should be set to NULL and will after return contain a list of all products
  * @return Bks_Status indicator
  */
-Bks_Status _bks_model_sql_products_get(Eina_List **list); 
+Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list); 
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function
@@ -42,7 +42,7 @@ Bks_Status _bks_model_sql_products_get(Eina_List **list);
  * @param limit # of items return
  * @return Bks_Status indicator
  */
-Bks_Status _bks_model_sql_favorite_products_get(Eina_List **list, const unsigned int limit); 
+Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int limit); 
 
 /**
  * @brief timestring of current local time in required format
