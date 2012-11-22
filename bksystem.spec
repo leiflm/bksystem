@@ -45,6 +45,9 @@ rm -rf ${RPM_BUILD_ROOT}
 # desktop file
 %_datadir/applications/bksystem.desktop
 
+# bksystem icons
+%_datadir/%{name}/images/accounts/locked.png
+
 # docs, disabled for now
 #%doc %_mandir/man1/kmymoney2.1.gz
 
