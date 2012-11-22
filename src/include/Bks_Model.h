@@ -83,7 +83,7 @@ Bks_Status bks_model_controller_commit_sale(const Bks_Model_Sale *sales);
  * @param Eina_List** list should be set to NULL and will after return contain a list of of all user_accounts
  * @return Bks_Status indicator
  */
-Bks_Status bks_model_controller_user_accounts_get(Eina_List **user_accounts); 
+Bks_Status bks_model_controller_user_accounts_alpha_get(Eina_List **user_accounts); 
 
 /**
  * @brief does SQL querry to sqlite3 database, blocking function

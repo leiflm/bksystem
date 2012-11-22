@@ -22,7 +22,7 @@ enum _Bks_Job_Type { BKS_JOB_SALE,
                      BKS_JOB_PRODUCTS_ALPHA_GET,
                      BKS_JOB_PRODUCTS_FAVS_GET,
                      BKS_JOB_USER_ACCOUNTS_FAVS_GET,
-                     BKS_JOB_USER_ACCOUNTS_GET };
+                     BKS_JOB_USER_ACCOUNTS_ALPHA_GET };
 
 struct _Bks_Job {
      Bks_Job_Type type;

@@ -20,7 +20,7 @@ _on_user_accounts_sort_click(void *data UNUSED, Evas_Object *obj UNUSED, void *e
           bks_controller_user_accounts_favs_get(20);
           break;
         default:
-          bks_controller_user_accounts_get();
+          bks_controller_user_accounts_alpha_get();
           break;
     }
 }

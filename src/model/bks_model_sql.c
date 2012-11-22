@@ -153,7 +153,7 @@ _close_db:
    return error;
 }
 
-Bks_Status _bks_model_sql_user_accounts_get(Eina_List **list) {
+Bks_Status _bks_model_sql_user_accounts_alpha_get(Eina_List **list) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
    char *select_query = "SELECT id,firstname,lastname,status FROM user_accounts ORDER BY lower(lastname),lower(firstname)";
@@ -202,7 +202,7 @@ _close_db:
    return error;
 }
 
-Bks_Status _bks_model_sql_recent_user_accounts_get(Eina_List **list, const unsigned int limit) {
+Bks_Status _bks_model_sql_recent_user_accounts_alpha_get(Eina_List **list, const unsigned int limit) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
    char *select_query = "SELECT user_accounts.id,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.id=fav_users.user_account_id ORDER BY placement";

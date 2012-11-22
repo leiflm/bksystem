@@ -59,9 +59,9 @@ void bks_model_shutdown(void) {
    ecore_file_shutdown();
 }
 
-Bks_Status bks_model_controller_user_accounts_get(Eina_List **user_accounts) {
+Bks_Status bks_model_controller_user_accounts_alpha_get(Eina_List **user_accounts) {
 
-   return _bks_model_sql_user_accounts_get(user_accounts);
+   return _bks_model_sql_user_accounts_alpha_get(user_accounts);
 }
 
 Bks_Status bks_model_controller_user_accounts_fav_get(Eina_List **products, unsigned int limit) {

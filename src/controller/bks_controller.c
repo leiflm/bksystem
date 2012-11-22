@@ -21,7 +21,7 @@ Eina_Bool _event_refresh_data(void *data UNUSED)
 {
    bks_controller_products_alpha_get();
    bks_controller_products_favs_get(5);
-   bks_controller_user_accounts_get();
+   bks_controller_user_accounts_alpha_get();
 
    return ECORE_CALLBACK_CANCEL;
 }
@@ -233,7 +233,7 @@ bks_controller_user_accounts_favs_get(unsigned int limit)
 }
 
 void
-_user_accounts_get(void *data, Ecore_Thread *th)
+_user_accounts_alpha_get(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
    
@@ -242,7 +242,7 @@ _user_accounts_get(void *data, Ecore_Thread *th)
    } else {
       eina_lock_release(&ctrl.db_lock);
       job->data = NULL;
-      job->status = bks_model_controller_user_accounts_get((Eina_List**)&job->data);
+      job->status = bks_model_controller_user_accounts_alpha_get((Eina_List**)&job->data);
    }
 
    switch (job->status)
@@ -260,7 +260,7 @@ _user_accounts_get(void *data, Ecore_Thread *th)
 }
 
 void
-_user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
+_user_accounts_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
 {
    Bks_Job *job = (Bks_Job*)data;
 
@@ -282,11 +282,11 @@ _user_accounts_get_finished(void *data, Ecore_Thread *th UNUSED)
 }
 
 void
-bks_controller_user_accounts_get(void)
+bks_controller_user_accounts_alpha_get(void)
 {
    Bks_Job *job = bks_job_new(BKS_JOB_PRODUCTS_ALPHA_GET);
 
-   ecore_thread_run(_user_accounts_get, _user_accounts_get_finished, NULL, job);
+   ecore_thread_run(_user_accounts_alpha_get, _user_accounts_alpha_get_finished, NULL, job);
 }
 
 // API for UI callbacks
