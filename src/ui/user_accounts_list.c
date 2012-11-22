@@ -37,10 +37,7 @@ _on_index_select(void *data, Evas_Object *obj UNUSED, void *event_info UNUSED)
 
    if (!li)
        return;
-   elm_list_item_show(li);
-   // Use following line instead of the one above,
-   // if system has enough power
-   //elm_list_item_bring_in(li);
+   elm_list_item_bring_in(li);
 }
 
 /*
