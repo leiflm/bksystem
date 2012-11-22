@@ -8,6 +8,8 @@ static void
 _on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    products_page_reset();
+   //The line below is necessary since the HIDE event callback for the user list isn't called
+   evas_object_hide(ui.user_accounts.index);
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
 
