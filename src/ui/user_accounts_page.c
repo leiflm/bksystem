@@ -14,7 +14,6 @@ _on_user_accounts_sort_click(void *data UNUSED, Evas_Object *obj UNUSED, void *e
     Bks_Ui_Filter_Mode fm = (Bks_Ui_Filter_Mode)data;
 
     bks_ui_controller_user_accounts_clear();
-    printf("Sort Cb!\n");
     switch (fm)
     {
         BKS_USER_ACCOUNTS_FILTER_FAVS:
