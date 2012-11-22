@@ -64,6 +64,11 @@ Bks_Status bks_model_controller_user_accounts_get(Eina_List **user_accounts) {
    return _bks_model_sql_user_accounts_get(user_accounts);
 }
 
+Bks_Status bks_model_controller_user_accounts_fav_get(Eina_List **products, unsigned int limit) {
+
+   return Bks_Status _bks_model_sql_recent_user_accounts_get(products, limit);
+}
+
 Bks_Status bks_model_controller_products_alpha_get(Eina_List **products) {
 
    return _bks_model_sql_products_get(products);
