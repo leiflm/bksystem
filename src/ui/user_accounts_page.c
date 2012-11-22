@@ -17,6 +17,8 @@ _on_user_accounts_finish_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, v
    bks_controller_ui_sale_finish();
    products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
+   //The line below is necessary since the HIDE event callback for the user list isn't called
+   evas_object_hide(ui.user_accounts.index);
 }
 
 void
@@ -25,6 +27,8 @@ user_accounts_page_reset(void)
    ecore_thread_main_loop_begin();
    elm_list_selection_clear(ui.user_accounts.list);
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
+   //The line below is necessary since the SHOW event callback for the user list isn't called
+   evas_object_show(ui.user_accounts.index);
    ecore_thread_main_loop_end();
 }
 
