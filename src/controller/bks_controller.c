@@ -184,7 +184,7 @@ _user_accounts_favs_get(void *data, Ecore_Thread *th)
    } else {
       eina_lock_release(&ctrl.db_lock);
       job->data = NULL;
-      job->status = bks_model_controller_user_accounts_favs_get((Eina_List**)&job->data, limit);
+      job->status = bks_model_controller_user_accounts_fav_get((Eina_List**)&job->data, limit);
    }
 
    switch (job->status)
