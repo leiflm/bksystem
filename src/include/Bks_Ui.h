@@ -36,7 +36,7 @@ struct _Bks_Ui {
    } products;
    struct {
         Bks_Ui_Naviframe_Page enp;
-        Evas_Object *list;
+        Evas_Object *list, *index;
         Bks_Ui_Lockwindow lock_window;
    } user_accounts;
    struct {
