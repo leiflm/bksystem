@@ -39,7 +39,7 @@
 Bks_Status _bks_model_sql_products_get(Eina_List **list) {
 
    Bks_Model_Product *ptr_current_product = NULL;
-   char *select_query = "SELECT id,name,price FROM products ORDER BY name";
+   char *select_query = "SELECT id,name,price FROM products ORDER BY lower(name)";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -156,7 +156,7 @@ _close_db:
 Bks_Status _bks_model_sql_user_accounts_get(Eina_List **list) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
-   char *select_query = "SELECT id,firstname,lastname,status FROM user_accounts ORDER BY lastname,firstname";
+   char *select_query = "SELECT id,firstname,lastname,status FROM user_accounts ORDER BY lower(lastname),lower(firstname)";
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
