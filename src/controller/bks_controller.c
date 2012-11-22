@@ -103,7 +103,7 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
 void
 bks_controller_products_alpha_get(void)
 {
-   Bks_Job *job = bks_job_new(BKS_JOB_PRODUCTS_FAVS_GET);
+   Bks_Job *job = bks_job_new(BKS_JOB_PRODUCTS_ALPHA_GET);
 
    ecore_thread_run(_products_alpha_get, _products_alpha_get_finished, NULL, job);
 }
@@ -166,7 +166,7 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
 void
 bks_controller_products_favs_get(unsigned int count)
 {
-   Bks_Job *job = bks_job_new(BKS_JOB_PRODUCTS_ALPHA_GET);
+   Bks_Job *job = bks_job_new(BKS_JOB_PRODUCTS_FAVS_GET);
 
    job->data = (void*)count;
    ecore_thread_run(_products_favs_get, _products_favs_get_finished, NULL, job);
@@ -284,7 +284,7 @@ _user_accounts_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
 void
 bks_controller_user_accounts_alpha_get(void)
 {
-   Bks_Job *job = bks_job_new(BKS_JOB_PRODUCTS_ALPHA_GET);
+   Bks_Job *job = bks_job_new(BKS_JOB_USER_ACCOUNTS_ALPHA_GET);
 
    ecore_thread_run(_user_accounts_alpha_get, _user_accounts_alpha_get_finished, NULL, job);
 }
