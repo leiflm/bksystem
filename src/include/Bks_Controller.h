@@ -25,5 +25,6 @@ void bks_controller_bill_create_cb(const Bks_Model_User_Account *userAccount);
 void bks_controller_products_alpha_get(void);
 void bks_controller_products_favs_get(unsigned int limit);
 void bks_controller_user_accounts_get(void);
+void bks_controller_user_accounts_favs_get(unsigned int limit);
 
 #endif

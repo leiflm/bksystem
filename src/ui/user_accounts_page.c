@@ -4,6 +4,27 @@
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
+typedef enum {
+    BKS_USER_ACCOUNTS_FILTER_FAVS,
+    BKS_USER_ACCOUNTS_FILTER_ALL } Bks_Ui_Filter_Mode;
+
+static void
+_on_user_accounts_sort_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
+{
+    Bks_Ui_Filter_Mode fm = (Bks_Ui_Filter_Mode)data;
+
+    printf("Sort Cb!\n");
+    switch (fm)
+    {
+        BKS_USER_ACCOUNTS_FILTER_FAVS:
+          bks_controller_user_accounts_favs_get(20);
+          break;
+        default:
+          bks_controller_user_accounts_get();
+          break;
+    }
+}
+
 static void
 _on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
@@ -37,11 +58,39 @@ user_accounts_page_reset(void)
    Evas_Object
 *user_accounts_page_add(void)
 {
+   Evas_Object *bx = NULL, *btn_bx = NULL, *btn = NULL;
+
    EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
+
+   bx = elm_box_add(ui.win);
+   elm_win_resize_object_add(ui.win, bx);
 
    //create, setup and fill user_accounts
    ui.user_accounts.list = user_accounts_page_list_add();
-   EXPAND_AND_FILL(ui.user_accounts.list);
+   evas_object_show(ui.user_accounts.list);
+   evas_object_size_hint_weight_set(ui.user_accounts.list, 1.0, 1.0);
+   evas_object_size_hint_align_set(ui.user_accounts.list, -1.0, -1.0);
+   elm_box_pack_end(bx, ui.user_accounts.list);
+
+   btn_bx = elm_box_add(ui.win);
+   evas_object_show(btn_bx);
+   elm_box_horizontal_set(btn_bx, EINA_TRUE);
+   evas_object_size_hint_align_set(btn_bx, 0.5, 1.0);
+
+   btn = elm_button_add(btn_bx);
+   evas_object_show(btn);
+   elm_object_text_set(btn, "Meist Kaufende");
+   evas_object_smart_callback_add(btn, "clicked", _on_user_accounts_sort_click, (void*)BKS_USER_ACCOUNTS_FILTER_FAVS);
+   elm_box_pack_end(btn_bx, btn);
+
+   btn = elm_button_add(btn_bx);
+   evas_object_show(btn);
+   elm_object_text_set(btn, "Alle Benutzer");
+   evas_object_smart_callback_add(btn, "clicked", _on_user_accounts_sort_click, (void*)BKS_USER_ACCOUNTS_FILTER_ALL);
+   elm_box_pack_end(btn_bx, btn);
+
+   elm_box_pack_end(bx, btn_bx);
+
    // Add button to go back to productslist
    ui.user_accounts.enp.prev_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.user_accounts.enp.prev_btn);
@@ -59,7 +108,7 @@ user_accounts_page_reset(void)
    elm_object_text_set(ui.user_accounts.lock_window.content, "Die Benutzerkontenliste wird aktualisiert");
    elm_win_inwin_content_set(ui.user_accounts.lock_window.win, ui.user_accounts.lock_window.content);
 
-   return ui.user_accounts.list;
+   return bx;
 }
 
 void user_accounts_page_set(Eina_List *user_accounts)

@@ -173,6 +173,66 @@ bks_controller_products_favs_get(unsigned int count)
 }
 
 void
+_user_accounts_favs_get(void *data, Ecore_Thread *th)
+{
+   Bks_Job *job = (Bks_Job*)data;
+   unsigned int limit;
+   
+   limit = (unsigned int)job->data;
+   if (!eina_lock_take_try(&ctrl.db_lock)) {
+      job->status = BKS_MODEL_SQLITE_OPEN_RUNNING;
+   } else {
+      eina_lock_release(&ctrl.db_lock);
+      job->data = NULL;
+      job->status = bks_model_controller_user_accounts_favs_get((Eina_List**)&job->data, limit);
+   }
+
+   switch (job->status)
+     {
+      case BKS_MODEL_SQLITE_OPEN_ERROR:
+        if (eina_lock_take_try(&ctrl.db_lock))
+          bks_ui_controller_db_path_get();
+      case BKS_MODEL_SQLITE_OPEN_RUNNING:
+        ecore_thread_reschedule(th);
+        break;
+      default:
+        break;
+     }
+
+}
+
+void
+_user_accounts_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
+{
+   Bks_Job *job = (Bks_Job*)data;
+
+   EINA_SAFETY_ON_NULL_RETURN(job);
+
+   switch (job->status)
+     {
+      case BKS_MODEL_SQLITE_OK:
+         //bks_ui_controller_user_accounts_clear();
+         bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
+         bks_job_free(job);
+#ifdef DEBUG
+         printf("DB access was successful!\n");
+#endif
+         break;
+      default:
+         printf("%s error during user accounts favs fetch!\n", BKS_STATUS_STRINGS[job->status]);
+     }
+}
+
+void
+bks_controller_user_accounts_favs_get(unsigned int limit)
+{
+   Bks_Job *job = bks_job_new(BKS_JOB_USER_ACCOUNTS_FAVS_GET);
+
+   job->data = (void*)limit;
+   ecore_thread_run(_user_accounts_favs_get, _user_accounts_favs_get_finished, NULL, job);
+}
+
+void
 _user_accounts_get(void *data, Ecore_Thread *th)
 {
    Bks_Job *job = (Bks_Job*)data;
