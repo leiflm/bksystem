@@ -21,3 +21,4 @@ ADD_DEFINITIONS(-DPACKAGE_BIN_DIR="${CMAKE_INSTALL_PREFIX}/bin"
 
 add_subdirectory(src)
 add_subdirectory(data)
+add_subdirectory(doc)

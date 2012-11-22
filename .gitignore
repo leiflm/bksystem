@@ -2,5 +2,7 @@ build
 doc/html
 Makefile
 */Makefile
-CMake*
+CMakeFiles/
+CMakeCache*
 *.cmake
+db_path.txt

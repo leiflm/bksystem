@@ -13,8 +13,8 @@ function createLink(href, innerHTML) {
    var i2 = 0, i3 = 0, i4 = 0;max_div_depth = 5;
 function generateTOC(toc) {
    toc = toc.appendChild(document.createElement("ul"));
-   //var base_node = document.body;
-   var base_node = document.getElementById("content");
+   var base_node = document.body;
+   //var base_node = document.getElementById("content");
    search_h_tags(base_node);
 }
 
