@@ -70,6 +70,7 @@ void bks_ui_controller_user_accounts_clear(void)
 {
    ecore_thread_main_loop_begin();
    elm_list_clear(ui.user_accounts.list);
+   elm_index_item_clear(ui.user_accounts.index);
    ecore_thread_main_loop_end();
 }
 

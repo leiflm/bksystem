@@ -72,6 +72,7 @@ user_accounts_list_set(Eina_List *user_accounts)
    index_letter[1] = '\0';
 
    ecore_thread_main_loop_begin();
+   elm_index_autohide_disabled_set(ui.user_accounts.index, EINA_FALSE);
    EINA_LIST_FREE(user_accounts, acc)
      {
         switch (acc->status)
@@ -109,6 +110,7 @@ user_accounts_list_set(Eina_List *user_accounts)
               }
           }
      }
+   elm_index_autohide_disabled_set(ui.user_accounts.index, EINA_TRUE);
    elm_list_go(ui.user_accounts.list);
    ecore_thread_main_loop_end();
 }
@@ -120,10 +122,10 @@ Evas_Object *user_accounts_page_list_add(void)
    ui.user_accounts.list = elm_list_add(ui.win);
    elm_list_multi_select_set(ui.user_accounts.list, EINA_TRUE);
 
-   ui.user_accounts.index = elm_index_add(ui.win);
+   ui.user_accounts.index = elm_index_add(ui.user_accounts.list);
+   elm_index_horizontal_set(ui.user_accounts.index, EINA_TRUE);
    EXPAND(ui.user_accounts.index);
    elm_win_resize_object_add(ui.win, ui.user_accounts.index);
-   elm_index_autohide_disabled_set(ui.user_accounts.index, EINA_FALSE);
    evas_object_show(ui.user_accounts.index);
 
    // Add callback for doubleclick action
