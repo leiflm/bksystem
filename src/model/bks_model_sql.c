@@ -202,7 +202,7 @@ _close_db:
 Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned int limit) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
-   char select_query[256];
+   char select_query[300];
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -212,7 +212,7 @@ Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned
    int image_size;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
 
-   snprintf(select_query, 255, "SELECT user_accounts.id,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.id=fav_users.user_account_id ORDER BY placement LIMIT %u", limit);
+   snprintf(select_query, 299, "SELECT user_accounts.id,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.id=fav_users.user_account_id ORDER BY lower(user_accounts.lastname), lower(user_acccounts.firstname) LIMIT %u", limit);
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
    if (retval ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
