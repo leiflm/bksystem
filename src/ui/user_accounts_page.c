@@ -16,8 +16,8 @@ _on_user_accounts_sort_click(void *data UNUSED, Evas_Object *obj UNUSED, void *e
     bks_ui_controller_user_accounts_clear();
     switch (fm)
     {
-        BKS_USER_ACCOUNTS_FILTER_FAVS:
-          bks_controller_user_accounts_favs_get(20);
+        case BKS_USER_ACCOUNTS_FILTER_FAVS:
+          bks_controller_user_accounts_favs_get(5);
           break;
         default:
           bks_controller_user_accounts_alpha_get();
