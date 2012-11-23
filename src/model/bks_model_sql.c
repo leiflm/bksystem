@@ -89,7 +89,7 @@ _close_db:
 
 Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int limit) {
    Bks_Model_Product *ptr_current_product = NULL;
-   char *select_query ="SELECT products.id,name,price,placement,image,status FROM products, fav_products WHERE products.id=fav_products.product_id ORDER BY placement";
+   char select_query[256];
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -104,7 +104,7 @@ Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int 
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
-   
+   snprintf(select_query, 255, "SELECT products.id,name,price,placement,image,status FROM products, fav_products WHERE products.id=fav_products.product_id ORDER BY placement LIMIT %u",limit);   
    retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
    if (retval != SQLITE_OK ) {
       goto _finalize;
@@ -138,9 +138,6 @@ Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int 
 
       *list = eina_list_append(*list, ptr_current_product);
 
-      if (i >= limit) { // We only want at most limit Rows
-         break;
-      }
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
@@ -205,7 +202,7 @@ _close_db:
 Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned int limit) {
 
    Bks_Model_User_Account *ptr_current_user = NULL;
-   char *select_query = "SELECT user_accounts.id,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.id=fav_users.user_account_id ORDER BY placement";
+   char select_query[256];
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -215,6 +212,7 @@ Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned
    int image_size;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
 
+   snprintf(select_query, 255, "SELECT user_accounts.id,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.id=fav_users.user_account_id ORDER BY placement LIMIT %u", limit);
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
    if (retval ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
@@ -251,9 +249,7 @@ Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned
          ptr_current_user->image.size = 0;
       }
       *list = eina_list_append(*list, ptr_current_user);
-      if (i >= limit) {// We only want at most limit Rows
-         break;
-      }
+
    }
 _finalize:
    if (sqlite3_finalize(stmt) != SQLITE_OK) {
