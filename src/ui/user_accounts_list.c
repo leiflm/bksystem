@@ -111,22 +111,6 @@ user_accounts_list_set(Eina_List *user_accounts)
    ecore_thread_main_loop_end();
 }
 
-// The function below is part of a workaround for an index bug
-// where the index takes the entire canvas and thus blocks other elements
-// such as buttons
-static void
-_adjust_index_size(void *data UNUSED, Evas *evas UNUSED, Evas_Object *obj, void *event_data UNUSED)
-{
-    Evas_Coord w = 0, h = 0;
-
-#define INDEX_LETTER_WIDTH 200
-    evas_object_geometry_get(obj, NULL, NULL, &w, &h);
-    evas_object_resize(ui.user_accounts.index, INDEX_LETTER_WIDTH, h);
-    evas_object_move(ui.user_accounts.index, (w - INDEX_LETTER_WIDTH), 55);
-    evas_object_show(ui.user_accounts.index);
-#undef INDEX_LETTER_WIDTH
-}
-
 Evas_Object *user_accounts_page_list_add(void)
 {
    if (!ui.win) return NULL;
@@ -134,13 +118,9 @@ Evas_Object *user_accounts_page_list_add(void)
    ui.user_accounts.list = elm_list_add(ui.win);
    elm_list_multi_select_set(ui.user_accounts.list, EINA_TRUE);
 
-   ui.user_accounts.index = elm_index_add(ui.win);
-   EXPAND_AND_FILL(ui.user_accounts.index);
-   evas_object_show(ui.user_accounts.index);
-   // The callback added below is part of a workaround for an index bug
-   // where the index takes the entire canvas and thus blocks other elements
-   // such as buttons
-   evas_object_event_callback_add(ui.user_accounts.list, EVAS_CALLBACK_RESIZE, _adjust_index_size, NULL);
+   ui.user_accounts.index = elm_index_add(ui.user_accounts.list);
+   evas_object_size_hint_weight_set(ui.user_accounts.index, 1.0, 1.0);
+   evas_object_size_hint_align_set(ui.user_accounts.index, -1.0, -1.0);
 
    // Add callback for doubleclick action
    //evas_object_smart_callback_add(ui.user_accounts.enp.content, "clicked,double", _on_user_account_double_click, NULL);

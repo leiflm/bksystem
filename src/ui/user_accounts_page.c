@@ -29,8 +29,6 @@ static void
 _on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    products_page_reset();
-   //The line below is necessary since the HIDE event callback for the user list isn't called
-   evas_object_hide(ui.user_accounts.index);
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
 
@@ -40,8 +38,6 @@ _on_user_accounts_finish_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, v
    bks_controller_ui_sale_finish();
    products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
-   //The line below is necessary since the HIDE event callback for the user list isn't called
-   evas_object_hide(ui.user_accounts.index);
 }
 
 void
@@ -50,46 +46,42 @@ user_accounts_page_reset(void)
    ecore_thread_main_loop_begin();
    elm_list_selection_clear(ui.user_accounts.list);
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
-   //The line below is necessary since the SHOW event callback for the user list isn't called
-   evas_object_show(ui.user_accounts.index);
    ecore_thread_main_loop_end();
 }
 
    Evas_Object
 *user_accounts_page_add(void)
 {
-   Evas_Object *bx = NULL, *btn_bx = NULL, *btn = NULL;
+   Evas_Object *tb = NULL, *btn = NULL;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
 
-   bx = elm_box_add(ui.win);
-   elm_win_resize_object_add(ui.win, bx);
+   tb = elm_table_add(ui.win);
+   elm_win_resize_object_add(ui.win, tb);
 
    //create, setup and fill user_accounts
    ui.user_accounts.list = user_accounts_page_list_add();
    evas_object_show(ui.user_accounts.list);
    evas_object_size_hint_weight_set(ui.user_accounts.list, 1.0, 1.0);
    evas_object_size_hint_align_set(ui.user_accounts.list, -1.0, -1.0);
-   elm_box_pack_end(bx, ui.user_accounts.list);
+   elm_table_pack(tb, ui.user_accounts.list, 1, 1, 2, 1);
 
-   btn_bx = elm_box_add(ui.win);
-   evas_object_show(btn_bx);
-   elm_box_horizontal_set(btn_bx, EINA_TRUE);
-   evas_object_size_hint_align_set(btn_bx, 0.5, 1.0);
+   elm_table_pack(tb, ui.user_accounts.index, 1, 1, 2, 1);
+   evas_object_show(ui.user_accounts.index);
 
-   btn = elm_button_add(btn_bx);
+   btn = elm_button_add(tb);
    evas_object_show(btn);
    elm_object_text_set(btn, "Meist Kaufende");
    evas_object_smart_callback_add(btn, "clicked", _on_user_accounts_sort_click, (void*)BKS_USER_ACCOUNTS_FILTER_FAVS);
-   elm_box_pack_end(btn_bx, btn);
+   evas_object_size_hint_weight_set(btn, 1.0, 0.0);
+   elm_table_pack(tb, btn, 1, 2, 1, 1);
 
-   btn = elm_button_add(btn_bx);
+   btn = elm_button_add(tb);
    evas_object_show(btn);
    elm_object_text_set(btn, "Alle Benutzer");
    evas_object_smart_callback_add(btn, "clicked", _on_user_accounts_sort_click, (void*)BKS_USER_ACCOUNTS_FILTER_ALL);
-   elm_box_pack_end(btn_bx, btn);
-
-   elm_box_pack_end(bx, btn_bx);
+   evas_object_size_hint_weight_set(btn, 1.0, 0.0);
+   elm_table_pack(tb, btn, 2, 2, 1, 1);
 
    // Add button to go back to productslist
    ui.user_accounts.enp.prev_btn = elm_button_add(ui.naviframe);
@@ -108,7 +100,7 @@ user_accounts_page_reset(void)
    elm_object_text_set(ui.user_accounts.lock_window.content, "Die Benutzerkontenliste wird aktualisiert");
    elm_win_inwin_content_set(ui.user_accounts.lock_window.win, ui.user_accounts.lock_window.content);
 
-   return bx;
+   return tb;
 }
 
 void user_accounts_page_set(Eina_List *user_accounts)
