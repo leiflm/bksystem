@@ -9,20 +9,20 @@ typedef enum {
     BKS_USER_ACCOUNTS_FILTER_ALL } Bks_Ui_Filter_Mode;
 
 static void
-_on_user_accounts_sort_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
+_on_user_accounts_sort_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
 {
-    Bks_Ui_Filter_Mode fm = (Bks_Ui_Filter_Mode)data;
+    Elm_Object_Item *it = (Elm_Object_Item*)event_info;
+    const char *btn_txt = elm_object_item_text_get(it);
 
     bks_ui_controller_user_accounts_clear();
-    switch (fm)
-    {
-        case BKS_USER_ACCOUNTS_FILTER_FAVS:
-          bks_controller_user_accounts_favs_get(25);
-          break;
-        default:
-          bks_controller_user_accounts_alpha_get();
-          break;
-    }
+    if (strncmp("Meist Kaufende", btn_txt, sizeof("Meist Kaufende")) == 0)
+      {
+        bks_controller_user_accounts_favs_get(25);
+      }
+    else
+      {
+        bks_controller_user_accounts_alpha_get();
+      }
 }
 
 static void
@@ -52,7 +52,8 @@ user_accounts_page_reset(void)
    Evas_Object
 *user_accounts_page_add(void)
 {
-   Evas_Object *tb = NULL, *btn = NULL;
+   Evas_Object *tb = NULL, *sc;
+   Elm_Object_Item *btn;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
 
@@ -69,19 +70,17 @@ user_accounts_page_reset(void)
    elm_table_pack(tb, ui.user_accounts.index, 1, 1, 2, 1);
    evas_object_show(ui.user_accounts.index);
 
-   btn = elm_button_add(tb);
-   evas_object_show(btn);
-   elm_object_text_set(btn, "Meist Kaufende");
-   evas_object_smart_callback_add(btn, "clicked", _on_user_accounts_sort_click, (void*)BKS_USER_ACCOUNTS_FILTER_FAVS);
-   evas_object_size_hint_weight_set(btn, 1.0, 0.0);
-   elm_table_pack(tb, btn, 1, 2, 1, 1);
+   sc = elm_segment_control_add(ui.win);
+   evas_object_show(sc);
+   evas_object_size_hint_weight_set(sc, 1.0, 0.0);
+   evas_object_size_hint_align_set(sc, EVAS_HINT_FILL, 1.0);
+   evas_object_smart_callback_add(sc, "changed", _on_user_accounts_sort_click, NULL);
+   elm_table_pack(tb, sc, 1, 2, 1, 1);
 
-   btn = elm_button_add(tb);
-   evas_object_show(btn);
-   elm_object_text_set(btn, "Alle Benutzer");
-   evas_object_smart_callback_add(btn, "clicked", _on_user_accounts_sort_click, (void*)BKS_USER_ACCOUNTS_FILTER_ALL);
-   evas_object_size_hint_weight_set(btn, 1.0, 0.0);
-   elm_table_pack(tb, btn, 2, 2, 1, 1);
+   btn = elm_segment_control_item_add(sc, NULL, "Meist Kaufende");
+   elm_segment_control_item_selected_set(btn, EINA_TRUE);
+
+   btn = elm_segment_control_item_add(sc, NULL, "Alle Konten");
 
    // Add button to go back to productslist
    ui.user_accounts.enp.prev_btn = elm_button_add(ui.naviframe);
