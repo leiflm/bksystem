@@ -40,7 +40,16 @@ rm -rf ${RPM_BUILD_ROOT}
 %_datadir/%{name}/empty.sqlite
 
 # a script to create bills
+%_datadir/%{name}/backup.sh
 %_datadir/%{name}/bksystem.sh
+%_datadir/%{name}/export_bill_basic.sh
+%_datadir/%{name}/export_bill_complete_comb.sh
+%_datadir/%{name}/export_bill_complete_sep.sh
+%_datadir/%{name}/export_bill_html.sh
+%_datadir/%{name}/insert_bill_reference_date_into_db.sh
+%_datadir/%{name}/layout.css
+%_datadir/%{name}/restore_db.sh
+%_datadir/%{name}/sub_txt_tmpl
 
 # desktop file
 %_datadir/applications/bksystem.desktop
