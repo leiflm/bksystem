@@ -31,15 +31,10 @@ void bks_ui_init(int argc, char* argv[])
    evas_object_show(ui.naviframe);
    evas_object_focus_set(ui.naviframe, EINA_TRUE);
    evas_object_event_callback_add(ui.naviframe, EVAS_CALLBACK_KEY_DOWN, _ui_window_key, NULL);
+   elm_naviframe_content_preserve_on_pop_set(ui.naviframe, EINA_TRUE);
    // add object as a resize object for the window (controls window minimum
    // size as well as gets resized if window is resized)
    elm_win_resize_object_add(ui.win, ui.naviframe);
-
-   //create and fill products
-   ui.products.enp.content = products_page_add();
-   evas_object_show(ui.products.enp.content);
-   EXPAND_AND_FILL(ui.products.enp.content);
-   ui.products.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Produkte", NULL, ui.products.enp.next_btn, ui.products.enp.content, NULL);
 
    // create notificaton
    ui.notification.note = elm_popup_add(ui.win);
@@ -53,6 +48,12 @@ void bks_ui_init(int argc, char* argv[])
    EXPAND_AND_FILL(ui.user_accounts.enp.content);
    ui.user_accounts.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Konten", NULL, ui.user_accounts.enp.next_btn, ui.user_accounts.enp.content, NULL);
 
+   //create and fill products
+   ui.products.enp.content = products_page_add();
+   evas_object_show(ui.products.enp.content);
+   EXPAND_AND_FILL(ui.products.enp.content);
+   ui.products.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Produkte", ui.products.enp.prev_btn, ui.products.enp.next_btn, ui.products.enp.content, NULL);
+
    //create lock window
    ui.lock_window.win = elm_win_inwin_add(ui.win);
    ui.lock_window.content = elm_label_add(ui.lock_window.win);
@@ -60,7 +61,7 @@ void bks_ui_init(int argc, char* argv[])
    evas_object_size_hint_align_set(ui.lock_window.content, 0.5, 0.5);
    elm_win_inwin_content_set(ui.lock_window.win, ui.lock_window.content);
 
-   elm_naviframe_content_preserve_on_pop_set(ui.naviframe, EINA_TRUE);
+   elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
 
    //finally set size of window
    evas_object_resize(ui.win, 640, 480);

@@ -7,6 +7,13 @@
 #include "Bks_Ui_Private.h"
 
 static void
+_unselected_cb(void *data, Evas_Object *obj UNUSED, void *event_info UNUSED)
+{
+   if (eina_list_count(elm_list_selected_items_get(ui.user_accounts.list)) == 0)
+       elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
+}
+
+static void
 _on_user_account_select(void *data, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    const Bks_Model_User_Account *acc = NULL;
@@ -121,6 +128,8 @@ Evas_Object *user_accounts_page_list_add(void)
    ui.user_accounts.index = elm_index_add(ui.user_accounts.list);
    evas_object_size_hint_weight_set(ui.user_accounts.index, 1.0, 1.0);
    evas_object_size_hint_align_set(ui.user_accounts.index, -1.0, -1.0);
+
+   evas_object_smart_callback_add(ui.user_accounts.list, "unselected", _unselected_cb, NULL);
 
    // Add callback for doubleclick action
    //evas_object_smart_callback_add(ui.user_accounts.enp.content, "clicked,double", _on_user_account_double_click, NULL);

@@ -26,13 +26,6 @@ _on_user_accounts_sort_click(void *data UNUSED, Evas_Object *obj UNUSED, void *e
 }
 
 static void
-_on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
-{
-   products_page_reset();
-   elm_naviframe_item_promote(ui.products.enp.eoi);
-}
-
-static void
 _on_user_accounts_products_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
    products_page_reset();
@@ -63,7 +56,7 @@ user_accounts_page_reset(void)
    ui.user_accounts.list = user_accounts_page_list_add();
    evas_object_show(ui.user_accounts.list);
    evas_object_size_hint_weight_set(ui.user_accounts.list, 1.0, 1.0);
-   evas_object_size_hint_align_set(ui.user_accounts.list, -1.0, -1.0);
+   FILL(ui.user_accounts.list);
    elm_table_pack(tb, ui.user_accounts.list, 1, 1, 2, 1);
 
    elm_table_pack(tb, ui.user_accounts.index, 1, 1, 2, 1);
@@ -84,6 +77,7 @@ user_accounts_page_reset(void)
    // Add button to select products
    ui.user_accounts.enp.next_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.user_accounts.enp.next_btn);
+   elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
    elm_object_text_set(ui.user_accounts.enp.next_btn, "Produkte auswaehlen");
    evas_object_smart_callback_add(ui.user_accounts.enp.next_btn, "clicked", _on_user_accounts_products_btn_click, NULL);
 

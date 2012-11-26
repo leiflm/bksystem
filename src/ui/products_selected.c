@@ -30,7 +30,7 @@ void products_selected_list_reset()
 {
    if (!ui.products.selected) return;
    ecore_thread_main_loop_begin();
-   elm_list_selection_clear(ui.products.selected);
+   elm_list_clear(ui.products.selected);
    ecore_thread_main_loop_end();
 }
 

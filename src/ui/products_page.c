@@ -22,6 +22,7 @@ products_page_reset(void)
 {
    products_grid_reset();
    products_list_reset();
+   products_selected_list_reset();
 }
 
 Evas_Object *_products_favs_add(void)
@@ -39,6 +40,13 @@ _on_products_next_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *ev
 {
    bks_controller_ui_sale_finish();
    user_accounts_page_reset();
+   products_page_reset();
+   elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
+}
+
+static void
+_on_products_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
+{
    elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
 }
 
@@ -68,6 +76,12 @@ Evas_Object *products_page_add(void)
    evas_object_size_hint_weight_set(ui.products.selected, EVAS_HINT_EXPAND, 0.3);
    FILL(ui.products.selected);
    elm_table_pack(tb, ui.products.selected, 0, 1, 2, 1);
+
+   // Add button to switch back to account selection
+   ui.products.enp.prev_btn = elm_button_add(ui.naviframe);
+   evas_object_show(ui.products.enp.prev_btn);
+   elm_object_text_set(ui.products.enp.prev_btn, "Zurueck");
+   evas_object_smart_callback_add(ui.products.enp.prev_btn, "clicked", _on_products_prev_btn_click, NULL);
 
    // Add button to continue to account selection
    ui.products.enp.next_btn = elm_button_add(ui.naviframe);
