@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(bksystem)
+project(bksystem C)
 set(VMAJ 0)
 set(VMIN 1)
 set(VMIC 0)
