@@ -71,7 +71,7 @@ void bks_model_controller_db_path_set(Eina_Stringshare *path);
 /**
  * @brief Commits a List of sales to the database, blocking function
  *
- * @param Eina_List of Bks_Model_Sale: sale contains sale info (uid, EAN, price, status, etc.) with sale that should be performed on database
+ * @param Eina_List of Bks_Model_Sale: sale contains sale info (uid, pid, price, status, etc.) with sale that should be performed on database
  *
  * @return Bks_Status indicator
  */

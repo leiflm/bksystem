@@ -62,7 +62,7 @@ Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list) {
   
       ptr_current_product = malloc(sizeof(Bks_Model_Product));
 
-      ptr_current_product->EAN = sqlite3_column_int64(stmt, 0);
+      ptr_current_product->pid = sqlite3_column_int64(stmt, 0);
 
       name = (char*)sqlite3_column_text(stmt, 1);
       ptr_current_product->name = (char*)malloc((strlen(name) + 1));
@@ -114,7 +114,7 @@ Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int 
       i++;
       ptr_current_product = malloc(sizeof(Bks_Model_Product));
 
-      ptr_current_product->EAN = sqlite3_column_int64(stmt, 0);
+      ptr_current_product->pid = sqlite3_column_int64(stmt, 0);
 
       name = (char*)sqlite3_column_text(stmt, 1);
       ptr_current_product->name = (char*)malloc((strlen(name) + 1));
@@ -289,7 +289,7 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
          goto _close_and_return;
       }
    }
-   retval = sqlite3_bind_int64(insert_stmt, 2, sales->EAN);
+   retval = sqlite3_bind_int64(insert_stmt, 2, sales->pid);
    retval = sqlite3_bind_double(insert_stmt, 3, sales->price);
 
    // Insert for every user in the user account list in sale
@@ -334,7 +334,7 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
 //Bks_Status _bks_model_sql_sales_from_user_since(Eina_List **list, int uid, const char *timestamp) {
 
    //Bks_Model_Sale *ptr_current_sale = NULL;
-   //char *select_query ="SELECT uid,firstname,lastname,status,EAN,name,price,timestamp FROM (((SELECT uid,firstname,lastname,status FROM user_accounts WHERE uid = ?2)INNER JOIN (SELECT userid,product,price,timestamp FROM sales WHERE timestamp > datetime(?1)) ON uid=userid ) INNER JOIN (SELECT EAN,name FROM products) ON EAN = product)ORDER BY uid,product";
+   //char *select_query ="SELECT user_account_id,firstname,lastname,status,product_id,name,price,created_at FROM (((SELECT id AS 'user_id',firstname,lastname,status FROM user_accounts WHERE id = ?2)INNER JOIN (SELECT user_account_id,product_id,price,created_at FROM sales WHERE created_at > datetime(?1)) ON user_account_id=user_id ) INNER JOIN (SELECT id AS 'prod_id',name FROM products) ON prod_id = product_id) ORDER BY user_account_id,product_id";
    //char *tmp;
    //sqlite3 *pDb;
    //sqlite3_stmt *stmt;
@@ -376,7 +376,7 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
 
       //ptr_current_sale->status = sqlite3_column_int(stmt, 3);
 
-      //ptr_current_sale->EAN = sqlite3_column_int64(stmt, 4);
+      //ptr_current_sale->pid= sqlite3_column_int64(stmt, 4);
 
       //tmp = (char*)sqlite3_column_text(stmt, 5);
       //ptr_current_sale->productname = (char*)malloc(strlen(tmp + 1));

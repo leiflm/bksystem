@@ -4,7 +4,7 @@
 /**
  * @brief Commits a sale to the database
  *
- * @param Bks_Model_Sale sale contains sale info (uid, EAN, price, status, etc.) with sale that should be performed on database
+ * @param Bks_Model_Sale sale contains sale info (uid, pid, price, status, etc.) with sale that should be performed on database
  *
  * @return Bks_Status indicator
  */

@@ -34,7 +34,7 @@
  * @param firstname
  * @param lastname
  * @param status indicates success or failure of sale.
- * @param EAN product ID
+ * @param pid product ID
  * @param productname
  * @param price associated with the sale, not the product! Product price may have changed.
  * @param char *timestamp has to be of format "YYYY-MM-DD hh:mm:ss"
@@ -44,7 +44,7 @@
 struct _Bks_Model_Sale {
    Eina_List *user_accounts;
    Bks_Status status;
-   sqlite3_uint64 EAN;
+   sqlite3_uint64 pid;
    char *productname;
    double price;
    char *timestamp;
@@ -53,7 +53,7 @@ struct _Bks_Model_Sale {
 /** @brief allocates a new Bks_Model_Sale element and initializes it with the
  * given parameters.
  * @param uid user that is buying a product
- * @param EAN corresponding ID of the product
+ * @param pid corresponding ID of the product
  * @param price of the product
  */
 Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Product *product);

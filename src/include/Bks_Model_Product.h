@@ -28,7 +28,7 @@ enum _Bks_Model_Product_Status { BKS_MODEL_PRODUCT_SHOW = 0,
                                  };
 
    struct _Bks_Model_Product {
-      sqlite3_uint64 EAN;
+      sqlite3_uint64 pid;
       char *name;
       double price;
       Bks_Model_Product_Status status;
