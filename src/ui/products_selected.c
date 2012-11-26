@@ -15,6 +15,7 @@ Evas_Object *_products_selected_list_add(void)
     Evas_Object *list = elm_list_add(ui.win);
     elm_win_resize_object_add(ui.win, list);
     elm_list_horizontal_set(list, EINA_TRUE);
+    elm_scroller_policy_set(list, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_OFF);
 
     return list;
 }
