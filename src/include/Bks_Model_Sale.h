@@ -44,19 +44,16 @@
 struct _Bks_Model_Sale {
    Eina_List *user_accounts;
    Bks_Status status;
-   sqlite3_uint64 pid;
-   char *productname;
-   double price;
+   Eina_List *products;
    char *timestamp;
 };
 
 /** @brief allocates a new Bks_Model_Sale element and initializes it with the
  * given parameters.
- * @param uid user that is buying a product
- * @param pid corresponding ID of the product
- * @param price of the product
+ * @param Eina list of user accounts that are buying a product
+ * @param Eina list of products that are bought
  */
-Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Product *product);
+Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, Eina_List *products);
 
 /**
  * @brief frees struct memory and NULLs

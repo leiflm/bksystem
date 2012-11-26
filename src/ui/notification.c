@@ -7,20 +7,32 @@
 
 void _bks_ui_sale_notification_set(Bks_Model_Sale *sale) {
 
-   Eina_List *l, *accs;
-   int accs_count;
+   Eina_List *l, *accs, *prods;
+   int accs_count, prods_count;
    int size, length;
    char *text;
    Bks_Model_User_Account *acc;
+   Bks_Model_Product *prod;
 
    if (sale->status == BKS_MODEL_SALE_DONE) {
 
       accs = sale->user_accounts;
       accs_count = eina_list_count(accs);
+      prods = sale->products;
+      prods_count = eina_list_count(prods);
       // size for text + estimated size for user accounts
-      size = 90 + accs_count * 30;
+      size = 90 + accs_count * 30 + prods_count * 30;
       text = calloc((size_t)(size + 1),1);
-      length = snprintf(text, (size_t)size, "<align = left>Kauf von %s: %.2f EUR wurde ", sale->productname, sale->price);
+      length = snprintf(text, (size_t)size, "<align = left>Kauf von ");
+
+      EINA_LIST_FOREACH(prods, l, prod) {
+         if (size > length) {
+            length += snprintf(text + length,(size_t)(size - length), "%s: %.2f EUR, ", prod->name, prod->price);
+         }
+      }
+
+
+      length += snprintf(text + length, (size_t)(size - length), "wurde ");
       // append every name in list
       EINA_LIST_FOREACH(accs, l, acc) {
          if (size > length) {
@@ -35,7 +47,7 @@ void _bks_ui_sale_notification_set(Bks_Model_Sale *sale) {
 
       elm_object_text_set(ui.notification.note, text);
       evas_object_show(ui.notification.note);
-      elm_popup_timeout_set(ui.notification.note, 2.0 + (double)accs_count);
+      elm_popup_timeout_set(ui.notification.note, 2.0 + 2*(double)accs_count + 2*(double)prods_count);
       free(text);
    } else  {
       elm_object_text_set(ui.notification.note, "ERROR: Verkauf konnte nicht durchgeführt werden!");

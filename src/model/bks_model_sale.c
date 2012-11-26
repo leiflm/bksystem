@@ -25,14 +25,12 @@
 #include "Bks_Model_User_Account.h"
 #include "Bks_Model_Product.h"
 
-Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Product *product) {
+Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, Eina_List *products) {
 
    Bks_Model_Sale *sale_ptr;
    sale_ptr = malloc(sizeof(Bks_Model_Sale));
    sale_ptr->user_accounts = user_accounts;
-   sale_ptr->pid = product->pid;
-   sale_ptr->productname = product->name;
-   sale_ptr->price = product->price;
+   sale_ptr->products = products;
    sale_ptr->status = BKS_MODEL_SALE_UNFINISHED;
 
    return sale_ptr;
@@ -42,6 +40,7 @@ Bks_Model_Sale *bks_model_sale_new(Eina_List *user_accounts, const Bks_Model_Pro
 void bks_model_sale_free(Bks_Model_Sale *sale_ptr) {
    if (!sale_ptr) {
       eina_list_free(sale_ptr->user_accounts);
+      eina_list_free(sale_ptr->products);
    }
    free(sale_ptr);
 }

@@ -270,7 +270,8 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
    sqlite3_stmt *insert_stmt;
    int retval;
    Bks_Model_User_Account *current_user;
-   Eina_List *current_node;
+   Bks_Model_Product *current_product;
+   Eina_List *current_user_node, *current_product_node;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READWRITE, NULL);
@@ -289,21 +290,23 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
          goto _close_and_return;
       }
    }
-   retval = sqlite3_bind_int64(insert_stmt, 2, sales->pid);
-   retval = sqlite3_bind_double(insert_stmt, 3, sales->price);
+
 
    // Insert for every user in the user account list in sale
-   EINA_LIST_FOREACH(sales->user_accounts, current_node, current_user) {
+   EINA_LIST_FOREACH(sales->user_accounts, current_user_node, current_user) {
+      EINA_LIST_FOREACH(sales->products, current_product_node, current_product) {
 
-      retval = sqlite3_bind_int64(insert_stmt, 1, current_user->uid);
-
-      // Performing INSERT
-      retval = sqlite3_step(insert_stmt);
-      if (retval != SQLITE_DONE) {
-         error = BKS_MODEL_SQLITE_OPEN_ERROR;
-         goto finalize_close_and_return;
+         retval = sqlite3_bind_int64(insert_stmt, 1, current_user->uid);
+         retval = sqlite3_bind_int64(insert_stmt, 2, current_product->pid);
+         retval = sqlite3_bind_double(insert_stmt, 3, current_product->price);
+         // Performing INSERT
+         retval = sqlite3_step(insert_stmt);
+         if (retval != SQLITE_DONE) {
+            error = BKS_MODEL_SQLITE_OPEN_ERROR;
+            goto finalize_close_and_return;
+         }
+         sqlite3_reset(insert_stmt);
       }
-      sqlite3_reset(insert_stmt);
    }
    // Deallocate Statment
    retval = sqlite3_finalize(insert_stmt);
