@@ -53,7 +53,6 @@ _on_product_selected_click(void *data, Evas_Object *obj UNUSED, void *event_info
    {
        // remove from list
        elm_object_item_del(eoi);
-       free(ps);
        // If only the smart object is left in the list, disable the button
        if (eina_list_count(elm_list_items_get(ui.products.selected)) == 1)
            elm_object_disabled_set(ui.products.enp.next_btn, EINA_TRUE);
