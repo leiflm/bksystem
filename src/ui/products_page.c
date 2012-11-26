@@ -37,6 +37,7 @@ Evas_Object *_products_alpha_add(void)
 static void
 _on_products_next_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
+   bks_controller_ui_sale_finish();
    user_accounts_page_reset();
    elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
 }
@@ -72,7 +73,7 @@ Evas_Object *products_page_add(void)
    ui.products.enp.next_btn = elm_button_add(ui.naviframe);
    elm_object_disabled_set(ui.products.enp.next_btn, EINA_TRUE);
    evas_object_show(ui.products.enp.next_btn);
-   elm_object_text_set(ui.products.enp.next_btn, "Konten auswaehlen");
+   elm_object_text_set(ui.products.enp.next_btn, "Kauf abschliessen");
    evas_object_smart_callback_add(ui.products.enp.next_btn, "clicked", _on_products_next_btn_click, NULL);
 
    ui.products.lock_window.win = elm_win_inwin_add(ui.win);

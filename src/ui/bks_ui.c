@@ -51,7 +51,7 @@ void bks_ui_init(int argc, char* argv[])
    ui.user_accounts.enp.content = user_accounts_page_add();
    evas_object_show(ui.user_accounts.enp.content);
    EXPAND_AND_FILL(ui.user_accounts.enp.content);
-   ui.user_accounts.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Konten", ui.user_accounts.enp.prev_btn, ui.user_accounts.enp.next_btn, ui.user_accounts.enp.content, NULL);
+   ui.user_accounts.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Konten", NULL, ui.user_accounts.enp.next_btn, ui.user_accounts.enp.content, NULL);
 
    //create lock window
    ui.lock_window.win = elm_win_inwin_add(ui.win);
@@ -59,9 +59,7 @@ void bks_ui_init(int argc, char* argv[])
    elm_object_text_set(ui.lock_window.content, "Daten werden aktualisiert.");
    evas_object_size_hint_align_set(ui.lock_window.content, 0.5, 0.5);
    elm_win_inwin_content_set(ui.lock_window.win, ui.lock_window.content);
-   
 
-   elm_naviframe_item_promote(ui.products.enp.eoi);
    elm_naviframe_content_preserve_on_pop_set(ui.naviframe, EINA_TRUE);
 
    //finally set size of window

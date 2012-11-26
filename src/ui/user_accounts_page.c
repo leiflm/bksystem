@@ -33,9 +33,8 @@ _on_user_accounts_prev_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, voi
 }
 
 static void
-_on_user_accounts_finish_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
+_on_user_accounts_products_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
-   bks_controller_ui_sale_finish();
    products_page_reset();
    elm_naviframe_item_promote(ui.products.enp.eoi);
 }
@@ -82,16 +81,11 @@ user_accounts_page_reset(void)
 
    btn = elm_segment_control_item_add(sc, NULL, "Alle Konten");
 
-   // Add button to go back to productslist
-   ui.user_accounts.enp.prev_btn = elm_button_add(ui.naviframe);
-   evas_object_show(ui.user_accounts.enp.prev_btn);
-   elm_object_text_set(ui.user_accounts.enp.prev_btn, "Zurück");
-   evas_object_smart_callback_add(ui.user_accounts.enp.prev_btn, "clicked", _on_user_accounts_prev_btn_click, NULL);
-   // Add button to finish shopping
+   // Add button to select products
    ui.user_accounts.enp.next_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.user_accounts.enp.next_btn);
-   elm_object_text_set(ui.user_accounts.enp.next_btn, "Fertig");
-   evas_object_smart_callback_add(ui.user_accounts.enp.next_btn, "clicked", _on_user_accounts_finish_btn_click, NULL);
+   elm_object_text_set(ui.user_accounts.enp.next_btn, "Produkte auswaehlen");
+   evas_object_smart_callback_add(ui.user_accounts.enp.next_btn, "clicked", _on_user_accounts_products_btn_click, NULL);
 
    ui.user_accounts.lock_window.win = elm_win_inwin_add(ui.win);
    ui.user_accounts.lock_window.content = elm_label_add(ui.user_accounts.lock_window.win);
