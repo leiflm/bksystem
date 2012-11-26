@@ -39,7 +39,7 @@ void bks_ui_init(int argc, char* argv[])
    ui.products.enp.content = products_page_add();
    evas_object_show(ui.products.enp.content);
    EXPAND_AND_FILL(ui.products.enp.content);
-   ui.products.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Produkte", NULL, NULL, ui.products.enp.content, NULL);
+   ui.products.enp.eoi = elm_naviframe_item_push(ui.naviframe, "Produkte", NULL, ui.products.enp.next_btn, ui.products.enp.content, NULL);
 
    // create notificaton
    ui.notification.note = elm_popup_add(ui.win);

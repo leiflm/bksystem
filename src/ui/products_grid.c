@@ -23,14 +23,13 @@ void products_grid_reset()
 }
 
 static void
-grid_selected(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
+grid_selected(void *data, Evas_Object *obj UNUSED, void *event_info)
 {
-   const Elm_Object_Item *selected_product = (const Elm_Object_Item*)event_info;
+   const Bks_Model_Product *selected_product = (const Bks_Model_Product*)data;
+   Elm_Object_Item *eoi = (Elm_Object_Item*)event_info;
 
-   _product_selected_set(selected_product);
-#ifdef DEBUG
-   printf("Produkt %p ausgewaehlt.\n", selected_product);
-#endif
+   _products_selected_product_add(selected_product);
+   elm_gengrid_item_selected_set(eoi, EINA_FALSE);
 }
 
 char *
@@ -139,7 +138,7 @@ void products_grid_set(Eina_List *products)
    //add all products to grid
    EINA_LIST_FREE(products, product)
      {
-        elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, NULL);
+        elm_gengrid_item_append(ui.products.grid, &gic, product, grid_selected, product);
      }
    ecore_thread_main_loop_end();
 }

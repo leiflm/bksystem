@@ -6,10 +6,16 @@
 #include "Bks_Model_Product.h"
 
 //Convenience Macros
-#define EXPAND(o) evas_object_size_hint_weight_set(o, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-#define FILL(o) evas_object_size_hint_fill_set(o, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+#define EXPAND(o) evas_object_size_hint_weight_set(o, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
+#define FILL(o) evas_object_size_hint_align_set(o, EVAS_HINT_FILL, EVAS_HINT_FILL)
 #define EXPAND_AND_FILL(o) EXPAND(o);\
                            FILL(o)
+
+// Structure to manage quantity of selected products in the UI
+typedef struct _Bks_Ui_Product_Selected {
+    const Bks_Model_Product *product;
+    unsigned int qty;
+} Bks_Ui_Product_Selected;
 
 Evas_Object *bks_ui_win_add(void);
 
@@ -40,9 +46,15 @@ void _products_grid_clear(void);
 Evas_Object *products_list_add(void);
 void _products_list_clear(void);
 void products_list_set(Eina_List *products);
+// list of selected products related:
+Evas_Object *_products_selected_list_add(void);
+void _products_selected_list_clear(void);
+void _products_selected_list_reset(void);
+void _products_selected_list_product_add(const Bks_Model_Product *product);
+Eina_List *_products_selected_list_products_get(void);
 // unselects selected product
 void products_list_reset(void);
 
-void _product_selected_set(const Elm_Object_Item *product);
+void _products_selected_product_add(const Bks_Model_Product *product);
 
 #endif

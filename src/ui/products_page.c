@@ -4,17 +4,14 @@
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
 
-void _product_selected_set(const Elm_Object_Item *product)
+void _products_selected_product_add(const Bks_Model_Product *product)
 {
    if (!product) return;
 
-   ui.products.selected = product;
-   user_accounts_page_reset();
    ecore_thread_main_loop_begin();
-   elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
+   _products_selected_list_product_add(product);
    ecore_thread_main_loop_end();
 }
-
 
 /**
  * @brief This function resets the product selection. It does not reload the
@@ -37,26 +34,46 @@ Evas_Object *_products_alpha_add(void)
    return products_list_add();
 }
 
+static void
+_on_products_next_btn_click(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
+{
+   user_accounts_page_reset();
+   elm_naviframe_item_promote(ui.user_accounts.enp.eoi);
+}
+
 Evas_Object *products_page_add(void)
 {
+   Evas_Object *tb;
+
    EINA_SAFETY_ON_NULL_RETURN_VAL(ui.win, NULL);
 
-   ui.products.panes = elm_panes_add(ui.win);
-   // uncomment to horizontaly instead of vertically split the products page
-   //elm_panes_horizontal_set(ui.products.panes, EINA_TRUE);
-   // give lots of room for the favorized products
-   elm_panes_content_left_size_set(ui.products.panes, 0.7);
-   EXPAND_AND_FILL(ui.products.panes);
+   tb = elm_table_add(ui.win);
+   elm_win_resize_object_add(ui.win, tb);
 
    ui.products.favs = _products_favs_add();
-   EXPAND_AND_FILL(ui.products.favs);
    evas_object_show(ui.products.favs);
-   elm_object_part_content_set(ui.products.panes, "left", ui.products.favs);
+   evas_object_size_hint_weight_set(ui.products.favs, 0.7, 0.7);
+   FILL(ui.products.favs);
+   elm_table_pack(tb, ui.products.favs, 0, 0, 1, 1);
 
    ui.products.alpha = _products_alpha_add();
-   EXPAND_AND_FILL(ui.products.alpha);
    evas_object_show(ui.products.alpha);
-   elm_object_part_content_set(ui.products.panes, "right", ui.products.alpha);
+   evas_object_size_hint_weight_set(ui.products.alpha, 0.3, 0.7);
+   FILL(ui.products.alpha);
+   elm_table_pack(tb, ui.products.alpha, 1, 0, 1, 1);
+
+   ui.products.selected = _products_selected_list_add();
+   evas_object_show(ui.products.selected);
+   evas_object_size_hint_weight_set(ui.products.selected, EVAS_HINT_EXPAND, 0.3);
+   FILL(ui.products.selected);
+   elm_table_pack(tb, ui.products.selected, 0, 1, 2, 1);
+
+   // Add button to continue to account selection
+   ui.products.enp.next_btn = elm_button_add(ui.naviframe);
+   elm_object_disabled_set(ui.products.enp.next_btn, EINA_TRUE);
+   evas_object_show(ui.products.enp.next_btn);
+   elm_object_text_set(ui.products.enp.next_btn, "Konten auswaehlen");
+   evas_object_smart_callback_add(ui.products.enp.next_btn, "clicked", _on_products_next_btn_click, NULL);
 
    ui.products.lock_window.win = elm_win_inwin_add(ui.win);
    ui.products.lock_window.content = elm_label_add(ui.products.lock_window.win);
@@ -64,16 +81,12 @@ Evas_Object *products_page_add(void)
    elm_object_text_set(ui.products.lock_window.content, "Die Produktliste wird aktualisiert");
    elm_win_inwin_content_set(ui.products.lock_window.win, ui.products.lock_window.content);
 
-   return ui.products.panes;
+   return tb;
 }
 
-const Bks_Model_Product *bks_ui_controller_product_selected_get(void)
+Eina_List *bks_ui_controller_products_selected_get(void)
 {
-   const Bks_Model_Product *product;
-
-   product = (Bks_Model_Product*)elm_object_item_data_get(ui.products.selected);
-
-   return product;
+   return _products_selected_list_products_get();
 }
 
 //API calls
@@ -86,6 +99,12 @@ void bks_ui_controller_products_alpha_clear(void)
 void bks_ui_controller_products_favs_clear(void)
 {
    _products_list_clear();
+}
+
+
+void bks_ui_controller_products_selected_clear(void)
+{
+    //_products_selected_clear();
 }
 
 /**

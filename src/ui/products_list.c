@@ -26,16 +26,14 @@ void products_list_reset(void)
 }
 
 static void
-_on_product_select(void *data UNUSED, Evas_Object *obj UNUSED, void *event_info)
+_on_product_select(void *data, Evas_Object *obj UNUSED, void *event_info)
 {
-   const Elm_Object_Item *selected_product = (const Elm_Object_Item*)event_info;
+   Elm_Object_Item *eoi = (Elm_Object_Item*)event_info;
+   const Bks_Model_Product *product = (const Bks_Model_Product*)data;
 
-   _product_selected_set(selected_product);
-#ifdef DEBUG
-   printf("Produkt %p ausgewaehlt.\n", selected_product);
-#endif
+   _products_selected_product_add(product);
+   elm_list_item_selected_set(eoi, EINA_FALSE);
 }
-
 
 void
 products_list_set(Eina_List *products)

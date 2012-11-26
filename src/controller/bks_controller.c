@@ -344,18 +344,17 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
 
 void bks_controller_ui_sale_finish(void)
 {
-   Eina_List *accounts = NULL;
-   const Bks_Model_Product *product = NULL;
+   Eina_List *accounts = NULL, *products;
    Bks_Model_Sale *sale = NULL;
    Bks_Job *job = bks_job_new(BKS_JOB_SALE);
 
-   product = bks_ui_controller_product_selected_get();
+   products = bks_ui_controller_products_selected_get();
    accounts = bks_ui_controller_user_accounts_selected_get();
 
-   EINA_SAFETY_ON_NULL_GOTO(product, _incomplete_sale);
+   EINA_SAFETY_ON_NULL_GOTO(products, _incomplete_sale);
    EINA_SAFETY_ON_NULL_GOTO(accounts, _incomplete_sale);
 
-   sale = bks_model_sale_new(accounts, product);
+   sale = bks_model_sale_new(accounts, products);
 
    if (!sale)
      {
@@ -370,7 +369,7 @@ void bks_controller_ui_sale_finish(void)
    return;
 
 _incomplete_sale:
-   printf("UI sale finished, but product is:%p and customer: %p.\n", product, accounts);
+   printf("UI sale finished, but products is:%p and customer: %p.\n", products, accounts);
 }
 
 void bks_controller_ui_db_path_retrieved(Eina_Stringshare *path)

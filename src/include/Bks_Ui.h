@@ -30,8 +30,7 @@ struct _Bks_Ui {
    Bks_Ui_Lockwindow lock_window;
    struct {
         Bks_Ui_Naviframe_Page enp;
-        Evas_Object *panes, *favs, *alpha, *list, *grid;
-        const Elm_Object_Item *selected;
+        Evas_Object *favs, *alpha, *list, *grid, *selected;
         Bks_Ui_Lockwindow lock_window;
    } products;
    struct {
@@ -121,10 +120,10 @@ void bks_ui_controller_products_page_favs_set(Eina_List *products);
 void bks_ui_controller_products_page_alpha_set(Eina_List *products);
 
 /**
- * @brief Gets the selected product
- * @return The selected Bks_Model_Product element.
+ * @brief Gets the selected products
+ * @return List of selected Bks_Model_Products.
  */
-const Bks_Model_Product *bks_ui_controller_product_selected_get(void);
+Eina_List *bks_ui_controller_products_selected_get(void);
 
 /**
  * @brief Opens a "Open file" dialog to retrieve the location of the database

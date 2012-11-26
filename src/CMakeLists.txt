@@ -28,6 +28,7 @@ LIST(APPEND BKSYSTEM_CC_SOURCES
     ui/notification.c
     ui/products_grid.c
     ui/products_list.c
+    ui/products_selected.c
     ui/products_page.c
     ui/user_accounts_list.c
     ui/user_accounts_page.c
