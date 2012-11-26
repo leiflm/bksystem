@@ -5,23 +5,9 @@
 #include "Bks_Ui_Private.h"
 
 static void
-_product_selected_del_cb(void *data UNUSED, Evas *e UNUSED, Evas_Object *obj UNUSED, void *event_info UNUSED)
+_product_selected_del_cb(void *data, Evas_Object *obj UNUSED, void *event_info UNUSED)
 {
-    Bks_Ui_Product_Selected *ui_product = NULL;
-    const Eina_List *items;
-    Eina_List *iter;
-    Elm_Object_Item *eoi;
-
-    ecore_thread_main_loop_begin();
-
-    items = elm_list_items_get(ui.products.selected);
-    EINA_LIST_FOREACH((Eina_List*)items, iter, eoi)
-    {
-       ui_product = (Bks_Ui_Product_Selected*)elm_object_item_data_get(eoi);
-       free(ui_product);
-    }
-
-    ecore_thread_main_loop_end();
+    free(data);
 }
 
 Evas_Object *_products_selected_list_add(void)
@@ -29,7 +15,6 @@ Evas_Object *_products_selected_list_add(void)
     Evas_Object *list = elm_list_add(ui.win);
     elm_win_resize_object_add(ui.win, list);
     elm_list_horizontal_set(list, EINA_TRUE);
-    evas_object_event_callback_add(ui.products.selected, EVAS_CALLBACK_DEL, _product_selected_del_cb, NULL);
 
     return list;
 }
@@ -108,6 +93,7 @@ void _products_selected_list_product_add(const Bks_Model_Product *product)
        ui_product->product = product;
 
        eoi = elm_list_item_append(ui.products.selected, NULL, NULL, NULL, _on_product_selected_click, ui_product);
+       elm_object_item_del_cb_set(eoi, _product_selected_del_cb);
    }
 
    ui_product->qty++;
