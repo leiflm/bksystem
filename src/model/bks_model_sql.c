@@ -265,6 +265,8 @@ _close_db:
 // buying
 Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
 
+   char *begin_trans = "BEGIN Transaction;";
+   char *end_trans = "COMMIT;";
    char *insert_query ="INSERT INTO sales (user_account_id, product_id,price,created_at) VALUES (?1,?2,?3,datetime('now','localtime'))"; //userid product price timestamp
    sqlite3 *pDb;
    sqlite3_stmt *insert_stmt;
@@ -273,11 +275,26 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
    Bks_Model_Product *current_product;
    Eina_List *current_user_node, *current_product_node;
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
+   char *err_msg;
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READWRITE, NULL);
    if(retval != SQLITE_OK) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_and_return;
+   }
+   // Now execute BEGIN TRANSACTION SQL-Statement 
+   retval = sqlite3_exec(pDb, begin_trans, NULL, NULL, &err_msg);
+   if (retval != SQLITE_OK) {
+
+      printf("Sale begin transaction failed with: %s\n", err_msg);
+      sqlite3_free(err_msg);
+      if (retval == SQLITE_BUSY) {
+         error = BKS_MODEL_SQLITE_DATABASE_LOCKED;
+         goto _close_and_return;
+      } else {
+         error = BKS_MODEL_SQLITE_ERROR;
+         goto _close_and_return;
+      }
    }
    // Now prepare SQL-Statement for inserting in table "sales"
    retval = sqlite3_prepare_v2(pDb,insert_query, -1, &insert_stmt, 0);
@@ -290,7 +307,6 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
          goto _close_and_return;
       }
    }
-
 
    // Insert for every user in the user account list in sale
    EINA_LIST_FOREACH(sales->user_accounts, current_user_node, current_user) {
@@ -314,6 +330,19 @@ Bks_Status _bks_model_sql_commit_sale(const Bks_Model_Sale *sales) {
       error = BKS_MODEL_SQLITE_WRITE_ERROR;
    } else {
       error = BKS_MODEL_SALE_DONE;
+   }
+
+   // Now execute COMMIT TRANSACTION SQL-Statement 
+   retval = sqlite3_exec(pDb, end_trans, NULL, NULL, &err_msg);
+
+   if (retval != SQLITE_OK) {
+      printf("Sale commit transaction failed with: %s\n", err_msg);
+      sqlite3_free(err_msg);
+      if (retval == SQLITE_BUSY) {
+         error = BKS_MODEL_SQLITE_DATABASE_LOCKED;
+      } else {
+         error = BKS_MODEL_SQLITE_ERROR;
+      }
    }
    goto _close_and_return;
 
