@@ -13,6 +13,7 @@ void _bks_ui_sale_notification_set(Bks_Model_Sale *sale) {
    char *text;
    Bks_Model_User_Account *acc;
    Bks_Model_Product *prod;
+   float sum = 0;
 
    if (sale->status == BKS_MODEL_SALE_DONE) {
 
@@ -21,18 +22,19 @@ void _bks_ui_sale_notification_set(Bks_Model_Sale *sale) {
       prods = sale->products;
       prods_count = eina_list_count(prods);
       // size for text + estimated size for user accounts
-      size = 90 + accs_count * 30 + prods_count * 30;
+      size = 120 + accs_count * 30 + prods_count * 30;
       text = calloc((size_t)(size + 1),1);
       length = snprintf(text, (size_t)size, "<align = left>Kauf von ");
 
       EINA_LIST_FOREACH(prods, l, prod) {
          if (size > length) {
-            length += snprintf(text + length,(size_t)(size - length), "%s: %.2f EUR, ", prod->name, prod->price);
+            length += snprintf(text + length,(size_t)(size - length), "%s: %.2f EUR<br>", prod->name, prod->price);
          }
+         sum +=prod->price;
       }
 
 
-      length += snprintf(text + length, (size_t)(size - length), "wurde ");
+      length += snprintf(text + length, (size_t)(size - length), "<b>Summe: %.2f EUR</b><br>wurde ", sum);
       // append every name in list
       EINA_LIST_FOREACH(accs, l, acc) {
          if (size > length) {
