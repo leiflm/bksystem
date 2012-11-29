@@ -120,19 +120,19 @@ CREATE VIEW 'selected_account_balances' AS
       ORDER BY lastname,firstname;
 
 CREATE VIEW 'selected_consumptions' AS
-SELECT product_id AS 'id', product_id, ean , name,price, count(user_account_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
+SELECT sale_id AS 'id', product_id, ean, name, price, count(user_account_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
       (
          (SELECT id AS 'prod_id', ean,name
          FROM products)
       INNER JOIN
-         (SELECT user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at',dates_selected_bills.end_date AS 'updated_at'
+         (SELECT sales.id AS 'sale_id',user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at',dates_selected_bills.end_date AS 'updated_at'
          FROM sales, dates_selected_bills
          WHERE sales.created_at > dates_selected_bills.start_date
          AND sales.created_at <= dates_selected_bills.end_date)
       ON prod_id = product_id)
       GROUP BY product_id, price
-      ORDER BY name;
+      ORDER BY name, price;
 
 CREATE VIEW 'previous_account_purchases' AS
 SELECT sale_id AS 'id', user_account_id, lastname, firstname, product_id, ean, name, price, count(product_id) AS count, round(sum(round(price,2)),2) AS 'sum', created_at,updated_at
@@ -169,19 +169,19 @@ CREATE VIEW 'previous_account_balances' AS
       ORDER BY lastname,firstname;
 
 CREATE VIEW 'previous_consumptions' AS
-SELECT product_id AS 'id', product_id, ean , name,price, count(product_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
+SELECT sale_id AS 'id', product_id, ean, name, price, count(product_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
       (
          (SELECT id AS 'prod_id', ean,name
          FROM products)
       INNER JOIN
-         (SELECT user_account_id, product_id, price, date_last_bills.created_at,date_last_bills.updated_at
+         (SELECT sales.id AS 'sale_id', user_account_id, product_id, price, date_last_bills.created_at,date_last_bills.updated_at
          FROM sales, date_last_bills,date_second_last_bills
          WHERE sales.created_at > date_second_last_bills.created_at
          AND sales.created_at <= date_last_bills.created_at)
       ON prod_id = product_id)
       GROUP BY product_id, price
-      ORDER BY name;
+      ORDER BY name, price;
 
 CREATE VIEW 'previous_fav_products' AS
    SELECT product_id, ean, name, num
@@ -246,18 +246,18 @@ CREATE VIEW 'current_account_balances' AS
       ORDER BY lastname,firstname;
 
 CREATE VIEW 'current_consumptions' AS
-SELECT product_id AS 'id',product_id, ean, name,price, count(product_id) AS 'count', round(sum(round(price,2)),2) AS 'sum',created_at,updated_at
+SELECT sale_id AS 'id',product_id, ean, name,price, count(product_id) AS 'count', round(sum(round(price,2)),2) AS 'sum',created_at,updated_at
    FROM
       (
          (SELECT id AS 'prod_id', ean,name
          FROM products )
       INNER JOIN
-         (SELECT user_account_id, product_id, price,date_last_bills.created_at,date_last_bills.updated_at
+         (SELECT sales.id AS 'sale_id', user_account_id, product_id, price,date_last_bills.created_at,date_last_bills.updated_at
          FROM sales, date_last_bills
          WHERE  sales.created_at > date_last_bills.created_at)
       ON prod_id = product_id)
       GROUP BY product_id,price
-      ORDER BY name;
+      ORDER BY name, price;
 
 CREATE VIEW 'current_fav_products' AS
    SELECT product_id, ean, name, num
@@ -375,3 +375,15 @@ CREATE TRIGGER 'check_delete_sales'
          THEN RAISE(ABORT, 'Cant delete sale. Deletion will be not possile until next bill. If you exported the bill already and want to cancel the sale, set price of sale to 0.00 and export again.')
       END;
    END;
+
+CREATE TRIGGER 'check_perform_sale'
+   BEFORE INSERT ON 'sales'
+   FOR EACH ROW   
+   BEGIN
+      SELECT CASE
+       WHEN NEW.product_id NOT IN (SELECT id FROM products)
+       THEN RAISE(ABORT, 'Product does not exist in products table.')
+       WHEN NEW.user_account_id NOT IN (SELECT id FROM user_accounts)
+       THEN RAISE(ABORT, 'User does not exist in user_accounts table.')
+      END;
+   END;  
