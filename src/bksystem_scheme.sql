@@ -382,8 +382,25 @@ CREATE TRIGGER 'check_perform_sale'
    BEGIN
       SELECT CASE
        WHEN NEW.product_id NOT IN (SELECT id FROM products)
-       THEN RAISE(ABORT, 'Product does not exist in products table.')
+       THEN RAISE(ROLLBACK, 'Product does not exist in products table.')
        WHEN NEW.user_account_id NOT IN (SELECT id FROM user_accounts)
-       THEN RAISE(ABORT, 'User does not exist in user_accounts table.')
+       THEN RAISE(ROLLBACK, 'User does not exist in user_accounts table.')
       END;
+   END; 
+CREATE TRIGGER 'update_products'
+   AFTER UPDATE ON 'products'
+   BEGIN
+     UPDATE products SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
+   END;
+
+CREATE TRIGGER 'update_user_accounts'
+   AFTER UPDATE ON 'user_accounts'
+   BEGIN
+     UPDATE user_accounts SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
+   END;
+
+CREATE TRIGGER 'update_sales'
+   AFTER UPDATE ON 'sales'
+   BEGIN
+     UPDATE sales SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
    END;  
