@@ -23,10 +23,15 @@
 
 # CONFIG: here you can set the entries for certain field e.g. total sum etc.
 
+   FILENAME="Abrechnung" # date will be appended
+   TBL_CAP_CONF="Abrechnung vom" # date will be appended
+
    # 1./2./last row  #  field 1/2/last
    R1F1=""; R1F2="Produkte"; R1FL=""
    R2F1="UID"; R2F2="Name/Preis in &euro;"; R2FL="Summe &euro;"
    LRF1=""; RLF2="Verbrauch Anzahl"
+   # ensure ordering of products from consumption is always the same
+   PROD_ORDER="ORDER BY name, product_id, price"
 
    # layout to use (will be embedded)
    LAYOUT="${BKS_SCR_DIR}/layout.css"
@@ -49,14 +54,15 @@
    DATEPRINT="$(expr substr $DATE 9 2).$(expr substr $DATE 6 2).$(expr substr $DATE 1 4) $(expr substr $DATE 12 8)"
 
    # table caption
-   TBL_CAP="Abrechnung vom ${DATEPRINT}"
+
+   TBL_CAP="${TBL_CAP_CONF} ${DATEPRINT}"
 
 #filenames + paths for the exported files, should be defined, if not:
    # exported will be written here
    if [ -z $BKS_BILL_DIR ]; then
       BKS_BILL_DIR="."
    fi
-   FILENAME="Abrechnung"
+
    HTMLF="${BKS_BILL_DIR}/${FILENAME}_${DATEFILE}_table.html"
    #HTMLF="${BKS_BILL_DIR}/gen_table.html"
    echo " Filename:"
@@ -98,7 +104,7 @@
    # get product list, user list and user/product accumulated list, these tables are
 
    # get product list
-   sqlite3 -csv "${DB}" "SELECT product_id, price FROM previous_consumptions;" > $CSV_PROD_ID
+   sqlite3 -csv "${DB}" "SELECT product_id, price FROM previous_consumptions ${PROD_ORDER};" > $CSV_PROD_ID
    # test for data existence
 
    if ! [ -s $CSV_PROD_ID ]; then
@@ -114,6 +120,8 @@
    # creat temporary table uid, names, productlist, sum
       echo "   insert CREATE TABLE ..."
       echo "CREATE TEMP TABLE \"bill_comp\" ( UID INTEGER PRIMARY KEY, name VARCHAR, $(cat ${PROD_LIST}) sum FLOAT);" > $SQL_Q
+   #transaction begin  
+   #  echo "BEGIN TRANSACTION;" >> $SQL_Q
 
 
    # loop on user-list
@@ -135,6 +143,9 @@
       while IFS=, read -r CUR_UID CUR_PROD_ID CUR_PRICE CUR_PROD_VAL ; do
          echo "UPDATE \"bill_comp\" SET \"${CUR_PROD_ID},${CUR_PRICE}EUR\"=${CUR_PROD_VAL} WHERE UID = ${CUR_UID};"  >> $SQL_Q
       done < $CSV_BILL
+   #transaction commit  
+   #  echo "COMMIT;" >> $SQL_Q
+      
       echo " batch file completed..."
       # cat $SQL_Q
 
@@ -158,7 +169,7 @@
 # create 2 header lines/ 1.replace EANs with name 2. with price
    echo " creating table header..."
    # get all sold product with name and price, order by ID
-   sqlite3 -csv -separator '#' $DB "SELECT products.name, previous_consumptions.price FROM previous_consumptions, products WHERE products.id=previous_consumptions.product_id ORDER by product_id;" > $CSV_PROD_NAME_ID
+   sqlite3 -csv -separator '#' $DB "SELECT name, price FROM previous_consumptions ${PROD_ORDER};" > $CSV_PROD_NAME_ID
    # parse list, remove quotes around name, new quotes around combined name+price, append to new list
 
    while IFS='#' read -r CUR_PROD_NAME CUR_PROD_PRICE ; do
@@ -217,7 +228,7 @@
    echo "<TD>${LRF1}</TD>" >>$HTMLF
    echo "<TD>${RLF2}</TD>" >>$HTMLF
 
-   sqlite3 -html "${DB}" "SELECT count FROM previous_consumptions;" >$SUM_ROW
+   sqlite3 -html "${DB}" "SELECT count FROM previous_consumptions ${PROD_ORDER};" >$SUM_ROW
 
    #cat $SUM_ROW
    # kick TR tags, ,

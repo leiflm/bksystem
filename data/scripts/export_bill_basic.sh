@@ -31,10 +31,14 @@
    fi
    echo "   Started exporting to files"
 
-#filenames + paths
+#config
    FILENAMEA="Kontostand"
    FILENAMEC="Verbrauch"
    FILENAMEL="Konsumliste"
+   # ORDER BY + columnlist
+   PROD_ORDER="ORDER BY name, product_id, price"
+#filenames + paths
+
    CSVFA="${BKS_BILL_DIR}/${FILENAMEA}_${BKS_DATE}.csv"
    CSVFC="${BKS_BILL_DIR}/${FILENAMEC}_${BKS_DATE}.csv"
    CSVFL="${BKS_BILL_DIR}/${FILENAMEL}_${BKS_DATE}.csv"
@@ -43,14 +47,14 @@
    #CSVFL="${BKS_BILL_DIR}/${FILENAMEL}.csv"
 
 # export bill and consumption table as csv
-   sqlite3 -csv -header $DB "SELECT user_account_id AS 'id', lastname, firstname, sum FROM previous_account_balances;" > $CSVFA
+   sqlite3 -csv -header $DB "SELECT id, user_account_id, lastname, firstname, sum FROM previous_account_balances;" > $CSVFA
    if [ $? -eq 0 ]; then
       echo "   ${CSVFA} written."
    else
       echo "   ${CSVFA} writing failed"
    fi
 
-   sqlite3 -csv -header $DB "SELECT product_id AS 'id', name, price, count, sum FROM previous_consumptions;" > $CSVFC
+   sqlite3 -csv -header $DB "SELECT id, product_id, name, price, count, sum FROM previous_consumptions ${PROD_ORDER};" > $CSVFC
    if [ $? -eq 0 ]; then
       echo "   ${CSVFC} written."
    else

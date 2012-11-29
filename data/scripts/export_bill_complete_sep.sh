@@ -19,6 +19,13 @@
    echo "${0}:"
    echo " Started exporting complete bill..."
 
+# Config
+
+  FILENAME="Abrechnung" # date will be appended
+  # ensure ordering of products from consumption is always the same
+  PROD_ORDER="ORDER BY name, product_id, price"
+
+
 # DB and date should be defined, but if not:
    if [ -z $DB ]; then
       DB="./bksystem.sqlite"
@@ -35,7 +42,6 @@
    if [ -z $BKS_BILL_DIR ]; then
       BKS_BILL_DIR="."
    fi
-   FILENAME="Abrechnung"
    CSVF="${BKS_BILL_DIR}/${FILENAME}_${DATEFILE}_table_sep.csv"
    #CSVF="${BKS_BILL_DIR}/${FILENAME}_table_sep.csv"
    echo " Filename:"
@@ -77,13 +83,13 @@
    # get product list, user list and user/product accumulated list, these tables are
 
    # get product list
-   sqlite3 -csv "${DB}" "SELECT product_id, price FROM previous_consumptions;" > $CSV_PROD_ID
+   sqlite3 -csv "${DB}" "SELECT product_id, price FROM previous_consumptions ${PROD_ORDER};" > $CSV_PROD_ID
    # test for data existance
    if ! [ -s $CSV_PROD_ID ]; then
       echo "WARNING: Seems to be nothing sold. Aborting generation" 1>&2
       exit 0;
    fi
-   # Product List: Quote all ID numbers and append type definiton, then remove linebreaks
+   # Product List: Quote all ID numbers and append type definiton, then remove linebreaks, product col will be:"id,priceEUR"
     sed 's/\([0-9][0-9]*,[0-9]*.[0-9]*\)/\"\1EUR\" INTEGER  DEFAULT 0,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST
    #sed 's/\([0-9][0-9]*\)/\"\1\" INTEGER,/g' $CSV_PROD_ID | sed ':a;N;$!ba;s/\n//g' >$PROD_LIST
 
@@ -92,6 +98,8 @@
    echo "   insert CREATE TABLE ..."
    echo "CREATE TEMP TABLE \"bill_comp\" ( UID INTEGER PRIMARY KEY, lastname VARCHAR, firstname VARCHAR, $(cat ${PROD_LIST}) sum FLOAT);" > $SQL_Q
 
+   #transaction begin  
+   #  echo "BEGIN TRANSACTION;" >> $SQL_Q
 
    # loop on user-list
    echo "   insert INSERT users..."
@@ -105,6 +113,11 @@
       echo "INSERT INTO \"bill_comp\" ( UID, lastname, firstname, sum) VALUES (${USERID}, \"${LNAME}\", \"${FNAME}\", ${SUM});" >> $SQL_Q
    done
 
+   #transaction commit  
+   #  echo "COMMIT;" >> $SQL_Q
+   #transaction begin  
+   #  echo "BEGIN TRANSACTION;" >> $SQL_Q
+
    # loop on complete_bill-list to write update statement for each product, only fields that are not = 0 are in this list
    echo "   insert UPDATE users.."
    # get user/product accumulated list
@@ -112,13 +125,15 @@
    while IFS=, read -r CUR_UID CUR_PROD_ID CUR_PRICE CUR_PROD_VAL ; do
       echo "UPDATE \"bill_comp\" SET \"${CUR_PROD_ID},${CUR_PRICE}EUR\"=${CUR_PROD_VAL} WHERE UID = ${CUR_UID};"  >> $SQL_Q
    done < $CSV_BILL
+   #transaction commit  
+   #  echo "COMMIT;" >> $SQL_Q
    echo " batch file completed..."
    # cat $SQL_Q
 
 # create 2 header lines/ 1.replace EANs with name 2. with price
    echo " creating table header..."
    # get all sold product with name and price, order by ID
-   sqlite3 -csv -separator '#' $DB "SELECT products.name, previous_consumptions.price FROM previous_consumptions, products WHERE products.id=previous_consumptions.product_id ORDER by products.id" > $CSV_PROD_NAME_ID
+   sqlite3 -csv -separator '#' $DB "SELECT name, price FROM previous_consumptions ${PROD_ORDER};" > $CSV_PROD_NAME_ID
    # parse list, remove quotes around name, new quotes around combined name+price, append to new list
 
    while IFS='#' read -r CUR_PROD_NAME CUR_PROD_PRICE ; do

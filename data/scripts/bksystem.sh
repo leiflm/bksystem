@@ -1,5 +1,11 @@
 #!/bin/sh
 # bksystem admin script.
+# purpose:
+#  1. store config: paths, filenames
+#  2. provide commandline interface to select between multiple tasks
+#  2. set paths, filenames according to config or commandline options
+#  3. execute tasks (other scripts) and log the output 
+#
 # Structure of this file:
 #     Help message
 #     Config: paths, filenames, enabled scripts
@@ -145,7 +151,10 @@
       case $1 in
          -h | -help | --h | --help | -usage | --usage | usage | help | h) help_message ;;
       esac
-
+   #  no option not allowed
+      if [ -z $1 ]; then
+         help_message
+      fi
 # setup logfile/output
 
       if [ -z $BKS_LOG_DIR ]; then
