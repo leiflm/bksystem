@@ -24,7 +24,7 @@ CREATE TABLE 'sales' (
    'id' INTEGER PRIMARY KEY  AUTOINCREMENT,
    'user_account_id' INTEGER NOT NULL  check(typeof(user_account_id) = 'integer'),
    'product_id' INTEGER NOT NULL  check(typeof(product_id) = 'integer'),
-   'price' FLOAT,
+   'price' FLOAT DEFAULT 0.00,
    'created_at' DATETIME DEFAULT (datetime('now','localtime')),
    'updated_at' DATETIME DEFAULT (datetime('now','localtime')),
    FOREIGN KEY(user_account_id) REFERENCES user_accounts(id),
@@ -45,9 +45,6 @@ CREATE TABLE 'fav_users' (
    'placement' INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL,
    'user_account_id' INTEGER
 );
-
-CREATE TABLE 'select_bills' ('id' INTEGER PRIMARY KEY  NOT NULL , 'bill_id' INTEGER NOT NULL);
-INSERT INTO 'select_bills' (bill_id) VALUES ('1');
 
 CREATE VIEW 'date_last_bills' AS
 SELECT  id, MAX(created_at) AS 'created_at', MAX(created_at) AS 'updated_at' FROM   
@@ -85,54 +82,112 @@ CREATE VIEW 'dates_selected_bills' AS
 			FROM bills, select_bills 
 			WHERE bill_id = bills.id AND select_bills.id = '1');
 
-CREATE VIEW 'selected_account_purchases' AS
-		SELECT sale_id AS 'id', user_account_id, lastname, firstname, product_id, ean, name, price, count(product_id) AS count, round(sum(round(price,2)),2) AS 'sum', created_at,updated_at
-			FROM
-				(SELECT id AS 'user_id', lastname, firstname
-				FROM user_accounts)
-			INNER JOIN
-				(
-				   (SELECT id AS 'pro_id', ean, name FROM products)
-				INNER JOIN
-				  (SELECT sales.id AS 'sale_id',user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at', dates_selected_bills.end_date AS 'updated_at'
-				   FROM sales,dates_selected_bills
-				   WHERE sales.created_at > dates_selected_bills.start_date
-				   AND sales.created_at <= dates_selected_bills.end_date)
-				ON pro_id = product_id
-				)
-			ON user_account_id = user_id
-			GROUP BY user_account_id, product_id, price
-			ORDER BY lastname, firstname, product_id;
-
-CREATE VIEW 'selected_account_balances' AS
-   SELECT user_account_id AS 'id', user_account_id, firstname, lastname, round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
+CREATE VIEW 'all_bills_account_balances' AS
+   SELECT sale_id AS 'id', bill_id, user_account_id, firstname, lastname, round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
       (
          (SELECT id AS 'user_id',firstname,lastname
          FROM user_accounts)
       INNER JOIN
-         (SELECT user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at',dates_selected_bills.end_date AS 'updated_at'
-         FROM sales, dates_selected_bills
-         WHERE sales.created_at > dates_selected_bills.start_date
-         AND sales.created_at <= dates_selected_bills.end_date)
+         (SELECT id AS 'sale_id', bill_id, user_account_id, product_id,price, enddate AS 'created_at', enddate as 'updated_at'  
+          FROM sales,(
+            SELECT * FROM (
+               SELECT bill_id, max(id_pred) AS 'prev_id', startdate, enddate 
+               FROM 
+                  (SELECT id AS 'bill_id', created_at as 'enddate' FROM bills)
+               JOIN
+                  (SELECT id AS 'id_pred', created_at AS 'startdate' FROM bills 
+                  UNION ALL 
+                   SELECT 0 AS 'id_pred', '2000-01-01 00:00:00' AS 'startdate')
+               WHERE id_pred < bill_id
+               GROUP BY bill_id) 
+            )
+         WHERE sales.created_at > startdate AND sales.created_at <= enddate)
       ON user_id =user_account_id)
       GROUP BY user_account_id
-      ORDER BY lastname,firstname;
+      ORDER BY bill_id,lastname,firstname;
 
-CREATE VIEW 'selected_consumptions' AS
-SELECT sale_id AS 'id', product_id, ean, name, price, count(user_account_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
+
+CREATE VIEW 'all_bills_account_purchases' AS
+	SELECT sale_id AS 'id', bill_id, user_account_id, lastname, firstname, product_id, ean, name, price, count(product_id) AS count, round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
+	FROM
+		(SELECT id AS 'user_id', lastname, firstname
+  		FROM user_accounts)
+	INNER JOIN
+		(
+		   (SELECT id AS 'pro_id', ean, name FROM products)
+		INNER JOIN
+		   (SELECT id AS 'sale_id', bill_id, user_account_id, product_id, price, enddate AS 'created_at', enddate as 'updated_at'  
+         FROM sales,(
+            SELECT * FROM (
+               SELECT bill_id, max(id_pred) AS 'prev_id', startdate, enddate 
+               FROM
+                  (SELECT id AS 'bill_id', created_at as 'enddate' FROM bills)
+               JOIN
+                  (SELECT id AS 'id_pred', created_at AS 'startdate' FROM bills 
+                  UNION ALL 
+                  SELECT 0 AS 'id_pred', '2000-01-01 00:00:00' AS 'startdate')
+               WHERE id_pred < bill_id
+               GROUP BY bill_id) 
+            )  
+         WHERE sales.created_at > startdate AND sales.created_at <= enddate)
+		ON pro_id = product_id)
+	ON user_account_id = user_id
+	GROUP BY bill_id, user_account_id, product_id, price
+	ORDER BY bill_id, lastname, firstname, product_id, price;
+
+CREATE VIEW 'all_bills_consumptions' AS
+   SELECT sale_id AS 'id', bill_id, product_id, ean, name,price, count(product_id) AS 'count', round(sum(round(price,2)),2) AS 'sum', created_at, updated_at
    FROM
       (
          (SELECT id AS 'prod_id', ean,name
          FROM products)
       INNER JOIN
-         (SELECT sales.id AS 'sale_id',user_account_id, product_id, price,dates_selected_bills.end_date AS 'created_at',dates_selected_bills.end_date AS 'updated_at'
-         FROM sales, dates_selected_bills
-         WHERE sales.created_at > dates_selected_bills.start_date
-         AND sales.created_at <= dates_selected_bills.end_date)
+         (SELECT id AS 'sale_id', bill_id,  product_id,price, enddate AS 'created_at', enddate AS 'updated_at'  
+         FROM sales,(
+            SELECT * FROM (
+               SELECT bill_id, max(id_pred) AS 'prev_id', startdate, enddate 
+               FROM
+                  (SELECT id AS 'bill_id', created_at AS 'enddate' FROM bills)
+               JOIN
+                  (SELECT id AS 'id_pred', created_at AS 'startdate' FROM bills 
+                  UNION ALL 
+                  SELECT 0 AS 'id_pred', '2000-01-01 00:00:00' AS 'startdate')
+               WHERE id_pred < bill_id
+               GROUP BY bill_id) 
+              )
+         WHERE sales.created_at > startdate AND sales.created_at <= enddate)
       ON prod_id = product_id)
-      GROUP BY product_id, price
-      ORDER BY name, price;
+      GROUP BY bill_id, product_id, price
+      ORDER BY bill_id, name, price;
+
+CREATE VIEW 'all_sales' AS
+	SELECT sale_id AS 'id', bill_id, user_account_id, lastname, firstname, product_id, ean, name, price,created_at, updated_at
+	FROM
+		(SELECT id AS 'user_id', lastname, firstname
+  		FROM user_accounts)
+	INNER JOIN
+		(
+		   (SELECT id AS 'pro_id', ean, name FROM products)
+		INNER JOIN
+		   (SELECT id AS 'sale_id', bill_id, user_account_id, product_id, price, enddate AS 'created_at', enddate as 'updated_at'  
+         FROM sales,(
+            SELECT * FROM (
+               SELECT bill_id, max(id_pred) AS 'prev_id', startdate, enddate 
+               FROM
+                  (SELECT id AS 'bill_id', created_at as 'enddate' FROM bills)
+               JOIN
+                  (SELECT id AS 'id_pred', created_at AS 'startdate' FROM bills 
+                  UNION ALL 
+                  SELECT 0 AS 'id_pred', '2000-01-01 00:00:00' AS 'startdate')
+               WHERE id_pred < bill_id
+               GROUP BY bill_id) 
+            )  
+         WHERE sales.created_at > startdate AND sales.created_at <= enddate)
+		ON pro_id = product_id)
+	ON user_account_id = user_id
+	ORDER BY bill_id, lastname, firstname, product_id, price;
+
 
 CREATE VIEW 'previous_account_purchases' AS
 SELECT sale_id AS 'id', user_account_id, lastname, firstname, product_id, ean, name, price, count(product_id) AS count, round(sum(round(price,2)),2) AS 'sum', created_at,updated_at
