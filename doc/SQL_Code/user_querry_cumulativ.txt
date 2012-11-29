@@ -1,7 +1,7 @@
-SELECT uid, firstname, lastname, user_accounts.status AS user_status, EAN, products.name AS Produkt, COUNT(EAN) AS Anzahl 
-FROM user_accounts, sales, products, date_last_bill
-WHERE sales.timestamp > date_last_bill.date
-AND user_accounts.uid = sales.userid
-AND products.EAN = sales.product
+SELECT sales.id AS sale_id,user_account_id, firstname, lastname, user_accounts.status AS user_status, product_id, ean, products.name AS Produkt, sales.created_at AS Date
+FROM user_accounts, sales, products, date_last_bills
+WHERE sales.created_at > date_last_bills.created_at
+AND user_accounts.id = sales.user_account_id
+AND products.id = sales.product_id
 AND firstname="Max" AND lastname="Mustermann"
-GROUP BY EAN
+GROUP BY product_id

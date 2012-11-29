@@ -1,1 +1,1 @@
-INSERT INTO bill_dates (timestamp) VALUES (datetime('now','localtime'));
+INSERT into bills  DEFAULT  VALUES;

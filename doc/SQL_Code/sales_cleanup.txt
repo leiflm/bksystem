@@ -1,5 +1,5 @@
 DELETE FROM sales
-WHERE timestamp IN
-   (SELECT timestamp
-   FROM sales, date_second_last_bill
-   WHERE sales.timestamp < date_second_last_bill.date)
+WHERE id IN
+   (SELECT sales.id
+   FROM sales, date_second_last_bills
+   WHERE sales.created_at < date_second_last_bills.created_at)
