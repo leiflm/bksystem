@@ -47,7 +47,7 @@ Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list) {
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
-   if (retval ) {
+   if (!mdl.db_path || retval) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
@@ -100,7 +100,7 @@ Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int 
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
-   if (retval ) {
+   if (!mdl.db_path || retval) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
@@ -161,7 +161,7 @@ Bks_Status _bks_model_sql_user_accounts_alpha_get(Eina_List **list) {
    Bks_Status error = BKS_MODEL_SQLITE_ERROR;
 
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
-   if (retval ) {
+   if (!mdl.db_path || retval) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
@@ -214,7 +214,7 @@ Bks_Status _bks_model_sql_user_accounts_fav_get(Eina_List **list, const unsigned
 
    snprintf(select_query, 511, "SELECT user_accounts.id,firstname,lastname,status,placement,image FROM user_accounts, fav_users WHERE user_accounts.id=fav_users.user_account_id ORDER BY lower(lastname), lower(firstname) LIMIT %u", limit);
    retval = sqlite3_open_v2(mdl.db_path, &pDb, SQLITE_OPEN_URI | SQLITE_OPEN_READONLY , NULL);
-   if (retval ) {
+   if (!mdl.db_path || retval) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
