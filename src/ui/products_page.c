@@ -61,21 +61,21 @@ Evas_Object *products_page_add(void)
 
    ui.products.favs = _products_favs_add();
    evas_object_show(ui.products.favs);
-   evas_object_size_hint_weight_set(ui.products.favs, 0.7, 0.7);
+   evas_object_size_hint_weight_set(ui.products.favs, 0.7, 0.8);
    FILL(ui.products.favs);
    elm_table_pack(tb, ui.products.favs, 0, 0, 1, 1);
 
    ui.products.alpha = _products_alpha_add();
    evas_object_show(ui.products.alpha);
-   evas_object_size_hint_weight_set(ui.products.alpha, 0.3, 0.7);
+   evas_object_size_hint_weight_set(ui.products.alpha, 0.3, 0.8);
    FILL(ui.products.alpha);
    elm_table_pack(tb, ui.products.alpha, 1, 0, 1, 1);
 
-   ui.products.selected = _products_selected_list_add();
-   evas_object_show(ui.products.selected);
-   evas_object_size_hint_weight_set(ui.products.selected, EVAS_HINT_EXPAND, 0.3);
-   FILL(ui.products.selected);
-   elm_table_pack(tb, ui.products.selected, 0, 1, 2, 1);
+   ui.products.selected_scroller = _products_selected_list_add();
+   evas_object_show(ui.products.selected_scroller);
+   evas_object_size_hint_weight_set(ui.products.selected_scroller, EVAS_HINT_EXPAND, 0.2);
+   FILL(ui.products.selected_scroller);
+   elm_table_pack(tb, ui.products.selected_scroller, 0, 1, 2, 1);
 
    // Add button to switch back to account selection
    ui.products.enp.prev_btn = elm_button_add(ui.naviframe);

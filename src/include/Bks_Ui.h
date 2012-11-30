@@ -30,7 +30,7 @@ struct _Bks_Ui {
    Bks_Ui_Lockwindow lock_window;
    struct {
         Bks_Ui_Naviframe_Page enp;
-        Evas_Object *favs, *alpha, *list, *grid, *selected;
+        Evas_Object *favs, *alpha, *list, *grid, *selected, *selected_scroller;
         Bks_Ui_Lockwindow lock_window;
    } products;
    struct {
