@@ -66,13 +66,15 @@ user_accounts_page_reset(void)
    evas_object_show(sc);
    evas_object_size_hint_weight_set(sc, 1.0, 0.0);
    evas_object_size_hint_align_set(sc, EVAS_HINT_FILL, 1.0);
-   evas_object_smart_callback_add(sc, "changed", _on_user_accounts_sort_click, NULL);
    elm_table_pack(tb, sc, 1, 2, 1, 1);
 
    btn = elm_segment_control_item_add(sc, NULL, "Meist Kaufende");
    elm_segment_control_item_selected_set(btn, EINA_TRUE);
 
    btn = elm_segment_control_item_add(sc, NULL, "Alle Konten");
+
+   // Add the callback later, so it won't be called for the item selected earlier
+   evas_object_smart_callback_add(sc, "changed", _on_user_accounts_sort_click, NULL);
 
    // Add button to select products
    ui.user_accounts.enp.next_btn = elm_button_add(ui.naviframe);

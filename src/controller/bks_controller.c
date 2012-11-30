@@ -21,6 +21,7 @@ Eina_Bool _event_refresh_data(void *data UNUSED)
 {
    bks_controller_products_alpha_get();
    bks_controller_products_favs_get(5);
+   bks_controller_user_accounts_favs_get(25);
 
    return ECORE_CALLBACK_CANCEL;
 }
