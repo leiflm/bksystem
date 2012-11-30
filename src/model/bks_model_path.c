@@ -30,28 +30,11 @@
 
 
 static Ecore_Thread *_bks_model_path_save(char *path);
-static char* _bks_model_path_load();
 static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED);
 
 static char *fname = NULL;
 
 // Path to database
-char *_bks_model_path_get(void) {
-
-   char *path;
-   char *default_path = BKSYSTEMDB;
-   size_t len;
-   path = _bks_model_path_load();
-   if (!path) {
-      printf("loading default path\n");
-      // no path found: set default path and name
-      len = strlen(BKSYSTEMDB) + 6;
-      path = malloc(len);
-      snprintf(path, len, "file:%s",  default_path);
-   }
-   return path;
-   }
-
 void _bks_model_path_set(char *path) {
    char *newpath;
    
@@ -61,13 +44,13 @@ void _bks_model_path_set(char *path) {
       strncpy(newpath, path, MAX_PATH);
       mdl.db_path = newpath;
    
-      _bks_model_path_save(newpath);
+   _bks_model_path_save(newpath);
    } else {
       fprintf(stderr, "Path to set and save is (null)\n");
    }
 }
 
-static char *_bks_model_path_load() {
+char *_bks_model_path_get(void) {
 
    char *path = NULL;   
    FILE *fp;
@@ -108,10 +91,8 @@ static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
 
    fp = fopen(fname, "w");
    if (fp) {
-      while (*(path) != '\0') {
-         fputc(*(path++), fp);
-      }
-   fclose(fp);
+       fputs(path, fp);
+       fclose(fp);
    } else {
       fprintf(stderr, "cannot open path file: %s \n", fname);
    }
