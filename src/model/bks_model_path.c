@@ -55,9 +55,7 @@ char *_bks_model_path_get(void) {
 void _bks_model_path_set(char *path) {
    char *newpath;
    
-   if (!mdl.db_path) {
-      free(mdl.db_path);
-   }
+   free(mdl.db_path);
    if (path) {
       newpath = calloc(1, MAX_PATH);
       strncpy(newpath, path, MAX_PATH);
