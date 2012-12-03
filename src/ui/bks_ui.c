@@ -15,11 +15,17 @@ static void _ui_window_key(void *data, Evas *e, Evas_Object *obj, void *event_in
 
 void bks_ui_init(int argc, char* argv[])
 {
+   char buf[PATH_MAX];
+
    // initialize Elementary
    elm_init(argc, argv);
 
    // set app relevant directories
    elm_app_info_set(main, "bksystem", "images/accounts/locked.png");
+
+   // set overlay for ui elements
+   snprintf(buf, (sizeof(buf) - 1), "%s/elm_overlay.edj", elm_app_data_dir_get());
+   elm_theme_overlay_add(NULL, buf);
 
    // new window - do the usual and give it a name and title
    ui.win = bks_ui_win_add();

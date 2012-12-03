@@ -36,10 +36,15 @@ char *
 grid_text_get(void *data, Evas_Object *obj UNUSED, const char *part UNUSED)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
-   char buf[32];
+   char buf[256];
 
    if (product)
-     snprintf(buf, (sizeof(buf) - 1), "%s, %.2f Euro", product->name, product->price);
+     {
+        snprintf(buf, (sizeof(buf) - 1), "%s<br>"
+                                         "%.2f Euro",
+                                         product->name,
+                                         product->price);
+     }
    else
      snprintf(buf, (sizeof(buf) - 1), "Keine Favoriten vorhanden");
 
@@ -51,14 +56,16 @@ grid_content_get(void *data, Evas_Object *obj, const char *part)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
    Evas_Object *icon = NULL;
+   Evas *evas;
 
-   if (!strcmp(part, "elm.swallow.icon"))
+   if (strcmp(part, "elm.swallow.icon") == 0)
      {
         if (product && product->image.data)
           {
-             icon = evas_object_image_filled_add(evas_object_evas_get(obj));
+             evas = evas_object_evas_get(obj);
+             icon = evas_object_image_filled_add(evas);
              evas_object_image_memfile_set(icon, product->image.data, product->image.size, NULL, NULL);
-             evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             evas_object_size_hint_aspect_set(icon, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
              evas_object_show(icon);
           }
         return icon;
@@ -124,7 +131,7 @@ void products_grid_set(Eina_List *products)
    EINA_SAFETY_ON_NULL_RETURN(ui.products.grid);
 
    // set callbacks for grid elements
-   gic.item_style = "default";
+   gic.item_style = "thumb";
    gic.func.text_get = grid_text_get;
    gic.func.content_get = grid_content_get;
    gic.func.state_get = grid_state_get;
