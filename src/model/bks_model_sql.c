@@ -39,7 +39,7 @@
 Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list) {
 
    Bks_Model_Product *ptr_current_product = NULL;
-   char *select_query = "SELECT id,name,price FROM products ORDER BY lower(name)";
+   char select_query[128];
    char *name;
    sqlite3 *pDb;
    sqlite3_stmt *stmt;
@@ -51,7 +51,7 @@ Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
-
+   snprintf(select_query, 127, "SELECT id, name, price, status FROM products WHERE status = %i ORDER BY lower(name)", BKS_MODEL_PRODUCT_SHOW);
    retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
    if (retval != SQLITE_OK ) {
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
@@ -59,7 +59,7 @@ Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list) {
    }
 
    while (sqlite3_step(stmt) == SQLITE_ROW) {
-  
+      
       ptr_current_product = malloc(sizeof(Bks_Model_Product));
 
       ptr_current_product->pid = sqlite3_column_int64(stmt, 0);
@@ -72,7 +72,7 @@ Bks_Status _bks_model_sql_products_alpha_get(Eina_List **list) {
 
       ptr_current_product->image.data = NULL;
       ptr_current_product->image.size = 0;
-      ptr_current_product->status = sqlite3_column_int(stmt, 5);
+      ptr_current_product->status = sqlite3_column_int(stmt, 3);
       *list = eina_list_append(*list, ptr_current_product);
      
    }
@@ -104,7 +104,7 @@ Bks_Status _bks_model_sql_products_fav_get(Eina_List **list, const unsigned int 
       error = BKS_MODEL_SQLITE_OPEN_ERROR;
       goto _close_db;
    }
-   snprintf(select_query, 255, "SELECT products.id,name,price,placement,image,status FROM products, fav_products WHERE products.id=fav_products.product_id ORDER BY placement LIMIT %u",limit);   
+   snprintf(select_query, 255, "SELECT products.id,name,price,placement,image,status FROM products, fav_products WHERE products.id=fav_products.product_id AND status = %i ORDER BY placement LIMIT %u",BKS_MODEL_PRODUCT_SHOW, limit);   
    retval = sqlite3_prepare_v2(pDb, select_query, -1, &stmt, 0);
    if (retval != SQLITE_OK ) {
       goto _finalize;
