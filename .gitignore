@@ -7,3 +7,4 @@ CMakeCache*
 *.cmake
 db_path.txt
 *~
+*DS_Store*
