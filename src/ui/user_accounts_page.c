@@ -80,7 +80,7 @@ user_accounts_page_reset(void)
    ui.user_accounts.enp.next_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.user_accounts.enp.next_btn);
    elm_object_disabled_set(ui.user_accounts.enp.next_btn, EINA_TRUE);
-   elm_object_text_set(ui.user_accounts.enp.next_btn, "Produkte auswaehlen");
+   elm_object_text_set(ui.user_accounts.enp.next_btn, "Weiter");
    evas_object_smart_callback_add(ui.user_accounts.enp.next_btn, "clicked", _on_user_accounts_products_btn_click, NULL);
 
    ui.user_accounts.lock_window.win = elm_win_inwin_add(ui.win);

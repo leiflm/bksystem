@@ -80,14 +80,14 @@ Evas_Object *products_page_add(void)
    // Add button to switch back to account selection
    ui.products.enp.prev_btn = elm_button_add(ui.naviframe);
    evas_object_show(ui.products.enp.prev_btn);
-   elm_object_text_set(ui.products.enp.prev_btn, "Zurueck");
+   elm_object_text_set(ui.products.enp.prev_btn, "Zurück");
    evas_object_smart_callback_add(ui.products.enp.prev_btn, "clicked", _on_products_prev_btn_click, NULL);
 
    // Add button to continue to account selection
    ui.products.enp.next_btn = elm_button_add(ui.naviframe);
    elm_object_disabled_set(ui.products.enp.next_btn, EINA_TRUE);
    evas_object_show(ui.products.enp.next_btn);
-   elm_object_text_set(ui.products.enp.next_btn, "Kauf abschliessen");
+   elm_object_text_set(ui.products.enp.next_btn, "Kauf abschließen");
    evas_object_smart_callback_add(ui.products.enp.next_btn, "clicked", _on_products_next_btn_click, NULL);
 
    ui.products.lock_window.win = elm_win_inwin_add(ui.win);
