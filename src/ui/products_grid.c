@@ -1,3 +1,4 @@
+#include <string.h>
 #include <Eina.h>
 #include <Evas.h>
 #include <Elementary.h>
@@ -36,13 +37,22 @@ char *
 grid_text_get(void *data, Evas_Object *obj UNUSED, const char *part UNUSED)
 {
    const Bks_Model_Product *product = (Bks_Model_Product*)data;
-   char buf[256];
+   char buf[256], short_product_name[20];
 
    if (product)
      {
+        if (strlen(product->name) > sizeof(short_product_name))
+        {
+            snprintf(buf, (sizeof(short_product_name) - sizeof("...") - 1), product->name);
+            snprintf(short_product_name, (sizeof(short_product_name) - 1), "%s...", product->name);
+        }
+        else
+        {
+            snprintf(short_product_name, (sizeof(short_product_name) - 1), "%s", product->name);
+        }
         snprintf(buf, (sizeof(buf) - 1), "%s<br>"
                                          "%.2f EUR",
-                                         product->name,
+                                         short_product_name,
                                          product->price);
      }
    else
