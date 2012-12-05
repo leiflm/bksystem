@@ -1,3 +1,4 @@
+#include <string.h>
 #include <Eina.h>
 #include <Evas.h>
 #include <Elementary.h>
@@ -42,7 +43,7 @@ products_list_set(Eina_List *products)
    Elm_Object_Item *it;
    Bks_Model_Product *product;
    static Evas *evas = NULL;
-   static char buf[128];
+   char buf[64], short_product_name[20];
 
    EINA_SAFETY_ON_NULL_RETURN(ui.products.list);
 
@@ -70,7 +71,17 @@ products_list_set(Eina_List *products)
         evas_object_event_callback_add(lbl, EVAS_CALLBACK_DEL, _product_obj_del_cb, product);
         elm_object_text_set(lbl, buf);
         evas_object_show(lbl);
-        it = elm_list_item_append(ui.products.list, product->name, icon, lbl, _on_product_select, NULL);
+        if (strlen(product->name) > sizeof(short_product_name))
+        {
+            snprintf(short_product_name, (sizeof(short_product_name) - 1), "%s", product->name);
+            snprintf(buf, (sizeof(short_product_name) + sizeof("...")), "%s...", short_product_name);
+        }
+        else
+        {
+            snprintf(buf, (sizeof(buf) - 1), "%s", product->name);
+        }
+
+        it = elm_list_item_append(ui.products.list, buf, icon, lbl, _on_product_select, NULL);
         elm_object_item_data_set(it, product);
      }
    elm_list_go(ui.products.list);
