@@ -41,7 +41,7 @@ grid_text_get(void *data, Evas_Object *obj UNUSED, const char *part UNUSED)
    if (product)
      {
         snprintf(buf, (sizeof(buf) - 1), "%s<br>"
-                                         "%.2f Euro",
+                                         "%.2f EUR",
                                          product->name,
                                          product->price);
      }

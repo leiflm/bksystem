@@ -66,7 +66,7 @@ products_list_set(Eina_List *products)
              evas_object_show(icon);
           }
         lbl = elm_label_add(ui.products.list);
-        snprintf(buf, (sizeof(buf) - 1), "%.2f Euro", product->price);
+        snprintf(buf, (sizeof(buf) - 1), "%.2f EUR", product->price);
         evas_object_event_callback_add(lbl, EVAS_CALLBACK_DEL, _product_obj_del_cb, product);
         elm_object_text_set(lbl, buf);
         evas_object_show(lbl);
