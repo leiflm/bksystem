@@ -7,12 +7,7 @@
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
 
-#ifdef DEBUG
 #define LOCK_FILE_PATH "/tmp/bksystem"
-#else
-#define LOCK_FILE_PATH "/var/lock/bksystem"
-#endif
-
 
 /*
  * General description of event sequence:
