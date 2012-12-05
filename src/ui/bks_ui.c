@@ -13,23 +13,10 @@
 
 static void _ui_window_key(void *data, Evas *e, Evas_Object *obj, void *event_info);
 
-void bks_ui_init(int argc, char* argv[])
+static void _main_win_create(void)
 {
-   char buf[PATH_MAX];
-
-   // initialize Elementary
-   elm_init(argc, argv);
-
-   // set app relevant directories
-   elm_app_info_set(main, "bksystem", "images/accounts/locked.png");
-
-   // set overlay for ui elements
-   snprintf(buf, (sizeof(buf) - 1), "%s/elm_overlay.edj", elm_app_data_dir_get());
-   elm_theme_overlay_add(NULL, buf);
-
    // new window - do the usual and give it a name and title
    ui.win = bks_ui_win_add();
-   evas_object_show(ui.win);
 
    // add naviframe
    ui.naviframe = elm_naviframe_add(ui.win);
@@ -73,6 +60,23 @@ void bks_ui_init(int argc, char* argv[])
    //finally set size of window
    evas_object_resize(ui.win, 640, 480);
    //elm_win_fullscreen_set(ui.win, EINA_TRUE);
+}
+
+void bks_ui_init(int argc, char* argv[])
+{
+   char buf[PATH_MAX];
+
+   // initialize Elementary
+   elm_init(argc, argv);
+
+   // set app relevant directories
+   elm_app_info_set(main, "bksystem", "images/accounts/locked.png");
+
+   // set overlay for ui elements
+   snprintf(buf, (sizeof(buf) - 1), "%s/elm_overlay.edj", elm_app_data_dir_get());
+   elm_theme_overlay_add(NULL, buf);
+
+   _main_win_create();
 }
 
 void bks_ui_shutdown(void)
@@ -126,4 +130,14 @@ _ui_window_key(void *data UNUSED, Evas *e UNUSED, Evas_Object *obj UNUSED, void 
         fullscreen_state ^= 1;
         elm_win_fullscreen_set(ui.win, fullscreen_state);
      }
+}
+
+void bks_ui_controller_main_show(void)
+{
+   evas_object_show(ui.win);
+}
+
+void bks_ui_controller_singleton_display(void)
+{
+    _singleton_dialog_display();
 }

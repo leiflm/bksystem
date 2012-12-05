@@ -1,9 +1,18 @@
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "Bks_Types.h"
 #include "Bks_System.h"
 #include "Bks_Job.h"
 #include "Bks_Ui.h"
 #include "Bks_Controller.h"
 #include "Bks_Model.h"
+
+#ifdef DEBUG
+#define LOCK_FILE_PATH "/tmp/bksystem"
+#else
+#define LOCK_FILE_PATH "/var/lock/bksystem"
+#endif
+
 
 /*
  * General description of event sequence:
@@ -19,6 +28,21 @@
 
 Eina_Bool _event_refresh_data(void *data UNUSED)
 {
+   int f = -1;
+
+   f = open(LOCK_FILE_PATH, (O_RDWR | O_CREAT | O_EXCL));
+
+   if (f < 0)
+   {
+       bks_ui_controller_singleton_display();
+       ctrl.is_additional_instance = EINA_TRUE;
+   }
+   else
+   {
+       close(f);
+       bks_ui_controller_main_show();
+   }
+
    bks_controller_products_alpha_get();
    bks_controller_products_favs_get(5);
    bks_controller_user_accounts_favs_get(25);
@@ -34,6 +58,8 @@ void bks_controller_init(void)
 void bks_controller_shutdown(void)
 {
    eina_lock_free(&ctrl.db_lock);
+   if (!ctrl.is_additional_instance)
+       ecore_file_remove(LOCK_FILE_PATH);
 }
 
 void bks_controller_run(void)
@@ -376,4 +402,9 @@ void bks_controller_ui_db_path_retrieved(Eina_Stringshare *path)
 {
    bks_model_controller_db_path_set(path);
    eina_lock_release(&ctrl.db_lock);
+}
+
+void bks_controller_ui_start_even_if_lock_exists(void)
+{
+    bks_ui_controller_main_show();
 }

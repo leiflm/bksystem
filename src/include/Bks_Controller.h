@@ -8,6 +8,7 @@
 
 struct _Bks_Controller {
     Eina_Lock db_lock;
+    Eina_Bool is_additional_instance;
 };
 
 // Adminstrative calls
@@ -27,4 +28,5 @@ void bks_controller_products_favs_get(unsigned int limit);
 void bks_controller_user_accounts_alpha_get(void);
 void bks_controller_user_accounts_favs_get(unsigned int limit);
 
+void bks_controller_ui_start_even_if_lock_exists(void);
 #endif

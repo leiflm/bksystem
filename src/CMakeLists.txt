@@ -23,6 +23,7 @@ LIST(APPEND BKSYSTEM_CC_SOURCES
     model/bks_model.c
     ui/elm_utils.c
     ui/win.c
+    ui/singleton.c
     ui/controller.c
     ui/fileselector.c
     ui/notification.c

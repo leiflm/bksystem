@@ -19,6 +19,8 @@ typedef struct _Bks_Ui_Product_Selected {
 
 Evas_Object *bks_ui_win_add(void);
 
+void _singleton_dialog_display(void);
+
 // user acounts page related functions
 Evas_Object *user_accounts_page_add(void);
 void user_accounts_page_set(Eina_List *user_accounts);

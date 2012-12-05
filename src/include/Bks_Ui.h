@@ -56,6 +56,18 @@ void bks_ui_init(int argc, char *argv[]);
 void bks_ui_shutdown(void);
 
 /**
+ * @brief Displays a confirmation dialog if an instance is already running.
+ *
+ */
+void bks_ui_controller_singleton_display();
+
+/**
+ * @brief show the main ui.
+ *
+ */
+void bks_ui_controller_main_show(void);
+
+/**
  * @brief Clears the ui elements (lists, etc.). Selected elements and accounts
  * are reset as well.
  */
