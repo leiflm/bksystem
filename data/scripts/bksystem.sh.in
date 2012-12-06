@@ -64,25 +64,25 @@
 
       # adjust if necessary (for crontab) or permanent links
       # for temorary links overwrite with export (all BKS_* will be set to $DEF_* unless already set) 
-      DEF_ROOT_DIR="${HOME}/Projekte/bksystem"
+      DEF_ROOT_DIR="${HOME}/bksystem"
       # Database
       DEF_DB_DIR="${DEF_ROOT_DIR}/build"
       DEF_DB_NAME="bksystem.sqlite"
       # Scripts are located here
-      DEF_SCR_DIR="${DEF_ROOT_DIR}/scripts"
+      DEF_SCR_DIR=@CMAKE_CURRENT_BINARY_DIR/data/bksystem/
       # bills
       DEF_ADD_DATE_BILL_DIR=1 # USE subdir and add the current date to the BILL_SUB_DIR_NAME: 0 disabled/ 1 enabled
                               # get something like DEF_ROOT_DIR/DEF_BILL_DIR_NAME/DEF_SUB_DIR_NAME_DATE/file.csv
                               #
       DEF_BILL_SUB_DIR_NAME="Abrechnungen" #create a subdir for each bill: disable subdir with "."
-      DEF_BILL_DIR="${DEF_ROOT_DIR}/build/bills"
+      DEF_BILL_DIR="${DEF_ROOT_DIR}/bills"
       # temporary dir
-      DEF_TMP_DIR="${DEF_ROOT_DIR}/build/tmp"
+      DEF_TMP_DIR="/tmp/bksystem"
       # here will be the log file
-      DEF_LOG_DIR="${DEF_ROOT_DIR}/build/log" # send to console with -c option
+      DEF_LOG_DIR="${DEF_ROOT_DIR}/log" # send to console with -c option
       DEF_LOG_FILE="bill_script.log"
       # here will be the backup
-      DEF_BKP_DIR="${DEF_ROOT_DIR}/build/bkp"
+      DEF_BKP_DIR="${DEF_ROOT_DIR}/backup"
 
    # enable/disable scripts permanently here, tmp use options
       # enabled: VARNAME=1
