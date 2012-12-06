@@ -69,7 +69,7 @@
       DEF_DB_DIR="${DEF_ROOT_DIR}/build"
       DEF_DB_NAME="bksystem.sqlite"
       # Scripts are located here
-      DEF_SCR_DIR=@CMAKE_CURRENT_BINARY_DIR/data/bksystem/
+      DEF_SCR_DIR="@CMAKE_INSTALL_PREFIX@/share/data/bksystem/scripts/"
       # bills
       DEF_ADD_DATE_BILL_DIR=1 # USE subdir and add the current date to the BILL_SUB_DIR_NAME: 0 disabled/ 1 enabled
                               # get something like DEF_ROOT_DIR/DEF_BILL_DIR_NAME/DEF_SUB_DIR_NAME_DATE/file.csv

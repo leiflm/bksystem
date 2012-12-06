@@ -11,7 +11,7 @@ add_custom_target(
 
 configure_file(
                 "${PROJECT_SOURCE_DIR}/data/scripts/bksystem.sh.in" 
-                "${CMAKE_CURRENT_BIN_DIR}/share/${CMAKE_PROJECT_NAME}/bksystem.sh"
+                "${PROJECT_SOURCE_DIR}/data/scripts/bksystem.sh" 
                 @ONLY)
 
 install (FILES "${PROJECT_SOURCE_DIR}/data/empty.sqlite"
@@ -24,14 +24,14 @@ install (FILES "${PROJECT_SOURCE_DIR}/data/images/accounts/locked.png"
 install (FILES "${PROJECT_SOURCE_DIR}/data/bksystem.desktop"
     DESTINATION "share/applications")
 install (PROGRAMS "${PROJECT_SOURCE_DIR}/data/scripts/backup.sh"
-                  "${CMAKE_CURRENT_BIN_DIR}/data/scripts/bksystem.sh"
+                  "${PROJECT_SOURCE_DIR}/data/scripts/bksystem.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/export_bill_basic.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/export_bill_complete_comb.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/export_bill_complete_sep.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/export_bill_html.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/insert_bill_reference_date_into_db.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/restore_db.sh"
-         DESTINATION "share/${CMAKE_PROJECT_NAME}")
+         DESTINATION "share/${CMAKE_PROJECT_NAME}/scripts")
 install (FILES "${PROJECT_SOURCE_DIR}/data/scripts/layout.css"
                "${PROJECT_SOURCE_DIR}/data/scripts/sub_txt_tmpl"
          DESTINATION "share/${CMAKE_PROJECT_NAME}")
