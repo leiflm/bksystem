@@ -11,7 +11,7 @@ add_custom_target(
 
 configure_file(
                 "${PROJECT_SOURCE_DIR}/data/scripts/bksystem.sh.in" 
-                "${PROJECT_SOURCE_DIR}/data/scripts/bksystem.sh" 
+                "${CMAKE_CURRENT_BINARY_DIR}/data/scripts/bksystem.sh" 
                 @ONLY)
 
 install (FILES "${PROJECT_SOURCE_DIR}/data/empty.sqlite"
@@ -24,7 +24,7 @@ install (FILES "${PROJECT_SOURCE_DIR}/data/images/accounts/locked.png"
 install (FILES "${PROJECT_SOURCE_DIR}/data/bksystem.desktop"
     DESTINATION "share/applications")
 install (PROGRAMS "${PROJECT_SOURCE_DIR}/data/scripts/backup.sh"
-                  "${PROJECT_SOURCE_DIR}/data/scripts/bksystem.sh"
+                  "${CMAKE_CURRENT_BINARY_DIR}/data/scripts/bksystem.sh" 
                   "${PROJECT_SOURCE_DIR}/data/scripts/export_bill_basic.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/export_bill_complete_comb.sh"
                   "${PROJECT_SOURCE_DIR}/data/scripts/export_bill_complete_sep.sh"
