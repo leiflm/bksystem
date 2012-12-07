@@ -11,7 +11,7 @@
 #define EXPAND_AND_FILL(o) EXPAND(o);\
                            FILL(o)
 
-#define MAIN_WINDOW_NAME "Bierkellersystem"
+#define MAIN_WINDOW_NAME "bksystem"
 
 // Structure to manage quantity of selected products in the UI
 typedef struct _Bks_Ui_Product_Selected {
@@ -60,5 +60,7 @@ Eina_List *_products_selected_list_products_get(void);
 void products_list_reset(void);
 
 void _products_selected_product_add(const Bks_Model_Product *product);
+
+Ecore_X_Window get_win_by_name(Ecore_X_Window parent, const char *name);
 
 #endif

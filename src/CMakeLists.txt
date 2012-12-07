@@ -23,6 +23,7 @@ LIST(APPEND BKSYSTEM_CC_SOURCES
     model/bks_model_sql.c
     model/bks_model.c
     ui/elm_utils.c
+    ui/utils.c
     ui/win.c
     ui/singleton.c
     ui/controller.c

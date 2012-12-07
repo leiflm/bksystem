@@ -77,34 +77,27 @@ void _singleton_dialog_display(void)
 
 Eina_Bool _singleton_find_and_raise_main_dialog(void)
 {
-    Ecore_X_Window root, *roots, *windows;
-    int nwin, i;
-    char *nname;
+    Ecore_X_Window *roots, win;
+    int nroot, i;
     Eina_Bool found = EINA_FALSE;
 
     // Try to find window of the other instance and raise it
     ecore_x_init(NULL);
 
-    roots = ecore_x_window_root_list(NULL);
-    root = roots[0]; 
-    free(roots);
-    windows = ecore_x_window_children_get(root, &nwin);
-
-    for (i = 0; i < nwin; i++)
+    roots = ecore_x_window_root_list(&nroot);
+    for (i = 0; i < nroot; i++)
     {
-        ecore_x_icccm_name_class_get(windows[i], &nname, NULL);
-        if (strncmp(nname, MAIN_WINDOW_NAME, sizeof(MAIN_WINDOW_NAME - 1)) == 0)
-            found = EINA_TRUE;
-        free(nname);
-        if (found)
+        win = get_win_by_name(roots[i], "bksystem");
+        if (win != 0)
         {
-            ecore_x_window_raise(windows[i]);
-            ecore_x_window_focus(windows[i]);
+            found = EINA_TRUE;
+            ecore_x_window_show(win);
+            ecore_x_window_raise(win);
+            ecore_x_window_focus(win);
             break;
         }
     }
-    free(windows);
-
+    free(roots);
     ecore_x_shutdown();
 
     return found;

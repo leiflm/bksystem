@@ -38,8 +38,8 @@ Eina_Bool _event_refresh_data(void *data UNUSED)
     */
    if (f < 0)
    {
-       bks_ui_controller_singleton_display();
        ctrl.is_primary_instance = EINA_FALSE;
+       bks_ui_controller_singleton_display();
    }
    else
    {
@@ -413,7 +413,10 @@ void bks_controller_ui_start_even_if_lock_exists(void)
 {
     // If another instance is found running, raise it and exit this instance
     if (bks_ui_controller_singleton_raised())
+    {
         ecore_main_loop_quit();
+        return;
+    }
     ctrl.is_primary_instance = EINA_TRUE;
     bks_ui_controller_main_show();
 }

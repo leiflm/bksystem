@@ -75,8 +75,6 @@ void bks_ui_init(int argc, char* argv[])
    // set overlay for ui elements
    snprintf(buf, (sizeof(buf) - 1), "%s/elm_overlay.edj", elm_app_data_dir_get());
    elm_theme_overlay_add(NULL, buf);
-
-   _main_win_create();
 }
 
 void bks_ui_shutdown(void)
@@ -134,6 +132,7 @@ _ui_window_key(void *data UNUSED, Evas *e UNUSED, Evas_Object *obj UNUSED, void 
 
 void bks_ui_controller_main_show(void)
 {
+   _main_win_create();
    evas_object_show(ui.win);
 }
 
