@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(bksystem C)
 set(VMAJ 0)
 set(VMIN 1)
-set(VMIC 3)
+set(VMIC 4)
 
 set(PACKAGE ${CMAKE_PROJECT_NAME})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
