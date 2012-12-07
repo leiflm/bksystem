@@ -8,7 +8,7 @@
 
 struct _Bks_Controller {
     Eina_Lock db_lock;
-    Eina_Bool is_additional_instance;
+    Eina_Bool is_primary_instance;
 };
 
 // Adminstrative calls

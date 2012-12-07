@@ -27,10 +27,19 @@ Eina_Bool _event_refresh_data(void *data UNUSED)
 
    f = open(LOCK_FILE_PATH, (O_RDWR | O_CREAT | O_EXCL));
 
+   /*
+    * Single instance approach:
+    * 1. Try to take lock
+    *   on success: continue normally
+    *   on failure and user wants to open anyway:
+    *       Try to find window of the other instance
+    *       1. If found, raise it
+    *       2. If not found, carry on normally, lock file is a left over
+    */
    if (f < 0)
    {
        bks_ui_controller_singleton_display();
-       ctrl.is_additional_instance = EINA_TRUE;
+       ctrl.is_primary_instance = EINA_FALSE;
    }
    else
    {
@@ -48,12 +57,13 @@ Eina_Bool _event_refresh_data(void *data UNUSED)
 void bks_controller_init(void)
 {
    eina_lock_new(&ctrl.db_lock);
+   ctrl.is_primary_instance = EINA_TRUE;
 }
 
 void bks_controller_shutdown(void)
 {
    eina_lock_free(&ctrl.db_lock);
-   if (!ctrl.is_additional_instance)
+   if (ctrl.is_primary_instance)
        ecore_file_remove(LOCK_FILE_PATH);
 }
 
@@ -401,5 +411,9 @@ void bks_controller_ui_db_path_retrieved(Eina_Stringshare *path)
 
 void bks_controller_ui_start_even_if_lock_exists(void)
 {
+    // If another instance is found running, raise it and exit this instance
+    if (bks_ui_controller_singleton_raised())
+        ecore_main_loop_quit();
+    ctrl.is_primary_instance = EINA_TRUE;
     bks_ui_controller_main_show();
 }

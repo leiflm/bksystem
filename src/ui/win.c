@@ -14,7 +14,7 @@ Evas_Object *bks_ui_win_add(void)
 {
    Evas_Object *win;
 
-   win = elm_win_util_standard_add("bierkellersystem", "Bierkellersystem");
+   win = elm_win_util_standard_add("bierkellersystem", MAIN_WINDOW_NAME);
 
    // when the user clicks "close" on a window there is a request to delete
    evas_object_smart_callback_add(win, "delete,request", win_on_done, NULL);

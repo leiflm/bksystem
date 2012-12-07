@@ -13,3 +13,8 @@ void bks_ui_controller_sale_finished(Bks_Model_Sale *sale)
    _bks_ui_sale_notification_set(sale);
    bks_model_sale_free(sale);
 }
+
+Eina_Bool bks_ui_controller_singleton_raised(void)
+{
+    return _singleton_find_and_raise_main_dialog();
+}

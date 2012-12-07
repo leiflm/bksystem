@@ -1,5 +1,6 @@
 #include <Elementary.h>
 #include <Evas.h>
+#include <Ecore_X.h>
 #include "Bks_System.h"
 #include "Bks_Ui.h"
 #include "Bks_Ui_Private.h"
@@ -72,4 +73,39 @@ void _singleton_dialog_display(void)
 
    evas_object_resize(win, 320, 120);
    evas_object_show(win);
+}
+
+Eina_Bool _singleton_find_and_raise_main_dialog(void)
+{
+    Ecore_X_Window root, *roots, *windows;
+    int nwin, i;
+    char *nname;
+    Eina_Bool found = EINA_FALSE;
+
+    // Try to find window of the other instance and raise it
+    ecore_x_init(NULL);
+
+    roots = ecore_x_window_root_list(NULL);
+    root = roots[0]; 
+    free(roots);
+    windows = ecore_x_window_children_get(root, &nwin);
+
+    for (i = 0; i < nwin; i++)
+    {
+        ecore_x_icccm_name_class_get(windows[i], &nname, NULL);
+        if (strncmp(nname, MAIN_WINDOW_NAME, sizeof(MAIN_WINDOW_NAME - 1)) == 0)
+            found = EINA_TRUE;
+        free(nname);
+        if (found)
+        {
+            ecore_x_window_raise(windows[i]);
+            ecore_x_window_focus(windows[i]);
+            break;
+        }
+    }
+    free(windows);
+
+    ecore_x_shutdown();
+
+    return found;
 }

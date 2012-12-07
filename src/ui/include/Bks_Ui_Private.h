@@ -11,6 +11,8 @@
 #define EXPAND_AND_FILL(o) EXPAND(o);\
                            FILL(o)
 
+#define MAIN_WINDOW_NAME "Bierkellersystem"
+
 // Structure to manage quantity of selected products in the UI
 typedef struct _Bks_Ui_Product_Selected {
     const Bks_Model_Product *product;

@@ -62,6 +62,13 @@ void bks_ui_shutdown(void);
 void bks_ui_controller_singleton_display();
 
 /**
+ * @brief Tries to find and raise potential other instance of BKSystem
+ * @return EINA_TRUE if another instance was found running and could be raised
+ *
+ */
+Eina_Bool bks_ui_controller_singleton_raised(void);
+
+/**
  * @brief show the main ui.
  *
  */
