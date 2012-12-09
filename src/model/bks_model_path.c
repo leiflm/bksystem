@@ -64,7 +64,7 @@ char *_bks_model_path_get(void) {
    i = 0;
    if (fp) {
       c = fgetc(fp);
-      while (c != EOF && i < (MAX_PATH - 1)) {
+      while (c != EOF && c != '\n' && i < (MAX_PATH - 1)) {
          *(path + i) = c;
          i++;
          c = fgetc(fp);   
@@ -92,6 +92,7 @@ static void _bks_model_path_save_cb(void *data, Ecore_Thread *th UNUSED) {
    fp = fopen(fname, "w");
    if (fp) {
        fputs(path, fp);
+       fputc('\n', fp);
        fclose(fp);
    } else {
       fprintf(stderr, "cannot open path file: %s \n", fname);
