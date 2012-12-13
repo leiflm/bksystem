@@ -425,21 +425,28 @@ CREATE TRIGGER 'check_perform_sale'
        WHEN NEW.user_account_id NOT IN (SELECT id FROM user_accounts)
        THEN RAISE(ROLLBACK, 'User does not exist in user_accounts table.')
       END;
-   END; 
+   END;
+
 CREATE TRIGGER 'update_products'
    AFTER UPDATE ON 'products'
+   FOR EACH ROW
+      WHEN OLD.updated_at >= NEW.updated_at OR NEW.id <> OLD.id
    BEGIN
-     UPDATE products SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
+      UPDATE products SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
    END;
 
 CREATE TRIGGER 'update_user_accounts'
    AFTER UPDATE ON 'user_accounts'
+   FOR EACH ROW
+      WHEN OLD.updated_at >= NEW.updated_at OR NEW.id <> OLD.id
    BEGIN
-     UPDATE user_accounts SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
+      UPDATE user_accounts SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
    END;
 
 CREATE TRIGGER 'update_sales'
    AFTER UPDATE ON 'sales'
+   FOR EACH ROW
+      WHEN OLD.updated_at >= NEW.updated_at OR NEW.id <> OLD.id
    BEGIN
      UPDATE sales SET id = OLD.id, created_at = OLD.created_at, updated_at = datetime('now','localtime') WHERE NEW.id=id;
    END;  
