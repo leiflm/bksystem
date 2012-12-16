@@ -45,11 +45,10 @@ Eina_Bool _event_refresh_data(void *data UNUSED)
    {
        close(f);
        bks_ui_controller_main_show();
+      bks_controller_products_alpha_get();
+      bks_controller_products_favs_get(5);
+      bks_controller_user_accounts_favs_get(25);
    }
-
-   bks_controller_products_alpha_get();
-   bks_controller_products_favs_get(5);
-   bks_controller_user_accounts_favs_get(25);
 
    return ECORE_CALLBACK_CANCEL;
 }
@@ -122,7 +121,7 @@ _products_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
          bks_ui_controller_products_page_alpha_set((Eina_List*)job->data);
          bks_job_free(job);
 #ifdef DEBUG
-         printf("DB access was successful!\n");
+         printf("DB access was successful for alpha products!\n");
 #endif
          break;
       default:
@@ -184,7 +183,7 @@ _products_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
          bks_ui_controller_products_page_favs_set((Eina_List*)job->data);
          bks_job_free(job);
 #ifdef DEBUG
-         printf("DB access was successful!\n");
+         printf("DB access was successful for fav products!\n");
 #endif
          break;
       default:
@@ -246,7 +245,7 @@ _user_accounts_favs_get_finished(void *data, Ecore_Thread *th UNUSED)
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
          bks_job_free(job);
 #ifdef DEBUG
-         printf("DB access was successful!\n");
+         printf("DB access was successful for fav users!\n");
 #endif
          break;
       default:
@@ -304,7 +303,7 @@ _user_accounts_alpha_get_finished(void *data, Ecore_Thread *th UNUSED)
          bks_ui_controller_user_accounts_page_set((Eina_List*)job->data);
          bks_job_free(job);
 #ifdef DEBUG
-         printf("DB access was successful!\n");
+         printf("DB access was successful for alpha users!\n");
 #endif
          break;
       default:
@@ -360,7 +359,7 @@ void _sale_finished(void *data, Ecore_Thread *th UNUSED)
       case BKS_MODEL_SQLITE_OK:
          sale->status = BKS_MODEL_SALE_DONE;
 #ifdef DEBUG
-         printf("DB access was successful!\n");
+         printf("DB access was successful for sale!\n");
 #endif
          break;
       default:
@@ -419,4 +418,7 @@ void bks_controller_ui_start_even_if_lock_exists(void)
     }
     ctrl.is_primary_instance = EINA_TRUE;
     bks_ui_controller_main_show();
+   bks_controller_products_alpha_get();
+   bks_controller_products_favs_get(5);
+   bks_controller_user_accounts_favs_get(25);
 }
