@@ -5,14 +5,16 @@
 void
 elm_list_selection_clear(Evas_Object *elm_list)
 {
-   const Eina_List *iter, *list;
+   Eina_List *list, *iter, *lnext;
    Elm_Object_Item *eoi;
 
    if (!elm_list) return;
 
    list = elm_list_selected_items_get(elm_list);
    //deselect all items
-   EINA_LIST_FOREACH(list, iter, eoi)
+   //EINA_SAFETY_ON_NULL_RETURN(list);
+
+   EINA_LIST_FOREACH_SAFE(list, iter, lnext, eoi)
      {
         if (elm_list_item_selected_get(eoi))
           elm_list_item_selected_set(eoi, EINA_FALSE);
