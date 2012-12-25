@@ -4,7 +4,6 @@ Makefile
 */Makefile
 CMakeFiles/
 CMakeCache*
-*.cmake
 db_path.txt
 *~
 *DS_Store*
