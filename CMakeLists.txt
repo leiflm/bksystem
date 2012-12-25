@@ -14,7 +14,12 @@ find_package(Ecore_X REQUIRED)
 find_package(Efreet REQUIRED)
 find_package(Evas REQUIRED)
 find_package(Threads REQUIRED)
+find_package(Eet REQUIRED)
+find_package(Edje REQUIRED)
+find_package(Edbus REQUIRED)
+find_package(Ethumb REQUIRED)
 find_package(Elementary REQUIRED)
+find_package(Evas REQUIRED)
 find_package(Sqlite3 REQUIRED)
 
 ADD_DEFINITIONS(-DPACKAGE_BIN_DIR="${CMAKE_INSTALL_PREFIX}/bin"

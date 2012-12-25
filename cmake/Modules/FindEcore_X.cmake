@@ -3,7 +3,7 @@
 
    find_path(ECORE_X_INCLUDE_DIR Ecore_X.h
              HINTS ${PC_LIBECORE_X_INCLUDEDIR} ${PC_LIBECORE_X_INCLUDE_DIRS}
-             PATH_SUFFIXES ecore )
+             PATH_SUFFIXES ecore-1 )
 
    find_library(ECORE_X_LIBRARY NAMES ecore_x
                 HINTS ${PC_LIBECORE_X_LIBDIR} ${PC_LIBECORE_X_LIBRARY_DIRS} )
